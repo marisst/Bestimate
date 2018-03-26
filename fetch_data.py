@@ -9,6 +9,7 @@ import xml.etree.ElementTree as et
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution = 1"
 UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution != 1"
+FIELDS = "summary,description,timespent,project"
 
 def create_folder(respository_name):
 
@@ -59,7 +60,7 @@ def fetch_slice(url, auth, jql, startAt, maxResults):
     params = {
         "startAt" : startAt,
         "maxResults" : maxResults,
-        "fields" : "summary,description,timespent",
+        "fields" : FIELDS,
         "expand" : "",
         "jql" : jql
     }
@@ -94,8 +95,11 @@ def save_slice(filename, data_slice):
             
             feature = et.SubElement(item, key)
 
-            # convert to string and escape invelid XML characters
-            feature.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', str(field_value))
+            if key == 'project':
+                feature.text = field_value.get('key')
+            else:
+                # convert to string and escape invelid XML characters
+                feature.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', str(field_value))
 
         xmlRoot.append(item)
 
