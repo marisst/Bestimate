@@ -1,8 +1,7 @@
 # Bestimate
 Automated software development task estimation plugin for JIRA
 
-## Fetching data from JIRA repositories
-Fetching data from JIRA repository:
+## Fetching data from JIRA repository
 ```
 python fetch_data.py folder_name jira.repositoryname.com
 ```
