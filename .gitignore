@@ -38,5 +38,4 @@ Thumbs.db
 
 # User defined directories and files #
 ######################################
-preprocessed-data/*
-! README.md
+data/
