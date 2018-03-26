@@ -8,7 +8,7 @@ import xml.etree.ElementTree as et
 
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution = 1"
-UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or and resolution != 1"
+UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution != 1"
 
 def create_folder(respository_name):
 
@@ -52,7 +52,8 @@ def print_issue_counts(url, auth):
     total_issues = get_number_of_issues(url, auth)
     total_labeled_issues = get_number_of_issues(url, auth, LABELED_DATA_JQL)
     labeling_coverage = total_labeled_issues / total_issues * 100 if total_issues > 0 else 0
-    print("This repository contains %d issues in total of which %d (%.2f%%) of the issues are labeled." % (total_issues, total_labeled_issues, labeling_coverage))
+    issue_statement = "This repository contains %d issues in total of which %d (%.2f%%) are labeled."
+    print(issue_statement % (total_issues, total_labeled_issues, labeling_coverage))
 
 def fetch_slice(url, auth, jql, startAt, maxResults):
     params = {
