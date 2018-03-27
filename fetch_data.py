@@ -1,10 +1,10 @@
-import re
+import json
 import os
+import re
 import requests
+import shutil
 import sys
 import system_constants
-import shutil
-import xml.etree.ElementTree as et
 
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution = 1"
@@ -79,31 +79,26 @@ def fetch_slice(url, auth, jql, startAt, maxResults):
 def save_slice(filename, data_slice):
 
     if os.path.isfile(filename):
-        tree = et.parse(filename)
-        xmlRoot = tree.getroot()
+        data = json.load(open(filename))
     else:
-        xmlRoot = et.Element(system_constants.XML_ROOT_NAME)
-        tree = et.ElementTree(xmlRoot)
+        data = []
 
     for datapoint in data_slice:
-        item = et.Element(system_constants.XML_ITEM_NAME)
-
+        element = {}
         for key, field_value in datapoint.items():
             
             if field_value == None:
                 continue
-            
-            feature = et.SubElement(item, key)
 
             if key == 'project':
-                feature.text = field_value.get('key')
+                element[key] = field_value.get('key')
             else:
-                # convert to string and escape invelid XML characters
-                feature.text = re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', str(field_value))
+                element[key] = str(field_value)
 
-        xmlRoot.append(item)
+        data.append(element)
 
-    tree.write(filename)
+    with open(filename, 'w') as file:
+        json.dump(data, file)
 
 def fetch_and_save_issues(target_file, url, auth, jql=""):
 
@@ -134,10 +129,10 @@ def fetch_data(respository_name, url):
     auth = get_auth()
     print_issue_counts(endpoint_url, auth)
 
-    labeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.LABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.XML_FILE_EXTENSION)
+    labeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.LABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.DATA_FILE_EXTENSION)
     saved_labeled_issues = fetch_and_save_issues(labeled_xml_filename, endpoint_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.UNLABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.XML_FILE_EXTENSION)
+    unlabeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.UNLABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.DATA_FILE_EXTENSION)
     saved_unlabeled_issues = fetch_and_save_issues(unlabeled_xml_filename, endpoint_url, auth, UNLABELED_DATA_JQL)
 
     if saved_labeled_issues + saved_unlabeled_issues > 0:
