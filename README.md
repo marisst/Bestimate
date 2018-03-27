@@ -1,5 +1,5 @@
 # Bestimate
-Automated software development task estimation plugin for JIRA
+Automated software development task estimation
 
 ## Fetching data from JIRA repository
 ```
