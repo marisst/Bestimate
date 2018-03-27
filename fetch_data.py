@@ -7,23 +7,23 @@ import sys
 import system_constants
 
 MAX_RECORDS_PER_REQUEST = 50
-LABELED_DATA_JQL = "timespent > 0 and resolution = 1"
-UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution != 1"
+LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
+UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
 FIELDS = "summary,description,timespent,project"
 
-def create_folder(respository_name):
+def create_folder(dataset_name):
 
     if not os.path.exists(system_constants.DATA_FOLDER):
         os.makedirs(system_constants.DATA_FOLDER)
     
-    repository_data_folder = "%s/%s" % (system_constants.DATA_FOLDER, respository_name)
-    if os.path.exists(repository_data_folder):
-        if input("%s already exists, do you want to remove it's contents? (y/n) " % repository_data_folder) != "y":
+    dataset_folder = system_constants.get_folder_name(dataset_name)
+    if os.path.exists(dataset_folder):
+        if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
             sys.exit()
-        shutil.rmtree(repository_data_folder)
-    os.makedirs(repository_data_folder)
+        shutil.rmtree(dataset_folder)
+    os.makedirs(dataset_folder)
 
-    return repository_data_folder
+    return dataset_folder
 
 def get_auth():
 
@@ -32,31 +32,40 @@ def get_auth():
     if authorize:
         username = input("Username: ")
         api_token = input("API token: ")
-    auth = (username, api_token) if authorize else None
 
-def get_number_of_issues(url, auth, jql=""):
+    return (username, api_token) if authorize is True else None
+
+def get_number_of_issues(repository_search_url, auth, jql=""):
     
     params = {
         "maxResults" : "0",
         "jql" : jql
     }
-    response = requests.get(url, params=params, auth=auth)
 
-    if response.status_code == 200:
-        return response.json().get("total")
-    return 0
+    response = requests.get(repository_search_url, params=params, auth=auth)
 
-def print_issue_counts(url, auth):
+    if response.status_code != 200:
+        print("%s returned unexpected status code %d when trying to get number of issues with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
+
+        error_messages = response.json().get("errorMessages")
+        if error_messages is not None and len(error_messages) > 0:
+            print('\n'.join(error_messages))
+
+        return 0
+
+    return response.json().get("total")
+
+def print_issue_counts(repository_search_url, auth):
 
     print("Fetching the number of total issues")
 
-    total_issues = get_number_of_issues(url, auth)
-    total_labeled_issues = get_number_of_issues(url, auth, LABELED_DATA_JQL)
+    total_issues = get_number_of_issues(repository_search_url, auth)
+    total_labeled_issues = get_number_of_issues(repository_search_url, auth, LABELED_DATA_JQL)
     labeling_coverage = total_labeled_issues / total_issues * 100 if total_issues > 0 else 0
     issue_statement = "This repository contains %d issues in total of which %d (%.2f%%) are labeled."
     print(issue_statement % (total_issues, total_labeled_issues, labeling_coverage))
 
-def fetch_slice(url, auth, jql, startAt, maxResults):
+def fetch_slice(repository_search_url, auth, jql, startAt, maxResults):
     params = {
         "startAt" : startAt,
         "maxResults" : maxResults,
@@ -65,8 +74,16 @@ def fetch_slice(url, auth, jql, startAt, maxResults):
         "jql" : jql
     }
 
-    json_response = requests.get(url, params=params, auth=auth).json()
+    response = requests.get(repository_search_url, params=params, auth=auth)
 
+    if response.status_code != 200:
+        print("%s returned unexpected status code %d when trying to fetch slice with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
+
+        error_messages = response.json().get("errorMessages")
+        if error_messages is not None and len(error_messages) > 0:
+            print('\n'.join(error_messages))
+
+    json_response = response.json()
     issues = json_response.get("issues")
     total = json_response.get("total")
 
@@ -100,7 +117,7 @@ def save_slice(filename, data_slice):
     with open(filename, 'w') as file:
         json.dump(data, file)
 
-def fetch_and_save_issues(target_file, url, auth, jql=""):
+def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
     slice_num = 0
     total_issues = 0
@@ -108,7 +125,7 @@ def fetch_and_save_issues(target_file, url, auth, jql=""):
     while slice_num * MAX_RECORDS_PER_REQUEST <= total_issues:
 
         startAt = slice_num * MAX_RECORDS_PER_REQUEST
-        data_slice, total_issues = fetch_slice(url, auth, jql, startAt, MAX_RECORDS_PER_REQUEST)
+        data_slice, total_issues = fetch_slice(repository_search_url, auth, jql, startAt, MAX_RECORDS_PER_REQUEST)
         if total_issues > 0:
             save_slice(target_file, data_slice)   
 
@@ -121,22 +138,22 @@ def fetch_and_save_issues(target_file, url, auth, jql=""):
 
     return total_issues     
 
-def fetch_data(respository_name, url):
+def fetch_data(dataset_name, repository_base_url):
 
-    target_folder = create_folder(respository_name)
+    dataset_folder = create_folder(dataset_name)
 
-    endpoint_url = system_constants.HTTPS_PREFIX + url + system_constants.JIRA_REST + system_constants.JIRA_SEARCH
+    repository_search_url = system_constants.URL_PREFIX + repository_base_url + system_constants.JIRA_REST + system_constants.JIRA_SEARCH
     auth = get_auth()
-    print_issue_counts(endpoint_url, auth)
+    print_issue_counts(repository_search_url, auth)
 
-    labeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.LABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.DATA_FILE_EXTENSION)
-    saved_labeled_issues = fetch_and_save_issues(labeled_xml_filename, endpoint_url, auth, LABELED_DATA_JQL)
+    labeled_data_filename = system_constants.get_labeled_raw_filename(dataset_name)
+    labeled_issue_count = fetch_and_save_issues(labeled_data_filename, repository_search_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_xml_filename = "%s/%s_%s_%s%s" % (target_folder, respository_name, system_constants.UNLABELED_FILENAME, system_constants.RAW_POSTFIX, system_constants.DATA_FILE_EXTENSION)
-    saved_unlabeled_issues = fetch_and_save_issues(unlabeled_xml_filename, endpoint_url, auth, UNLABELED_DATA_JQL)
+    unlabeled_data_filename = system_constants.get_unlabeled_raw_filename(dataset_name)
+    unlabeled_issue_count = fetch_and_save_issues(unlabeled_data_filename, repository_search_url, auth, UNLABELED_DATA_JQL)
 
-    if saved_labeled_issues + saved_unlabeled_issues > 0:
-        print("%d labeled and %d unlabeled issues from %s were fetched and saved in %s" % (saved_labeled_issues, saved_unlabeled_issues, url, target_folder))
+    if labeled_issue_count + unlabeled_issue_count > 0:
+        print("%d labeled and %d unlabeled issues from %s were fetched and saved in %s" % (labeled_issue_count, unlabeled_issue_count, repository_base_url, dataset_folder))
 
 sys_argv_count = len(sys.argv)
 
@@ -144,5 +161,5 @@ if sys_argv_count == 3:
     fetch_data(sys.argv[1], sys.argv[2])
     sys.exit()
 
-print("Please pass 2 arguments to this script:\n1. JIRA repository name that will be used as folder name for the retrieved data\n2. JIRA repository URL")
-print("Example request: python fetch_data.py myrepo myrepository.atlassian.net")
+print("Please pass 2 arguments to this script:\n1. Dataset name that will be used as folder name\n2. JIRA repository URL")
+print("Example request: python fetch_data.py dataset_name jira.repositoryname.com")
