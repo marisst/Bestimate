@@ -1,22 +1,21 @@
-import json
+import csv
 import os
 import re
 import requests
 import shutil
 import sys
-import system_constants
+import constants
 
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
 UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
-FIELDS = "summary,description,timespent,project"
 
 def create_folder(dataset_name):
 
-    if not os.path.exists(system_constants.DATA_FOLDER):
-        os.makedirs(system_constants.DATA_FOLDER)
+    if not os.path.exists(constants.DATA_FOLDER):
+        os.makedirs(constants.DATA_FOLDER)
     
-    dataset_folder = system_constants.get_folder_name(dataset_name)
+    dataset_folder = constants.get_folder_name(dataset_name)
     if os.path.exists(dataset_folder):
         if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
             sys.exit()
@@ -69,7 +68,7 @@ def fetch_slice(repository_search_url, auth, jql, startAt, maxResults):
     params = {
         "startAt" : startAt,
         "maxResults" : maxResults,
-        "fields" : FIELDS,
+        "fields" : ",".join(constants.FIELD_KEYS),
         "expand" : "",
         "jql" : jql
     }
@@ -95,10 +94,7 @@ def fetch_slice(repository_search_url, auth, jql, startAt, maxResults):
 
 def save_slice(filename, data_slice):
 
-    if os.path.isfile(filename):
-        data = json.load(open(filename))
-    else:
-        data = []
+    data = []
 
     for datapoint in data_slice:
         element = {}
@@ -114,13 +110,18 @@ def save_slice(filename, data_slice):
 
         data.append(element)
 
-    with open(filename, 'w') as file:
-        json.dump(data, file)
+    with open(filename, 'a', newline='') as file:
+        csv_writer = csv.writer(file)
+        for datapoint in data:
+            row = [str(datapoint.get(field, "").encode("utf-8"))[2:-1:] for field in constants.FIELD_KEYS]
+            csv_writer.writerow(row)
+
 
 def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
     slice_num = 0
     total_issues = 0
+
 
     while slice_num * MAX_RECORDS_PER_REQUEST <= total_issues:
 
@@ -136,20 +137,20 @@ def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
         slice_num = slice_num + 1
 
-    return total_issues     
+    return total_issues
 
 def fetch_data(dataset_name, repository_base_url):
 
     dataset_folder = create_folder(dataset_name)
 
-    repository_search_url = system_constants.URL_PREFIX + repository_base_url + system_constants.JIRA_REST + system_constants.JIRA_SEARCH
+    repository_search_url = constants.URL_PREFIX + repository_base_url + constants.JIRA_REST + constants.JIRA_SEARCH
     auth = get_auth()
     print_issue_counts(repository_search_url, auth)
 
-    labeled_data_filename = system_constants.get_labeled_raw_filename(dataset_name)
+    labeled_data_filename = constants.get_labeled_raw_filename(dataset_name)
     labeled_issue_count = fetch_and_save_issues(labeled_data_filename, repository_search_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_data_filename = system_constants.get_unlabeled_raw_filename(dataset_name)
+    unlabeled_data_filename = constants.get_unlabeled_raw_filename(dataset_name)
     unlabeled_issue_count = fetch_and_save_issues(unlabeled_data_filename, repository_search_url, auth, UNLABELED_DATA_JQL)
 
     if labeled_issue_count + unlabeled_issue_count > 0:
