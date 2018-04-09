@@ -4,7 +4,7 @@ import re
 import requests
 import shutil
 import sys
-import constants
+from constants import *
 
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
@@ -12,10 +12,10 @@ UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPT
 
 def create_folder(dataset_name):
 
-    if not os.path.exists(constants.DATA_FOLDER):
-        os.makedirs(constants.DATA_FOLDER)
+    if not os.path.exists(DATA_FOLDER):
+        os.makedirs(DATA_FOLDER)
     
-    dataset_folder = constants.get_folder_name(dataset_name)
+    dataset_folder = get_folder_name(dataset_name)
     if os.path.exists(dataset_folder):
         if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
             sys.exit()
@@ -68,7 +68,7 @@ def fetch_slice(repository_search_url, auth, jql, startAt, maxResults):
     params = {
         "startAt" : startAt,
         "maxResults" : maxResults,
-        "fields" : ",".join(constants.FIELD_KEYS),
+        "fields" : ",".join(FIELD_KEYS),
         "expand" : "",
         "jql" : jql
     }
@@ -113,7 +113,7 @@ def save_slice(filename, data_slice):
     with open(filename, 'a', newline='') as file:
         csv_writer = csv.writer(file)
         for datapoint in data:
-            row = [str(datapoint.get(field, "").encode("utf-8"))[2:-1:] for field in constants.FIELD_KEYS]
+            row = [str(datapoint.get(field, "").encode("utf-8"))[2:-1:] for field in FIELD_KEYS]
             csv_writer.writerow(row)
 
 
@@ -143,14 +143,14 @@ def fetch_data(dataset_name, repository_base_url):
 
     dataset_folder = create_folder(dataset_name)
 
-    repository_search_url = constants.URL_PREFIX + repository_base_url + constants.JIRA_REST + constants.JIRA_SEARCH
+    repository_search_url = URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
     auth = get_auth()
     print_issue_counts(repository_search_url, auth)
 
-    labeled_data_filename = constants.get_labeled_raw_filename(dataset_name)
+    labeled_data_filename = get_labeled_raw_filename(dataset_name)
     labeled_issue_count = fetch_and_save_issues(labeled_data_filename, repository_search_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_data_filename = constants.get_unlabeled_raw_filename(dataset_name)
+    unlabeled_data_filename = get_unlabeled_raw_filename(dataset_name)
     unlabeled_issue_count = fetch_and_save_issues(unlabeled_data_filename, repository_search_url, auth, UNLABELED_DATA_JQL)
 
     if labeled_issue_count + unlabeled_issue_count > 0:

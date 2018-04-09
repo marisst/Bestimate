@@ -9,6 +9,8 @@ def load_json(filename):
         print("File %s does not exist" % filename)
         return
 
+    print("Parsing data from %s" % filename)
+    
     return json.load(open(filename))
 
 def load_csv(filename, keys):

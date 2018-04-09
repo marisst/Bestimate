@@ -8,8 +8,9 @@ import json
 import load_data
 import os
 import sys
-import constants
+from constants import *
 import re
+import input_parser
 
 NO_TEXT_TAGS = "code", "noformat"
 ESCAPE_TAGS = "color", "quote", "anchor", "panel"
@@ -97,7 +98,7 @@ def load_file(filename):
         print("File %s does not exist" % filename)
         return
 
-    data = load_data.load_csv(filename, constants.FIELD_KEYS)
+    data = load_data.load_csv(filename, FIELD_KEYS)
 
     if data is None:
         print("Skipping cleaning %s because it does not consist any data" % filename)
@@ -114,39 +115,33 @@ def get_clean_content(filename):
     print("Cleaning %s" % filename)
     for i, datapoint in enumerate(data):
         
-        if constants.SUMMARY_FIELD in datapoint:
-            datapoint[constants.SUMMARY_FIELD] = clean(datapoint[constants.SUMMARY_FIELD])
+        if SUMMARY_FIELD_KEY in datapoint:
+            datapoint[SUMMARY_FIELD_KEY] = clean(datapoint[SUMMARY_FIELD_KEY])
         
-        if constants.DESCRIPTION_FIELD in datapoint:
+        if DESCRIPTION_FIELD_KEY in datapoint:
             
-            clean_description = clean(datapoint[constants.DESCRIPTION_FIELD])
+            clean_description = clean(datapoint[DESCRIPTION_FIELD_KEY])
             
             if clean_description != None and clean_description != "":
-                datapoint[constants.DESCRIPTION_FIELD] = clean_description
-                datapoint["alpha"] = int("%.0f" % (calculate_alpha_density(datapoint[constants.DESCRIPTION_FIELD]) * 100))
+                datapoint[DESCRIPTION_FIELD_KEY] = clean_description
+                datapoint["alpha"] = int("%.0f" % (calculate_alpha_density(datapoint[DESCRIPTION_FIELD_KEY]) * 100))
             else:
-                datapoint.pop(constants.DESCRIPTION_FIELD, None)
+                datapoint.pop(DESCRIPTION_FIELD_KEY, None)
 
         if (i + 1) % 1000 == 0 or (i + 1) == len(data):
             percentage = (i + 1) / len(data) * 100
-            print("%d (%.2f%%) of %d records cleaned" % (i + 1, len(data), percentage))
+            print("%d (%.2f%%) of %d records cleaned" % (i + 1, percentage, len(data)))
 
     return sorted(data, key = lambda datapoint: datapoint["alpha"] if "alpha" in datapoint else 101)
 
 def save_content(filename, data):
 
     with open(filename, 'w') as file:
-        json.dump(data, file, indent=constants.JSON_INDENT)
+        json.dump(data, file, indent=JSON_INDENT)
 
-def clean_text(datasets):
+def clean_text(datasets_from_input):
 
-    if len(datasets) == 0:
-        datasets = [entry for entry in os.listdir(constants.DATA_FOLDER) if os.path.isdir("%s/%s" % (constants.DATA_FOLDER, entry))]
-    else:
-        for dataset in datasets:
-            if not os.path.isdir("%s/%s" % (constants.DATA_FOLDER, dataset)):
-                print("Dataset %s does not exist" % dataset)
-                datasets.remove(dataset)
+    datasets = input_parser.select_datasets(datasets_from_input)
     
     if len(datasets) > 0:
         print("Cleaning text in the following dataset%s:" % ("s" if len(datasets) > 1 else ""), ", ".join(datasets))
@@ -156,15 +151,15 @@ def clean_text(datasets):
 
     for dataset_name in datasets:
 
-        labeled_data_filename = constants.get_labeled_raw_filename(dataset_name)
-        labeled_cleaned_data_filename = constants.get_labeled_cleaned_filename(dataset_name)
+        labeled_data_filename = get_labeled_raw_filename(dataset_name)
+        labeled_cleaned_data_filename = get_labeled_cleaned_filename(dataset_name)
         clean_labeled_content = get_clean_content(labeled_data_filename)
         save_content(labeled_cleaned_data_filename, clean_labeled_content)
 
-        unlabeled_data_filename = constants.get_unlabeled_raw_filename(dataset_name)
-        unlabeled_cleaned_data_filename = constants.get_unlabeled_cleaned_filename(dataset_name)
+        unlabeled_data_filename = get_unlabeled_raw_filename(dataset_name)
+        unlabeled_cleaned_data_filename = get_unlabeled_cleaned_filename(dataset_name)
         clean_unlabeled_content = get_clean_content(unlabeled_data_filename)
         save_content(unlabeled_cleaned_data_filename, clean_unlabeled_content)
 
-datasets = sys.argv[1:]
-clean_text(datasets)
+datasets_from_input = sys.argv[1:]
+clean_text(datasets_from_input)
