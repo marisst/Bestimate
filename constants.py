@@ -1,5 +1,6 @@
 DATA_FOLDER = "data"
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
+FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -15,6 +16,8 @@ LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
 
 JSON_INDENT = 4
+SECONDS_IN_MINUTE = 60
+SECONDS_IN_HOUR = 3600
 
 DESCRIPTION_FIELD_KEY = "description"
 SUMMARY_FIELD_KEY = "summary"
@@ -43,3 +46,6 @@ def get_unlabeled_cleaned_filename(dataset_name):
 
 def get_merged_dataset_filename(dataset_name):
     return "%s/%s%s" % (MERGED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
+
+def get_filtered_dataset_filename(dataset_name):
+    return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)

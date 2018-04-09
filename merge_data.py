@@ -3,6 +3,7 @@ import input_parser
 import json
 import load_data
 import os
+import projects
 import sys
 import re
 
@@ -25,7 +26,7 @@ def load_and_parse_data(datasets):
             if DESCRIPTION_FIELD_KEY in dataset_datapoint:
                 training_datapoint[DESCRIPTION_FIELD_KEY] = dataset_datapoint[DESCRIPTION_FIELD_KEY]
             if TIMESPENT_FIELD_KEY in dataset_datapoint:
-                training_datapoint[TIMESPENT_FIELD_KEY] = dataset_datapoint[TIMESPENT_FIELD_KEY]
+                training_datapoint[TIMESPENT_FIELD_KEY] = int(dataset_datapoint[TIMESPENT_FIELD_KEY])
             data.append(training_datapoint)
 
     if len(data) == 0:
@@ -34,35 +35,17 @@ def load_and_parse_data(datasets):
 
     return data
 
-def filter_by_projects(data, projects):
+def filter_by_projects(data, selected_projects):
 
     filtered_data = []
     for datapoint in data:
-        if len({datapoint[PROJECT_FIELD_KEY]}.intersection(projects)) > 0:
+        if projects.is_in(datapoint, selected_projects):
             filtered_data.append(datapoint)
 
     percentage = len(filtered_data) / len(data) * 100
     print("%d (%.2f%%) of %d selected" % (len(filtered_data), percentage, len(data)))
 
     return filtered_data
-
-def get_projects(data):
-
-    return {datapoint[PROJECT_FIELD_KEY] for datapoint in data}
-
-
-def print_issue_counts_by_project(data):
-    
-    projects = get_projects(data)
-    project_issue_counts = []
-
-    for project in projects:
-        issue_count = sum(1 for datapoint in data if datapoint[PROJECT_FIELD_KEY] == project)
-        project_issue_counts.append((project, issue_count))
-
-    project_issue_counts = sorted(project_issue_counts, key = lambda a: a[1])
-    for c in project_issue_counts:
-        print("%s - %d issues" % c)
 
 def select_projects(data):
 
@@ -75,39 +58,37 @@ def select_projects(data):
     if not select_projects:
         return data
         
-    training_project_ids = get_projects(data)
+    training_project_ids = projects.get(data)
     print("Please select one or more of the following projects:")
-    print_issue_counts_by_project(data)
+    project_issue_counts = projects.get_issue_counts(data)
+    for c in project_issue_counts:
+        print("%s - %d issues" % c)
 
-    projects = input("Selected datasets: ")
-    projects = projects.replace(",", " ")
-    projects = re.sub(r"[^ A-Za-z1-9\-]", "", projects)
-    projects = projects.split()
+    selected_projects = input("Selected datasets: ")
+    selected_projects = selected_projects.replace(",", " ")
+    selected_projects = re.sub(r"[^ A-Za-z1-9\-]", "", selected_projects)
+    selected_projects = selected_projects.split()
 
-    projects = training_project_ids.intersection(projects)
+    selected_projects = training_project_ids.intersection(selected_projects)
 
-    if len(projects) == 0:
+    if len(selected_projects) == 0:
         print("No projects were selected")
         return
 
-    print("Merging data from the following projects:", *projects)
-    return filter_by_projects(data, projects)
+    print("Merging data from the following projects:", *selected_projects)
+    return filter_by_projects(data, selected_projects)
 
 def save_merged_data(data):
 
-    if not os.path.exists(MERGED_DATA_FOLDER):
-        os.makedirs(MERGED_DATA_FOLDER)
-
-    existing_dataset_count = sum(1 for f in os.listdir(MERGED_DATA_FOLDER))
-
-    dataset_name = str(hex(existing_dataset_count + 1))[2::].upper()
+    load_data.create_folder_if_needed(MERGED_DATA_FOLDER)
+    dataset_name = load_data.get_next_dataset_name(MERGED_DATA_FOLDER)
     filename = get_merged_dataset_filename(dataset_name)
 
     with open(filename, 'w') as file:
         json.dump(data, file, indent=JSON_INDENT)
     
     print("Merged dataset %s created and saved on %s" % (dataset_name, filename))
-    
+     
 
 def merge_data(datasets_from_input):
 

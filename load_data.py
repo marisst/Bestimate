@@ -37,3 +37,13 @@ def load_csv(filename, keys):
             data.append(row_as_dict)
     
     return data
+
+def create_folder_if_needed(folder_name):
+
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+def get_next_dataset_name(folder_name):
+
+    existing_dataset_count = sum(1 for f in os.listdir(folder_name))
+    return str(hex(existing_dataset_count + 1))[2::].upper()
