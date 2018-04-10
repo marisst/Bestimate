@@ -39,4 +39,5 @@ Thumbs.db
 # User defined directories and files #
 ######################################
 data/
+weigths/
 __pycache__/

@@ -88,7 +88,7 @@ def clean(text):
     text = escape_links(text, LINK_STARTERS)
     text = escape_stack_trace(text)
     text = escape_hex_character_codes(text)
-    text = escape_non_alphanum(text)
+    #text = escape_non_alphanum(text)
     text = escape_odd_spaces(text)
     return text
 

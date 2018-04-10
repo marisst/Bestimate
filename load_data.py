@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import pickle
 import sys
 
 def load_json(filename):
@@ -37,6 +38,15 @@ def load_csv(filename, keys):
             data.append(row_as_dict)
     
     return data
+
+def load_pickle(filename):
+
+    if not os.path.isfile(filename):
+        print("File %s does not exist" % filename)
+        return
+
+    with open(filename, "rb") as file:
+        return pickle.load(file)
 
 def create_folder_if_needed(folder_name):
 

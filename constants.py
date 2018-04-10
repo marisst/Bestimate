@@ -2,6 +2,7 @@ DATA_FOLDER = "data"
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
+WEIGTHS_FOLDER = "weigths"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -56,3 +57,9 @@ def get_filtered_dataset_filename(dataset_name):
 
 def get_vectorized_dataset_filename(dataset_name):
     return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
+
+def get_weigths_folder_name(dataset, training_session_name):
+    return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)
+
+def get_weigths_filename(dataset, training_session_name):
+    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}.hdf5"
