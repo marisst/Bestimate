@@ -1,37 +1,48 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-fontsize = 10
+FONTSIZE = 10
+GRAPH_SPACE = 0.1
 
-def create_losses_plot(axs, title, epochs, y_range, mean_baseline, median_baseline, divide_by = 1): # 3600
-    
+def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_baseline, divide_by = 1):
+
+    min_value = min([min(training_losses), min(testing_losses), mean_baseline, median_baseline]) / divide_by
+    max_value = max([max(training_losses), max(testing_losses), mean_baseline, median_baseline]) / divide_by
+    loss_range = max_value - min_value
+
+    axs.clear()
     axs.set_title("Training and testing losses")
-    axs.set_ylabel("Mean absolute error, hours", fontsize=fontsize)
+    axs.set_ylabel("Mean absolute error, hours", fontsize=FONTSIZE)
     axs.set_xlabel("Epoch")
-    axs.axis([0, epochs, y_range[0], y_range[1]])
+
+    epochs = len(training_losses)
+    y_bottom = min_value - loss_range * GRAPH_SPACE
+    y_top = max_value + loss_range * GRAPH_SPACE
+
+    axs.axis([1, epochs, y_bottom, y_top])
     axs.grid(color='lightgray')
 
     horizontal_padding = epochs * 0.003
     vertical_padding = 0.003
     axs.axhline(y=mean_baseline / divide_by, color='grey', linestyle='dotted')
     axs.axhline(y=median_baseline / divide_by, color='grey', linestyle='dotted')
-    axs.text(epochs - horizontal_padding, (mean_baseline / divide_by) + vertical_padding, 'Mean prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=fontsize)
-    axs.text(epochs - horizontal_padding, (median_baseline / divide_by) + vertical_padding, 'Median prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=fontsize)
+    axs.text(epochs - horizontal_padding, (mean_baseline / divide_by) + vertical_padding, 'Mean prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
+    axs.text(epochs - horizontal_padding, (median_baseline / divide_by) + vertical_padding, 'Median prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
+
+    adjusted_training_losses = [loss / divide_by for loss in training_losses]
+    adjusted_testing_losses = [loss / divide_by for loss in testing_losses]
+
+    # draw lines
+    training_line, = axs.plot(range(1, epochs + 1), adjusted_training_losses, 'b-')
+    testing_line, = axs.plot(range(1, epochs + 1), adjusted_testing_losses, 'g-')
 
 def create_prediction_scatter(axs, title, max_plot_hours):
 
     axs.set_title(title)
     axs.axis([0, max_plot_hours, 0, max_plot_hours])
     axs.plot([0, max_plot_hours], [0, max_plot_hours], 'r--')
-    axs.set_ylabel("Model estimate, hours", fontsize=fontsize)
-    axs.set_xlabel("Time spent, hours", fontsize=fontsize)
-
-def update_line(hl, epoch, loss, divide_by = 1):
-
-    hl.set_xdata(np.append(hl.get_xdata(), [epoch]))
-    hl.set_ydata(np.append(hl.get_ydata(), [(loss / divide_by)]))
-    plt.draw()
-    plt.pause(0.1)
+    axs.set_ylabel("Model estimate, hours", fontsize=FONTSIZE)
+    axs.set_xlabel("Time spent, hours", fontsize=FONTSIZE)
 
 def update_graph(axs, model, x):
     
@@ -41,5 +52,3 @@ def update_graph(axs, model, x):
         dev.append(abs(p[0] - x[i]))
     axs.clear()
     axs.scatter(x, pred, c=dev, cmap='coolwarm_r')
-    plt.pause(0.1)
-    plt.draw()

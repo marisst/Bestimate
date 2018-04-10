@@ -19,6 +19,7 @@ PNG_FILE_XTENSION = ".png"
 
 LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
+RESULTS_FILENAME = "results"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
 
@@ -72,3 +73,9 @@ def get_statistics_image_filename(dataset, stat_name):
 
 def get_weigths_filename(dataset, training_session_name):
     return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}.hdf5"
+
+def get_results_filename(dataset, training_session_name):
+    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, CSV_FILE_EXTENSION)
+
+def get_results_plot_filename(dataset, training_session_name):
+    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, PNG_FILE_XTENSION)

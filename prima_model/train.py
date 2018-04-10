@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from model_prima import arrange_data as arr
-from model_prima import calculate_baselines as bsl
-from model_prima import graph_helpers as gph
-from model_prima import model as mdl
-from model_prima import save_results as save
+from prima_model import arrange_data as arr
+from prima_model import calculate_baselines as bsl
+from prima_model import graph_helpers as gph
+from prima_model import model as mdl
+from prima_model import save_results as save
 from utilities import load_data
 from utilities.constants import *
 
@@ -31,8 +31,8 @@ def train_on_dataset(dataset):
 
     #calculate baseline losses
     train_mean, train_median = bsl.mean_and_median(y_train)
-    mean_baseline = bsl.mean_absolute_error(y_test, train_mean) / SECONDS_IN_HOUR
-    median_baseline = bsl.mean_absolute_error(y_test, train_median) / SECONDS_IN_HOUR
+    mean_baseline = bsl.mean_absolute_error(y_test, train_mean)
+    median_baseline = bsl.mean_absolute_error(y_test, train_median)
 
     # weight initialization with median value
     #y_train = np.full(y_train.shape, train_median)
@@ -48,35 +48,33 @@ def train_on_dataset(dataset):
     #init_model = load_model("weights/median-init-weights.hdf5")
     #model.set_weights(init_model.get_weights())
 
-    # create training graph
-    plt.ion()
-    axs = plt.gca()
-    gph.create_losses_plot(axs, "Training and testing losses", epochs, (3, 5.2), mean_baseline, median_baseline)
-    training_line, = axs.plot([], [], 'b-')
-    testing_line, = axs.plot([], [], 'g-')
-    plt.draw_all()
-    plt.pause(5)
-
-    # update graph lines after every epoch
-    update_training_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(training_line, epoch, logs['loss'], SECONDS_IN_HOUR))
-    update_testing_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(testing_line, epoch, logs['val_loss'], SECONDS_IN_HOUR))
-
-    # save weights and results after every epoch
+    # create results files
     load_data.create_folder_if_needed(WEIGTHS_FOLDER)
     training_session_name = load_data.get_next_dataset_name(WEIGTHS_FOLDER)
     weigths_directory_name = get_weigths_folder_name(dataset, training_session_name)
     load_data.create_folder_if_needed(weigths_directory_name)
+    
+    # update losses plot after every update
+    training_losses = []
+    testing_losses = []
+    axs = plt.gca()
+    log_training_loss = LambdaCallback(on_epoch_end=lambda epoch, logs: training_losses.append(logs['loss']))
+    log_testing_loss = LambdaCallback(on_epoch_end=lambda epoch, logs: testing_losses.append(logs['val_loss']))
+    update_graph = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.plot_losses(axs, training_losses, testing_losses, mean_baseline, median_baseline, SECONDS_IN_HOUR))
+    plot_filename = get_results_plot_filename(dataset, training_session_name)
+    save_graph = LambdaCallback(on_epoch_end=lambda epoch, logs: plt.savefig(plot_filename, bbox_inches=PLOT_BBOX_INCHES))
+
+    # save weights and results after every epoch
     weigths_filename = get_weigths_filename(dataset, training_session_name)
     save_weights = ModelCheckpoint(weigths_filename)
-    save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(weigths_directory_name, epoch, logs))
+    results_filename = get_results_filename(dataset, training_session_name)
+    save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(results_filename, epoch, logs))
 
     # train and validate
-    callbacks = [save_weights, save_results, update_testing_line, update_training_line]
+    callbacks = [save_weights, save_results, log_training_loss, log_testing_loss, update_graph, save_graph]
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=batch_size, callbacks=callbacks)
 
     # Save the model
     model.save(weigth_directory_name + "/lstm_model.h5")
-
-    plt.show()
 
 train_on_dataset(sys.argv[1])
