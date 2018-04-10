@@ -1,6 +1,7 @@
 DATA_FOLDER = "data"
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
+VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -11,13 +12,16 @@ CLEANED_POSTFIX = "cln"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
+PICKLE_FILE_EXTENSION = ".pkl"
 
 LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
 
 JSON_INDENT = 4
+PICKLE_PROTOCOL = 4
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
+SPACY_EMBEDDING_SIZE = 384
 
 DESCRIPTION_FIELD_KEY = "description"
 SUMMARY_FIELD_KEY = "summary"
@@ -49,3 +53,6 @@ def get_merged_dataset_filename(dataset_name):
 
 def get_filtered_dataset_filename(dataset_name):
     return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
+
+def get_vectorized_dataset_filename(dataset_name):
+    return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
