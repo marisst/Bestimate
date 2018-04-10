@@ -1,10 +1,10 @@
 from enum import Enum
-from constants import *
 import json
-import load_data
 import sys
-import utilities
-import projects
+
+from preprocessing import projects
+from utilities import load_data, string_utils
+from utilities.constants import *
 
 class Extreme(Enum):
     MINIMUM = min
@@ -33,19 +33,19 @@ def remove_outliers(data, minimum_timespent_seconds, maximum_timespent_seconds):
             and datapoint[TIMESPENT_FIELD_KEY] <= maximum_timespent_seconds]
 
     print("%d (%.2f%%) of %d datapoints were selected for testing and training"
-        % utilities.get_part_strings(len(filtered_data), len(data)))
+        % string_utils.get_part_strings(len(filtered_data), len(data)))
     
 def remove_small_projects(data, minimum_project_size):
 
     issue_counts = projects.get_issue_counts(data)
     selected_projects = {issue_count[0] for issue_count in issue_counts if issue_count[1] >= minimum_project_size}
-    print("%d (%.2f%%) of %d projects were selected" % utilities.get_part_strings(len(selected_projects), len(projects.get(data))))
+    print("%d (%.2f%%) of %d projects were selected" % string_utils.get_part_strings(len(selected_projects), len(projects.get(data))))
 
     if len(selected_projects) == 0:
         return
 
     selected_data = [datapoint for datapoint in data if projects.is_in(datapoint, selected_projects)]
-    print("%d (%.2f%%) of %d datapoints selected" % utilities.get_part_strings(len(selected_data), len(data)))
+    print("%d (%.2f%%) of %d datapoints selected" % string_utils.get_part_strings(len(selected_data), len(data)))
 
     return data
 

@@ -1,17 +1,18 @@
-from constants import *
-import numpy as np
 from keras import losses
 from keras import optimizers
 from keras.callbacks import LambdaCallback, ModelCheckpoint
 from keras.models import load_model
 import matplotlib.pyplot as plt
-import calculate_baselines as bsl
-import graph_helpers as gph
-import load_data
-import arrange_data as arr
-import model as mdl
-import save_results as save
+import numpy as np
 import sys
+
+from model_prima import arrange_data as arr
+from model_prima import calculate_baselines as bsl
+from model_prima import graph_helpers as gph
+from model_prima import model as mdl
+from model_prima import save_results as save
+from utilities import load_data
+from utilities.constants import *
 
 # training parameters
 split_percentage = 75

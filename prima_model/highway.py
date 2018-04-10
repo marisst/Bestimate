@@ -1,8 +1,8 @@
 # from https://gist.github.com/iskandr/a874e4cf358697037d14a17020304535
 
 import keras.backend as K
-from keras.layers import Dense, Activation, Multiply, Add, Lambda
 import keras.initializers
+from keras.layers import Dense, Activation, Multiply, Add, Lambda
  
 def highway_layers(value, n_layers, activation="tanh", gate_bias=-3):
     dim = K.int_shape(value)[-1]

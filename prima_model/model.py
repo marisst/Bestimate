@@ -1,7 +1,8 @@
 from keras.models import Model, load_model
 from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate
-from highway import highway_layers
 from keras.utils import plot_model
+
+from prima_model.highway import highway_layers
 
 # model hyperparameters
 highway_layer_count = 20
@@ -23,7 +24,6 @@ def create_model(max_text_length):
     output = Dense(1)(drop)
 
     model = Model(inputs=[text_input], outputs=[output])
-    #plot_model(model, to_file='model.png')
 
     print("Model created")
 

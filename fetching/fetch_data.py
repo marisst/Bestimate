@@ -4,7 +4,8 @@ import re
 import requests
 import shutil
 import sys
-from constants import *
+
+from utilities.constants import *
 
 MAX_RECORDS_PER_REQUEST = 50
 LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"

@@ -1,6 +1,6 @@
+import csv
 import os
 import json
-import csv
 import pickle
 import sys
 

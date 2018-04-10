@@ -1,11 +1,11 @@
-from constants import *
-import input_parser
 import json
-import load_data
 import os
-import projects
-import sys
 import re
+import sys
+
+from preprocessing import projects
+from utilities import input_parser, load_data
+from utilities.constants import *
 
 def load_and_parse_data(datasets):
 

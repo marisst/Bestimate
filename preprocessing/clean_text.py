@@ -1,16 +1,11 @@
-# remove repeating text
-# remove title repeated in description
-# strip tags
-# https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all
-
 import csv
 import json
-import load_data
 import os
 import sys
-from constants import *
 import re
-import input_parser
+
+from utilities import load_data, input_parser
+from utilities.constants import *
 
 NO_TEXT_TAGS = "code", "noformat"
 ESCAPE_TAGS = "color", "quote", "anchor", "panel"

@@ -1,10 +1,10 @@
-from constants import *
-import load_data
 import numpy as np
 import pickle
 import spacy
 import sys
-import utilities
+
+from utilities import load_data, string_utils
+from utilities.constants import *
 
 nlp = spacy.load('en')
 
@@ -45,7 +45,7 @@ def vectorize_dataset(dataset):
             max_text_length, SPACY_EMBEDDING_SIZE)
         y[i] = datapoint[TIMESPENT_FIELD_KEY]
 
-        print("%d (%.2f%%) of %d records processed" % utilities.get_part_strings(i + 1, datapoint_count))
+        print("%d (%.2f%%) of %d records processed" % string_utils.get_part_strings(i + 1, datapoint_count))
 
     serialize((x, y), dataset)
 
