@@ -46,6 +46,8 @@ def get_number_of_issues(repository_search_url, auth, jql=""):
     if response.status_code != 200:
         print("%s returned unexpected status code %d when trying to get number of issues with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
 
+        #print(response.text)
+
         error_messages = response.json().get("errorMessages")
         if error_messages is not None and len(error_messages) > 0:
             print('\n'.join(error_messages))

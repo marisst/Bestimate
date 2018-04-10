@@ -30,8 +30,8 @@ def train_on_dataset(dataset):
 
     #calculate baseline losses
     train_mean, train_median = bsl.mean_and_median(y_train)
-    mean_baseline = bsl.mean_absolute_error(y_test, train_mean)
-    median_baseline = bsl.mean_absolute_error(y_test, train_median)
+    mean_baseline = bsl.mean_absolute_error(y_test, train_mean) / SECONDS_IN_HOUR
+    median_baseline = bsl.mean_absolute_error(y_test, train_median) / SECONDS_IN_HOUR
 
     # weight initialization with median value
     #y_train = np.full(y_train.shape, train_median)
@@ -57,8 +57,8 @@ def train_on_dataset(dataset):
     plt.pause(5)
 
     # update graph lines after every epoch
-    update_training_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(training_line, epoch, logs['loss']))
-    update_testing_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(testing_line, epoch, logs['val_loss']))
+    update_training_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(training_line, epoch, logs['loss'], SECONDS_IN_HOUR))
+    update_testing_line = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.update_line(testing_line, epoch, logs['val_loss'], SECONDS_IN_HOUR))
 
     # save weights and results after every epoch
     load_data.create_folder_if_needed(WEIGTHS_FOLDER)
