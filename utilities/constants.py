@@ -2,6 +2,7 @@ DATA_FOLDER = "data"
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
+STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
 WEIGTHS_FOLDER = "weigths"
 
 URL_PREFIX = "https://"
@@ -14,15 +15,20 @@ CLEANED_POSTFIX = "cln"
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
 PICKLE_FILE_EXTENSION = ".pkl"
+PNG_FILE_XTENSION = ".png"
 
 LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
+
+LABEL_DISTRIBUTION_STAT = "label_distribution"
 
 JSON_INDENT = 4
 PICKLE_PROTOCOL = 4
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
 SPACY_EMBEDDING_SIZE = 384
+
+PLOT_BBOX_INCHES = "tight"
 
 DESCRIPTION_FIELD_KEY = "description"
 SUMMARY_FIELD_KEY = "summary"
@@ -60,6 +66,9 @@ def get_vectorized_dataset_filename(dataset_name):
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)
+
+def get_statistics_image_filename(dataset, stat_name):
+    return "%s/%s-%s%s" % (STATISTICS_FOLDER, dataset, stat_name, PNG_FILE_XTENSION)
 
 def get_weigths_filename(dataset, training_session_name):
     return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}.hdf5"
