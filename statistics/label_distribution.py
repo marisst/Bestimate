@@ -7,16 +7,18 @@ from utilities.constants import *
 
 def show_histogram(dataset):
 
-    filename = get_vectorized_dataset_filename(dataset)
-    x, y = load_data.load_pickle(filename)
+    filename = get_filtered_dataset_filename(dataset)
+    data = load_data.load_json(filename)
 
-    if y is None:
-        return 
+    if data is None:
+        return
+
+    y = [datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in data]
 
     max_hours = int(input("Please input the maximum number of hours to display in the histogram: "))
 
     plt.figure(figsize=(12, 7))
-    plt.hist(y / SECONDS_IN_HOUR, bins = max_hours * 12, range = (0, max_hours - 1 / SECONDS_IN_HOUR))
+    plt.hist(y, bins = max_hours * 12, range = (0, max_hours - 1 / SECONDS_IN_HOUR))
     plt.xticks(np.arange(0, max_hours + 1, 1))
     plt.xlim(0, max_hours)
 
