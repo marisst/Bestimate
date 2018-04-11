@@ -88,7 +88,6 @@ def save_merged_data(data):
         json.dump(data, file, indent=JSON_INDENT)
     
     print("Merged dataset %s created and saved on %s" % (dataset_name, filename))
-     
 
 def merge_data(datasets_from_input):
 

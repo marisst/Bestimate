@@ -27,7 +27,7 @@ def print_extreme(data, extreme):
 
 def remove_outliers(data, minimum_timespent_seconds, maximum_timespent_seconds):
 
-    print("Filtering out datapoints with time spent lower than %d minutes and higher than %d minutes" % (minimum_timespent_seconds, maximum_timespent_seconds))
+    print("Filtering out datapoints with time spent lower than %d seconds and higher than %d seconds" % (minimum_timespent_seconds, maximum_timespent_seconds))
     filtered_data = [datapoint for datapoint in data
         if datapoint[TIMESPENT_FIELD_KEY] >= minimum_timespent_seconds
             and datapoint[TIMESPENT_FIELD_KEY] <= maximum_timespent_seconds]
@@ -35,7 +35,7 @@ def remove_outliers(data, minimum_timespent_seconds, maximum_timespent_seconds):
     print("%d (%.2f%%) of %d datapoints were selected for testing and training"
         % string_utils.get_part_strings(len(filtered_data), len(data)))
 
-    return data
+    return filtered_data
     
 def remove_small_projects(data, minimum_project_size):
 
@@ -49,7 +49,7 @@ def remove_small_projects(data, minimum_project_size):
     selected_data = [datapoint for datapoint in data if projects.is_in(datapoint, selected_projects)]
     print("%d (%.2f%%) of %d datapoints selected" % string_utils.get_part_strings(len(selected_data), len(data)))
 
-    return data
+    return selected_data
 
 def save_filtered_data(data, dataset_name):
 
@@ -60,6 +60,41 @@ def save_filtered_data(data, dataset_name):
         json.dump(data, file, indent=JSON_INDENT)
     
     print("Filtered dataset %s created and saved on %s" % (dataset_name, filename))
+
+def even_distribution(data):
+
+    min_timespent = min(data, key=lambda datapoint: datapoint[TIMESPENT_FIELD_KEY])[TIMESPENT_FIELD_KEY]
+    max_timespent = max(data, key=lambda datapoint: datapoint[TIMESPENT_FIELD_KEY])[TIMESPENT_FIELD_KEY]
+    timespent_range = max_timespent - min_timespent
+
+    bin_count = int(input("Please choose number of bins (timespent range is %.0f hours): " % (timespent_range / SECONDS_IN_HOUR)))
+    bin_range = timespent_range / bin_count
+
+    bins = []
+    for i in range(bin_count):
+
+        from_timespent = bin_range * i
+        to_timespent = bin_range * (i + 1)
+        bins.append([datapoint for datapoint in data if datapoint[TIMESPENT_FIELD_KEY] > from_timespent and datapoint[TIMESPENT_FIELD_KEY] <= to_timespent])
+
+    bin_volumes = [len(b) for b in bins]
+    min_bin_volume = min(bin_volumes)
+    print("Bin volumes:", *bin_volumes)
+
+    evenly_distributed_data = []
+    for i, b in enumerate(bins):
+        factor = min_bin_volume / bin_volumes[i]
+        for j, d in enumerate(b):
+            if round(j * factor) == round((j + 1) * factor):
+                continue
+            evenly_distributed_data.append(d)
+
+
+    print("%d (%.2f%%) of %d records were selected and an even distribution was created"
+        % string_utils.get_part_strings(len(evenly_distributed_data), len(data)))
+
+    return evenly_distributed_data
+
 
 def filter(dataset):
 
@@ -79,8 +114,10 @@ def filter(dataset):
         minimum_project_size = int(input("Please enter the minimum number of labeled filtered datapoints in a project: "))
         data = remove_small_projects(data, minimum_project_size)
 
-    save_filtered_data(data, dataset)
-        
+    if input("Would you like to make even distribution by removing skewed data? (y/n) ") == "y":
+        data = even_distribution(data)
+
+    save_filtered_data(data, dataset)    
 
 sys_argv_count = len(sys.argv)
 
