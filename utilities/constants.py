@@ -23,6 +23,7 @@ RESULTS_FILENAME = "results"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
 PROJECT_SIZE_STAT = "project_size"
+TEXT_LENGTH_STAT = "text_length"
 
 JSON_INDENT = 4
 PICKLE_PROTOCOL = 4

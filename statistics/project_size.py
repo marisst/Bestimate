@@ -22,6 +22,7 @@ def show_histogram(dataset):
 
     project_issue_counts = projects.get_issue_counts(data)
     issue_counts = [c[1] for c in project_issue_counts]
+    
     min_size = min(issue_counts)
     max_size = max(issue_counts)
     if need_upper_limit:
