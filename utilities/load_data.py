@@ -2,7 +2,12 @@ import csv
 import os
 import json
 import pickle
+import platform
 import sys
+
+from utilities.constants import *
+
+MAX_BYTES = 2 ** 31 - 1
 
 def load_json(filename):
 
@@ -45,8 +50,33 @@ def load_pickle(filename):
         print("File %s does not exist" % filename)
         return
 
+    if (platform.system() == OSX_PLATFORM_SYSTEM):
+        bytes_in = bytearray(0)
+        input_size = os.path.getsize(filename)
+        with open(filename, 'rb') as f_in:
+            for _ in range(0, input_size, MAX_BYTES):
+                bytes_in += f_in.read(MAX_BYTES)
+        return pickle.loads(bytes_in)
+
     with open(filename, "rb") as file:
         return pickle.load(file)
+
+
+def save_pickle(filename, data):
+
+    # need to use chunks on OS X because of a bug
+    # https://stackoverflow.com/questions/31468117/python-3-can-pickle-handle-byte-objects-larger-than-4gb
+    if platform.system() == OSX_PLATFORM_SYSTEM:
+        bytes_out = pickle.dumps(data, protocol=PICKLE_PROTOCOL)
+        with open(filename, 'wb') as file:
+            for idx in range(0, len(bytes_out), MAX_BYTES):
+                file.write(bytes_out[idx:idx+MAX_BYTES])
+        print("Data saved on %s in chunks" % filename)
+        return
+
+    with open(filename, "wb") as file:
+        pickle.dump(data, file, PICKLE_PROTOCOL)
+    print("Data saved on %s" % filename)
 
 def create_folder_if_needed(folder_name):
 

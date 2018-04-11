@@ -25,9 +25,7 @@ def serialize(vectorized_data, dataset_name):
 
     load_data.create_folder_if_needed(VECTORIZED_DATA_FOLDER)
     filename = get_vectorized_dataset_filename(dataset_name)
-
-    with open(filename, "wb") as file:
-        pickle.dump(vectorized_data, file, PICKLE_PROTOCOL)
+    load_data.save_pickle(filename, vectorized_data)
 
 def vectorize_dataset(dataset):
 
