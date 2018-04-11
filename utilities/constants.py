@@ -16,10 +16,12 @@ JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
 PICKLE_FILE_EXTENSION = ".pkl"
 PNG_FILE_XTENSION = ".png"
+TEXT_FILE_EXTENSION = ".txt"
 
 LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
 RESULTS_FILENAME = "results"
+CONFIGURATION_FILENAME = "configuration"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
 PROJECT_SIZE_STAT = "project_size"
@@ -84,3 +86,6 @@ def get_results_filename(dataset, training_session_name):
 
 def get_results_plot_filename(dataset, training_session_name):
     return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, PNG_FILE_XTENSION)
+
+def get_configuration_filename(dataset, training_session_name):
+    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), CONFIGURATION_FILENAME, TEXT_FILE_EXTENSION)

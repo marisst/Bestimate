@@ -2,6 +2,7 @@ from keras import losses
 from keras import optimizers
 from keras.callbacks import LambdaCallback, ModelCheckpoint
 from keras.models import load_model
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -29,7 +30,7 @@ def train_on_dataset(dataset):
     splitted_data = arr.split_train_test(shuffled_data, split_percentage)
     x_train, y_train, x_test, y_test = splitted_data
 
-    #calculate baseline losses
+    # calculate baseline losses
     train_mean, train_median = bsl.mean_and_median(y_train)
     mean_baseline = bsl.mean_absolute_error(y_test, train_mean)
     median_baseline = bsl.mean_absolute_error(y_test, train_median)
@@ -53,6 +54,27 @@ def train_on_dataset(dataset):
     training_session_name = load_data.get_next_dataset_name(WEIGTHS_FOLDER)
     weigths_directory_name = get_weigths_folder_name(dataset, training_session_name)
     load_data.create_folder_if_needed(weigths_directory_name)
+
+    # save configuration
+    configuration_filename = get_configuration_filename(dataset, training_session_name)
+    configuration = {
+        "training" : {
+            "split percentage" : split_percentage,
+            "learning rate" : learning_rate,
+            "batch size" : batch_size
+        },
+        "data" : {
+            "mean_baseline" : mean_baseline,
+            "median_baseline" : median_baseline,
+            "max_text_length" : max_text_length,
+            "datapoint_count" : {
+                "training" : len(x_train),
+                "testing" : len(x_test)
+            }
+        }
+    }
+    with open(configuration_filename, "w") as configuration_file:
+        json.dump(configuration, configuration_file, indent=JSON_INDENT)
     
     # update losses plot after every update
     training_losses = []
@@ -70,11 +92,16 @@ def train_on_dataset(dataset):
     results_filename = get_results_filename(dataset, training_session_name)
     save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(results_filename, epoch, logs))
 
+    # Save the model
+    model.save(weigths_directory_name + "/model.h5")
+    
     # train and validate
     callbacks = [save_weights, save_results, log_training_loss, log_testing_loss, update_graph, save_graph]
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=batch_size, callbacks=callbacks)
 
     # Save the model
-    model.save(weigth_directory_name + "/lstm_model.h5")
+    model.save(weigths_directory_name + "/model.h5")
+
+    
 
 train_on_dataset(sys.argv[1])
