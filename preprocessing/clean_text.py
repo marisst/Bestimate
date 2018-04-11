@@ -119,7 +119,7 @@ def get_clean_content(filename):
             
             if clean_description != None and clean_description != "":
                 datapoint[DESCRIPTION_FIELD_KEY] = clean_description
-                datapoint["alpha"] = int("%.0f" % (calculate_alpha_density(datapoint[DESCRIPTION_FIELD_KEY]) * 100))
+                datapoint[ALPHA_FIELD] = int("%.0f" % (calculate_alpha_density(datapoint[DESCRIPTION_FIELD_KEY]) * 100))
             else:
                 datapoint.pop(DESCRIPTION_FIELD_KEY, None)
 
@@ -127,7 +127,7 @@ def get_clean_content(filename):
             percentage = (i + 1) / len(data) * 100
             print("%d (%.2f%%) of %d records cleaned" % (i + 1, percentage, len(data)))
 
-    return sorted(data, key = lambda datapoint: datapoint["alpha"] if "alpha" in datapoint else 101)
+    return sorted(data, key = lambda datapoint: datapoint[ALPHA_FIELD] if ALPHA_FIELD in datapoint else 101)
 
 def save_content(filename, data):
 

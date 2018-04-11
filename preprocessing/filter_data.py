@@ -89,11 +89,17 @@ def even_distribution(data):
                 continue
             evenly_distributed_data.append(d)
 
-
     print("%d (%.2f%%) of %d records were selected and an even distribution was created"
         % string_utils.get_part_strings(len(evenly_distributed_data), len(data)))
 
     return evenly_distributed_data
+
+def escape_short_texts(data, minimum_text_length):
+
+    filtered_data = [datapoint for datapoint in data if len(datapoint.get(SUMMARY_FIELD_KEY, "").split()) + len(datapoint.get(DESCRIPTION_FIELD_KEY, "").split()) >= minimum_text_length]
+    print("%d (%.2f%%) of %d records were selected"
+        % string_utils.get_part_strings(len(filtered_data), len(data)))
+    return filtered_data
 
 
 def filter(dataset):
@@ -104,6 +110,11 @@ def filter(dataset):
 
     print_extreme(data, Extreme.MINIMUM)
     maximum = print_extreme(data, Extreme.MAXIMUM)
+
+    if input("Would you like to remove tasks with short textual descriptions? (y/n) ") == "y":
+        minimum_text_length = int(input("Please enter the minimum text length (words): "))
+        data = escape_short_texts(data, minimum_text_length)
+
 
     if input("Would you like to remove extreme outliers? (y/n) ") == "y":
         lower_bound_minutes = int(input("Please enter the lower bound (integer) in minutes (input 0 to set no bound): "))

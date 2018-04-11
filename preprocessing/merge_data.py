@@ -27,6 +27,9 @@ def load_and_parse_data(datasets):
                 training_datapoint[DESCRIPTION_FIELD_KEY] = dataset_datapoint[DESCRIPTION_FIELD_KEY]
             if TIMESPENT_FIELD_KEY in dataset_datapoint:
                 training_datapoint[TIMESPENT_FIELD_KEY] = int(dataset_datapoint[TIMESPENT_FIELD_KEY])
+            if ALPHA_FIELD in dataset_datapoint:
+                training_datapoint[ALPHA_FIELD] = dataset_datapoint[ALPHA_FIELD]
+
             data.append(training_datapoint)
 
     if len(data) == 0:

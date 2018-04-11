@@ -40,6 +40,8 @@ PROJECT_FIELD_KEY = "project"
 TIMESPENT_FIELD_KEY = "timespent"
 FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESPENT_FIELD_KEY
 
+ALPHA_FIELD = "alpha"
+
 def get_folder_name(dataset_name):
     return "%s/%s" % (DATA_FOLDER, dataset_name)
 
