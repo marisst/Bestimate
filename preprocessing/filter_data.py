@@ -34,6 +34,8 @@ def remove_outliers(data, minimum_timespent_seconds, maximum_timespent_seconds):
 
     print("%d (%.2f%%) of %d datapoints were selected for testing and training"
         % string_utils.get_part_strings(len(filtered_data), len(data)))
+
+    return data
     
 def remove_small_projects(data, minimum_project_size):
 

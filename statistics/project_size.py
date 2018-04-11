@@ -26,7 +26,6 @@ def show_histogram(dataset):
     max_size = max(issue_counts)
     if need_upper_limit:
         max_size = min(upper_limit, max_size)
-    
 
     plt.figure(figsize=(12, 7))
     plt.hist(issue_counts, bins = bins, range = (min_size, max_size))
