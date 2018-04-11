@@ -22,6 +22,7 @@ UNLABELED_FILENAME = "unl"
 RESULTS_FILENAME = "results"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
+PROJECT_SIZE_STAT = "project_size"
 
 JSON_INDENT = 4
 PICKLE_PROTOCOL = 4
