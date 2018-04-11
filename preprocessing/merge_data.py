@@ -47,30 +47,29 @@ def filter_by_projects(data, selected_projects):
 
     return filtered_data
 
+def exclude_projects(data):
+
+    if input("Would you like to exclude any particular projects? (y/n) ") != "y":
+        return data
+
+    excluded_projects = input_parser.select_projects(data)
+    if len(excluded_projects) == 0:
+        print("No projects were excluded")
+        return data
+
+    selected_projects = projects.get(data) - excluded_projects
+    return filter_by_projects(data, selected_projects)
+
 def select_projects(data):
 
     if data is None:
         return
 
     print("You will be able to select the minimum number of issues in a project later")
-    select_projects = input("Do you want to train and test only on selected projects? (y/n) ") == "y"
-
-    if not select_projects:
-        return data
+    if input("Do you want to train and test only on selected projects? (y/n) ") != "y":
+        return exclude_projects(data)
         
-    training_project_ids = projects.get(data)
-    print("Please select one or more of the following projects:")
-    project_issue_counts = projects.get_issue_counts(data)
-    for c in project_issue_counts:
-        print("%s - %d issues" % c)
-
-    selected_projects = input("Selected datasets: ")
-    selected_projects = selected_projects.replace(",", " ")
-    selected_projects = re.sub(r"[^ A-Za-z1-9\-]", "", selected_projects)
-    selected_projects = selected_projects.split()
-
-    selected_projects = training_project_ids.intersection(selected_projects)
-
+    selected_projects = input_parser.select_projects(data)
     if len(selected_projects) == 0:
         print("No projects were selected")
         return

@@ -22,4 +22,4 @@ def get_issue_counts(data):
 
 def is_in(datapoint, selected_projects):
 
-    return len({datapoint[PROJECT_FIELD_KEY]}.intersection(selected_projects)) > 0
+    return len({datapoint[PROJECT_FIELD_KEY]} & selected_projects) > 0
