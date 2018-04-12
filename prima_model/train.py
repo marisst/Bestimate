@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from prima_model import arrange_data as arr
 from prima_model import calculate_baselines as bsl
 from prima_model import graph_helpers as gph
+from prima_model import load_data as load
 from prima_model import model as mdl
 from prima_model import save_results as save
 from utilities import load_data
@@ -24,11 +24,7 @@ batch_size = 50
 def train_on_dataset(dataset):
 
     # load and arrange data
-    filename = get_vectorized_dataset_filename(dataset)
-    data = load_data.load_pickle(filename)
-    shuffled_data = arr.shuffle(data)
-    splitted_data = arr.split_train_test(shuffled_data, split_percentage)
-    x_train, y_train, x_test, y_test = splitted_data
+    x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage)
 
     # calculate baseline losses
     train_mean, train_median = bsl.mean_and_median(y_train)

@@ -32,9 +32,9 @@ def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_base
     adjusted_training_losses = [loss / divide_by for loss in training_losses]
     adjusted_testing_losses = [loss / divide_by for loss in testing_losses]
 
-    # draw lines
-    training_line, = axs.plot(range(1, epochs + 1), adjusted_training_losses, 'b-')
-    testing_line, = axs.plot(range(1, epochs + 1), adjusted_testing_losses, 'g-')
+    # draw loss lines
+    axs.plot(range(1, epochs + 1), adjusted_training_losses, 'b-')
+    axs.plot(range(1, epochs + 1), adjusted_testing_losses, 'g-')
 
 def create_prediction_scatter(axs, title, max_plot_hours):
 

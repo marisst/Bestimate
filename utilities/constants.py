@@ -14,6 +14,7 @@ CLEANED_POSTFIX = "cln"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
+HDF5_FILE_EXTENSION = ".hdf5"
 PICKLE_FILE_EXTENSION = ".pkl"
 PNG_FILE_XTENSION = ".png"
 TEXT_FILE_EXTENSION = ".txt"
@@ -79,7 +80,7 @@ def get_statistics_image_filename(dataset, stat_name):
     return "%s/%s-%s%s" % (STATISTICS_FOLDER, dataset, stat_name, PNG_FILE_XTENSION)
 
 def get_weigths_filename(dataset, training_session_name):
-    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}.hdf5"
+    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}" + HDF5_FILE_EXTENSION
 
 def get_results_filename(dataset, training_session_name):
     return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, CSV_FILE_EXTENSION)
@@ -89,3 +90,6 @@ def get_results_plot_filename(dataset, training_session_name):
 
 def get_configuration_filename(dataset, training_session_name):
     return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), CONFIGURATION_FILENAME, TEXT_FILE_EXTENSION)
+
+def get_prediction_plot_filename(dataset, training_session_name):
+    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}-predictions" + PNG_FILE_XTENSION
