@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+from preprocessing import projects
 from prima_model import calculate_baselines as bsl
 from prima_model import graph_helpers as gph
 from prima_model import load_data as load
@@ -53,6 +54,13 @@ def train_on_dataset(dataset):
 
     # save configuration
     configuration_filename = get_configuration_filename(dataset, training_session_name)
+    filtered_data = load_data.load_json(get_filtered_dataset_filename(dataset))
+    min_text_length_datapoint = min(filtered_data, key=lambda datapoint: len(datapoint.get(SUMMARY_FIELD_KEY, "").split()) + len(datapoint.get(DESCRIPTION_FIELD_KEY, "").split()))
+    min_text_length = len(min_text_length_datapoint.get(SUMMARY_FIELD_KEY, "").split()) + len(min_text_length_datapoint.get(DESCRIPTION_FIELD_KEY, "").split())
+    project_issue_counts = projects.get_issue_counts(filtered_data)
+    min_timespent = min([min(y_train), min(y_test)])
+    max_timespent = max([max(y_train), max(y_test)])
+
     configuration = {
         "training" : {
             "split percentage" : split_percentage,
@@ -62,11 +70,24 @@ def train_on_dataset(dataset):
         "data" : {
             "mean_baseline" : mean_baseline,
             "median_baseline" : median_baseline,
-            "max_text_length" : max_text_length,
             "datapoint_count" : {
                 "training" : len(x_train),
                 "testing" : len(x_test)
-            }
+            },
+            "text_length" : {
+                "min_word_count" : min_text_length,
+                "max_word_count" : max_text_length
+            },
+            "projects" : {
+                "count" : len(project_issue_counts),
+                "min_size" : min(project_issue_counts, key=lambda a: a[1])[1],
+                "max_size" : max(project_issue_counts, key=lambda a: a[1])[1]
+            },
+            "timespent" : {
+                "min" : min_timespent,
+                "max" : max_timespent,
+                "distribution" : projects.get_bins_and_volumes(filtered_data, 10, max_timespent - min_timespent)[1]
+            } 
         }
     }
     with open(configuration_filename, "w") as configuration_file:

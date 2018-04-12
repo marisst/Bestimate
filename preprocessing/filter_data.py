@@ -68,16 +68,8 @@ def even_distribution(data):
     timespent_range = max_timespent - min_timespent
 
     bin_count = int(input("Please choose number of bins (timespent range is %.0f hours): " % (timespent_range / SECONDS_IN_HOUR)))
-    bin_range = timespent_range / bin_count
-
-    bins = []
-    for i in range(bin_count):
-
-        from_timespent = bin_range * i
-        to_timespent = bin_range * (i + 1)
-        bins.append([datapoint for datapoint in data if datapoint[TIMESPENT_FIELD_KEY] > from_timespent and datapoint[TIMESPENT_FIELD_KEY] <= to_timespent])
-
-    bin_volumes = [len(b) for b in bins]
+    
+    bins, bin_volumes = projects.get_bins_and_volumes(data, bin_count, timespent_range)
     min_bin_volume = min(bin_volumes)
     print("Bin volumes:", *bin_volumes)
 
