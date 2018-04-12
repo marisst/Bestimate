@@ -24,7 +24,7 @@ def predict_timespent(dataset, training_session_name, epoch, val_loss):
     # predict
     training_predictions = model.predict([x_train]) / SECONDS_IN_HOUR
     testing_predictions = model.predict([x_test]) / SECONDS_IN_HOUR
-    print("PRedictions calculated")
+    print("Predictions calculated")
 
     # calculate deviations
     training_deviations = [abs(prediction[0] - y_train[i]) for i, prediction in enumerate(training_predictions)]
