@@ -23,7 +23,7 @@ A single dataset or a list of datasets can get cleaned as shown above. If no dat
 - characters that are neither latin letters, numbers nor punctuation marks and have therefor been converted to a hexadecimal representation are removed;
 - finally, several consecutive spaces between words are replaced with one space and leading and trailing spaces are removed.
 
-Datapoints with cleaned text are saved in `data/DATASET` forlder in JSON format. The description field often contains fragments which do not belong to natural language but is rather text from debugging or different technical codes. To recognize such text fragments, *alpha density* is calculated for description field and added to the JSON file. *Alpha density* is a ratio between latin letter character count and the count of all characters except spaces.
+Datapoints with cleaned text are saved in `data/DATASET` forlder in JSON format. The `description` field often contains fragments which do not belong to natural language but is rather text from debugging or different technical codes. To recognize such text fragments, *alpha density* is calculated for `description` field and added to the JSON file. *Alpha density* is a ratio between latin letter character count and the count of all characters except spaces.
 
 ### Selecting or Excluding Projects and Merging Datasets
 Datasets for model training and testing are composed from the cleaned data fetched from JIRA repositories. At this stage data from several JIRA repositories can be merged together and particular projects can be selected or excluded from the training and testing datasets.
@@ -38,3 +38,26 @@ Datapoints with short textual descriptions, extreme outliers and small projects 
 python -m preprocessing.filter_data A
 ```
 Replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to filter.
+
+## Statistics
+The statistics module allow you to get to know the data better.
+
+### Time Spent Distribution
+```
+python -m statistics.label_distribution A
+```
+To create a histogram of `timespent` field distribution, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish explore. Since the model tries to predict `timespent` it is also called "label". A histogram like the one below will be generated and saved in `data/statistics` directory.
+![label_distribution example](readme_images/label_distribution_example.png)
+
+### Project Size Distribution
+```
+python -m statistics.project_size A
+```
+To create a histogram of project size distribution, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to explore. Project size is defined as the number of labeled issues in a project. A histogram like the one below will be generated and saved in `data/statistics` directory.
+![project_size example](readme_images/project_size_example.png)
+
+### Text Length Distribution
+```
+
+```
+

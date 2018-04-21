@@ -21,6 +21,8 @@ def show_histogram(dataset):
     plt.hist(y, bins = max_hours * 12, range = (0, max_hours - 1 / SECONDS_IN_HOUR))
     plt.xticks(np.arange(0, max_hours + 1, 1))
     plt.xlim(0, max_hours)
+    plt.xlabel("Time spent, hours")
+    plt.ylabel("Number of records")
 
     load_data.create_folder_if_needed(STATISTICS_FOLDER)
     filename = get_statistics_image_filename(dataset, LABEL_DISTRIBUTION_STAT)
