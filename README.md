@@ -39,7 +39,7 @@ python -m preprocessing.filter_data A
 ```
 Replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to filter.
 
-## Statistics
+## Insights
 The statistics module allow you to get to know the data better.
 
 ### Time Spent Distribution
@@ -58,6 +58,7 @@ To create a histogram of project size distribution, replace `A` with the hexadec
 
 ### Text Length Distribution
 ```
-
+python -m statistics.text_length A
 ```
-
+To create a histogram of text length, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to explore. Text length is measured as the number of words in summary and description fields of labeled tasks. A histogram like the one below will be generated and saved in `data/statistics` directory.
+![text_length example](readme_images/text_length_example.png)

@@ -16,21 +16,26 @@ def show_histogram(dataset):
 
     need_upper_limit = input("Would you like to put a constraint on the maximum text length displayed? (y/n) ") == "y"
     if need_upper_limit:
-        upper_limit = int(input("Please enter the upper text length limit: "))
+        upper_limit = int(input("Please enter the upper text length limit (words): "))
 
-    bins = int(input("Please input the number of bins: "))
-
-    text_lengths = [len(datapoint.get(SUMMARY_FIELD_KEY, "")) + len(datapoint.get(DESCRIPTION_FIELD_KEY, "")) for datapoint in data]
+    text_lengths = [len((datapoint.get(SUMMARY_FIELD_KEY, "") + " " + datapoint.get(DESCRIPTION_FIELD_KEY, "")).split()) for datapoint in data]
 
     min_length = min(text_lengths)
     max_length = max(text_lengths)
     if need_upper_limit:
         max_length = min(upper_limit, max_length)
 
+    suggested_number_of_bins = [i for i in range(5, 30) if (max_length - min_length) % i == 0]
+    print("Suggested number of bins is:", *suggested_number_of_bins)
+    bins = int(input("Please input the number of bins: "))
+
     plt.figure(figsize=(12, 7))
     plt.hist(text_lengths, bins = bins, range = (min_length, max_length))
-    plt.xticks(np.arange(0, max_length, (max_length - min_length) / bins))
+    step = (max_length - min_length) / bins
+    plt.xticks(np.arange(min_length, max_length + 1, step))
     plt.xlim(min_length, max_length)
+    plt.xlabel("Text length, words")
+    plt.ylabel("Number of records")
 
     load_data.create_folder_if_needed(STATISTICS_FOLDER)
     filename = get_statistics_image_filename(dataset, TEXT_LENGTH_STAT)
