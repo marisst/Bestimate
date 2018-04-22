@@ -23,6 +23,7 @@ LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
 RESULTS_FILENAME = "results"
 CONFIGURATION_FILENAME = "configuration"
+REPO_LIST_FILENAME = "open_repositories"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
 PROJECT_SIZE_STAT = "project_size"
@@ -33,9 +34,13 @@ PICKLE_PROTOCOL = 4
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
 SPACY_EMBEDDING_SIZE = 384
+REQUEST_TIMEOUT_SECONDS = 15
 
 PLOT_BBOX_INCHES = "tight"
 OSX_PLATFORM_SYSTEM = "Darwin"
+
+LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
+UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
 
 DESCRIPTION_FIELD_KEY = "description"
 SUMMARY_FIELD_KEY = "summary"
@@ -44,6 +49,12 @@ TIMESPENT_FIELD_KEY = "timespent"
 FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 ALPHA_FIELD = "alpha"
+
+def get_repository_search_url(repository_base_url):
+    return URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
+
+def get_repo_list_filename():
+    return "%s/%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, JSON_FILE_EXTENSION)
 
 def get_folder_name(dataset_name):
     return "%s/%s" % (DATA_FOLDER, dataset_name)

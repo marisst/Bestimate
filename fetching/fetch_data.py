@@ -5,11 +5,10 @@ import requests
 import shutil
 import sys
 
+from fetching.count_issues import count as get_issue_count
 from utilities.constants import *
 
 MAX_RECORDS_PER_REQUEST = 50
-LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
-UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
 
 def create_folder(dataset_name):
 
@@ -25,34 +24,14 @@ def create_folder(dataset_name):
 
     return dataset_folder
 
-def get_number_of_issues(repository_search_url, auth, jql=""):
-    
-    params = {
-        "maxResults" : "0",
-        "jql" : jql
-    }
 
-    response = requests.get(repository_search_url, params=params, auth=auth)
-
-    if response.status_code != 200:
-        print("%s returned unexpected status code %d when trying to get number of issues with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
-
-        #print(response.text)
-
-        error_messages = response.json().get("errorMessages")
-        if error_messages is not None and len(error_messages) > 0:
-            print('\n'.join(error_messages))
-
-        return 0
-
-    return response.json().get("total")
 
 def print_issue_counts(repository_search_url, auth):
 
     print("Fetching the number of total issues")
 
-    total_issues = get_number_of_issues(repository_search_url, auth)
-    total_labeled_issues = get_number_of_issues(repository_search_url, auth, LABELED_DATA_JQL)
+    total_issues = get_issue_count(repository_search_url, auth)
+    total_labeled_issues = get_issue_count(repository_search_url, auth, LABELED_DATA_JQL)
     labeling_coverage = total_labeled_issues / total_issues * 100 if total_issues > 0 else 0
     issue_statement = "This repository contains %d issues in total of which %d (%.2f%%) are labeled."
     print(issue_statement % (total_issues, total_labeled_issues, labeling_coverage))
@@ -136,7 +115,7 @@ def fetch_data(dataset_name, repository_base_url, auth = None):
 
     dataset_folder = create_folder(dataset_name)
 
-    repository_search_url = URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
+    repository_search_url = get_repository_search_url(repository_base_url)
     
     print_issue_counts(repository_search_url, auth)
 
