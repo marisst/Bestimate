@@ -9,6 +9,7 @@ python -m fetching.fetch_data DATASET jira.repositoryname.com
 A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
 
 A few public JIRA repositories, mainly from open source projects:
+
 | Url | Labeled issues | Total issues | Labeling coverage |
 | --- | ---: | ---:| ---:|
 | [jira.exoplatform.org](https://jira.exoplatform.org) | 9,736 | 36,219 | 26.88% |
