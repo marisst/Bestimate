@@ -3,15 +3,15 @@ Automated software development task estimation on JIRA
 
 ## Glossary
 
-*datapoint* - issue
-*label* - `timespent` field which is greated than zero
+*datapoint* - a JIRA issue which belongs to a project, has summary text and optionally description and time spent reported  
+*label* - `timespent` field which is greated than zero  
 *labeled issue* - resolved issue with `timespent` value greater than zero
 
 
 ## Data gathering
 
 ### Discovering repositories
-To discover and save a list of open JIRA repositories with at least 100 labeled issues at `/data/open_repositories.json` run the following command:
+To discover JIRA repositories with at least 100 labeled issues and save their Urls at `/data/open_repositories.json`, run the following command:
 ```
 python -m fetching.discover_repos BING_API_KEY
 ```
@@ -24,7 +24,7 @@ python -m fetching.fetch_data DATASET jira.repositoryname.com
 ```
 A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
 
-A few public JIRA repositories in English, mainly from open source projects:
+JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 
 | Url | Labeled issues | Total issues | Labeling coverage |
 | --- | ---: | ---:| ---:|
@@ -51,6 +51,8 @@ A few public JIRA repositories in English, mainly from open source projects:
 | [bugreports.qt.io](https://bugreports.qt.io) | 117 | 97,765 | 0.12% |
 | [jira.onap.org](https://jira.onap.org/) | 106 | 11,813 | 0.90% |
 | Total: | 53,198 | 2,005,240 | 2.65% |
+
+Issue counts were obtained 4/22/2018.
 
 ## Preprocessing Data
 The fetched datapoints are further processed by cleaning textual task descriptions, merging data from several repositories together and filtering them in order to increase data homogeinity.
