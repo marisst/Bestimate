@@ -2,10 +2,29 @@
 Automated software development task estimation
 
 ## Fetching Data from JIRA Repository
+To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:
 ```
 python -m fetching.fetch_data DATASET jira.repositoryname.com
 ```
-Replace `DATASET` with a name for a folder in which the fetched data will be saved and `jira.repositoryname.com` with the address of the JIRA repository from which you want to fetch the data. The fetched data will be saved in `/data/DATASET` subfolder in CSV format. Labeled and unlabeled datapoints are stored seperately. A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key.
+A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
+
+A few public JIRA repositories, mainly from open source projects:
+| Url | Labeled issues | Total issues | Labeling coverage |
+| --- | ---: | ---:| ---:|
+| [jira.exoplatform.org](https://jira.exoplatform.org) | 9,736 | 36,219 | 26.88% |
+| [jira.talendforge.org](https://jira.talendforge.org) | 9,034 | 100,381 | 9.00% |
+| [jira.atlassian.com](https://jira.atlassian.com/secure) | 5,817 | 225,371 | 2.58% |
+| [issues.apache.org/jira](https://issues.apache.org/jira) | 6,331 | 756,657 | 0.84% |
+| [issues.jboss.org](https://issues.jboss.org) | 3,919 | 302,964 | 1.29% |
+| [jira.ez.no](https://jira.ez.no) | 2,156 | 25,520 | 8.45% |
+| [jira.spring.io](https://jira.spring.io) | 1,859 | 62,923 | 2.95% |
+| [issues.sonatype.org](https://issues.sonatype.org) | 1,655 | 48,160 | 3.44% |
+| [hibernate.atlassian.net](https://hibernate.atlassian.net) | 1,018 | 24,190 | 4.21% |
+| [jira.secondlife.com](https://jira.secondlife.com) | 520 | 6,564 | 7.92% |
+| [ecosystem.atlassian.net](https://ecosystem.atlassian.net) | 469 | 35,028 | 1.34% |
+| [jira.duraspace.org](https://jira.duraspace.org) | 154 | 12,134 | 1.27% |
+| [wso2.org/jira](https://wso2.org/jira/) | 144 | 81,448 | 0.18% |
+| [mulesoft.org/jira](http://mulesoft.org/jira) | 144 | 15,234 | 0.95% |
 
 ## Preprocessing Data
 The fetched datapoints are further processed by cleaning textual task descriptions, merging data from several repositories together and filtering them in order to increase data homogeinity.

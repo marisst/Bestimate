@@ -25,16 +25,6 @@ def create_folder(dataset_name):
 
     return dataset_folder
 
-def get_auth():
-
-    authorize = input("Do you want to sign in? (y/n) ") == "y"
-
-    if authorize:
-        username = input("Username: ")
-        api_token = input("API token: ")
-
-    return (username, api_token) if authorize is True else None
-
 def get_number_of_issues(repository_search_url, auth, jql=""):
     
     params = {
@@ -142,12 +132,12 @@ def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
     return total_issues
 
-def fetch_data(dataset_name, repository_base_url):
+def fetch_data(dataset_name, repository_base_url, auth = None):
 
     dataset_folder = create_folder(dataset_name)
 
     repository_search_url = URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
-    auth = get_auth()
+    
     print_issue_counts(repository_search_url, auth)
 
     labeled_data_filename = get_labeled_raw_filename(dataset_name)
@@ -159,10 +149,21 @@ def fetch_data(dataset_name, repository_base_url):
     if labeled_issue_count + unlabeled_issue_count > 0:
         print("%d labeled and %d unlabeled issues from %s were fetched and saved in %s" % (labeled_issue_count, unlabeled_issue_count, repository_base_url, dataset_folder))
 
+def get_auth():
+
+    authorize = input("Do you want to sign in? (y/n) ") == "y"
+
+    if authorize:
+        username = input("Username: ")
+        api_token = input("API token: ")
+
+    return (username, api_token) if authorize is True else None
+
 sys_argv_count = len(sys.argv)
 
 if sys_argv_count == 3:
-    fetch_data(sys.argv[1], sys.argv[2])
+    auth = get_auth()
+    fetch_data(sys.argv[1], sys.argv[2], auth)
     sys.exit()
 
 print("Please pass 2 arguments to this script:\n1. Dataset name that will be used as folder name\n2. JIRA repository URL")
