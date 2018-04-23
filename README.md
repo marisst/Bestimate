@@ -30,6 +30,7 @@ JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 | --- | ---: | ---:| ---:|
 | [jira.exoplatform.org](https://jira.exoplatform.org) | 9,736 | 36,219 | 26.88% |
 | [jira.talendforge.org](https://jira.talendforge.org) | 9,034 | 100,381 | 9.00% |
+| [gazelle.ihe.net/jira](https://gazelle.ihe.net/jira) | 7,072 | 13,507 | 52.36% |
 | [issues.apache.org/jira](https://issues.apache.org/jira) | 6,331 | 756,657 | 0.84% |
 | [jira.atlassian.com](https://jira.atlassian.com/secure) | 5,817 | 225,371 | 2.58% |
 | [issues.jboss.org](https://issues.jboss.org) | 3,919 | 302,967 | 1.29% |
@@ -38,10 +39,12 @@ JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 | [jira.ez.no](https://jira.ez.no) | 2,156 | 25,520 | 8.45% |
 | [jira.pentaho.com](https://jira.pentaho.com) | 2,073 | 39,667 | 5.23% |
 | [jira.spring.io](https://jira.spring.io) | 1,859 | 62,923 | 2.95% |
+| [mariadb.atlassian.net](https://mariadb.atlassian.net) | 1,848 | 8,617 | 21.45% |
 | [issues.sonatype.org](https://issues.sonatype.org) | 1,655 | 48,160 | 3.44% |
 | [tracker.nci.nih.gov](https://tracker.nci.nih.gov) | 1,571 | 13,985 | 11.23% |
 | [hibernate.atlassian.net](https://hibernate.atlassian.net) | 1,018 | 24,190 | 4.21% |
 | [jira.secondlife.com](https://jira.secondlife.com) | 520 | 6,564 | 7.92% |
+| [mifosforge.jira.com](https://mifosforge.jira.com) | 506 | 10,763 | 4.70% |
 | [ecosystem.atlassian.net](https://ecosystem.atlassian.net) | 469 | 35,028 | 1.34% |
 | [tracker.moodle.org](https://tracker.moodle.org) | 199 | 82,007 | 0.24% |
 | [jira.duraspace.org](https://jira.duraspace.org) | 154 | 12,134 | 1.27% |
@@ -50,7 +53,7 @@ JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 | [thepluginpeople.atlassian.net](https://thepluginpeople.atlassian.net) | 130 | 2,696 | 4.82% |
 | [bugreports.qt.io](https://bugreports.qt.io) | 117 | 97,765 | 0.12% |
 | [jira.onap.org](https://jira.onap.org/) | 106 | 11,813 | 0.90% |
-| Total: | 53,198 | 2,005,240 | 2.65% |
+| Total: | 62,624 | 2,038,127 | 3.07% |
 
 Issue counts were obtained 4/22/2018.
 

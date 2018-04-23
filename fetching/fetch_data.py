@@ -4,6 +4,7 @@ import re
 import requests
 import shutil
 import sys
+import time
 
 from fetching.count_issues import count as get_issue_count
 from utilities.constants import *
@@ -45,7 +46,21 @@ def fetch_slice(repository_search_url, auth, jql, startAt, maxResults):
         "jql" : jql
     }
 
-    response = requests.get(repository_search_url, params=params, auth=auth)
+    requestSucc = False
+    timesTried = 0
+    while not requestSucc and timesTried < 7:
+        try:
+            response = requests.get(repository_search_url, params=params, auth=auth)
+        except requests.exceptions.RequestException as e:
+            print("An exception occured while trying to fetch a slice.")
+            print(e)
+            timesTried = timesTried + 1
+            delay = timesTried * 10 + 2 ** timesTried
+            print("Trying again in %d seconds" % delay)
+            time.sleep(delay)
+            continue
+        requestSucc = True
+
 
     if response.status_code != 200:
         print("%s returned unexpected status code %d when trying to fetch slice with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
@@ -93,7 +108,6 @@ def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
     slice_num = 0
     total_issues = 0
-
 
     while slice_num * MAX_RECORDS_PER_REQUEST <= total_issues:
 

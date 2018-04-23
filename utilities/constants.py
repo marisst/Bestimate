@@ -39,6 +39,10 @@ REQUEST_TIMEOUT_SECONDS = 15
 PLOT_BBOX_INCHES = "tight"
 OSX_PLATFORM_SYSTEM = "Darwin"
 
+BING = "bing"
+GOOGLE = "google"
+SEARCH_ENGINES = [BING, GOOGLE]
+
 LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
 UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
 
@@ -53,8 +57,8 @@ ALPHA_FIELD = "alpha"
 def get_repository_search_url(repository_base_url):
     return URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
 
-def get_repo_list_filename():
-    return "%s/%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, JSON_FILE_EXTENSION)
+def get_repo_list_filename(search_engine):
+    return "%s/%s_%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, search_engine, JSON_FILE_EXTENSION)
 
 def get_folder_name(dataset_name):
     return "%s/%s" % (DATA_FOLDER, dataset_name)

@@ -1,0 +1,44 @@
+{
+    "repositories": [
+        {
+            "key": "EXO",
+            "url": "jira.exoplatform.org"
+        },
+        {
+            "key": "TDF",
+            "url": "jira.talendforge.org"
+        },
+        {
+            "key": "GZL",
+            "url": "gazelle.ihe.net/jira"
+        },
+        {
+            "key": "APC",
+            "url": "issues.apache.org/jira"
+        },
+        {
+            "key": "JRA",
+            "url": "jira.atlassian.com"
+        },
+        {
+            "key": "JBO",
+            "url": "issues.jboss.org"
+        },
+        {
+            "key": "HSC",
+            "url": "ticket.hilscher.com"
+        },
+        {
+            "key": "MRS",
+            "url": "issues.openmrs.org"
+        },
+        {
+            "key": "EZZ",
+            "url": "jira.ez.no"
+        },
+        {
+            "key": "PTH",
+            "url": "jira.pentaho.com"
+        }
+    ]
+}
