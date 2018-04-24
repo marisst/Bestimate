@@ -107,7 +107,6 @@ def filter(dataset):
         minimum_text_length = int(input("Please enter the minimum text length (words): "))
         data = escape_short_texts(data, minimum_text_length)
 
-
     if input("Would you like to remove extreme outliers? (y/n) ") == "y":
         lower_bound_minutes = int(input("Please enter the lower bound (integer) in minutes (input 0 to set no bound): "))
         upper_bound_minutes = int(input("Please enter the upper bound (integer) in minutes (input %s to set no bound): " % ((maximum + SECONDS_IN_MINUTE) // SECONDS_IN_MINUTE)))

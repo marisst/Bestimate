@@ -1,7 +1,9 @@
 import csv
 import json
+import numpy as np
 import os
 import sys
+from string import punctuation
 import re
 
 from utilities import load_data, input_parser
@@ -38,6 +40,7 @@ def escape_links(text, link_starters):
 
     for link_starter in link_starters:
         text = re.sub("\[(.*?\\|)?%s(.*?)\]" % link_starter, "", text)
+        text = re.sub(r"\bhttps?://\S+", "", text)
 
     return text
 
@@ -51,9 +54,32 @@ def escape_hex_character_codes(text):
 
     return re.sub(r"\\x\w\w", "", text)
 
-def escape_non_alphanum(text):
+def escape_punctuation_boundaries(text):
 
-    return re.sub(r"[^a-zA-Z1-9\']", " ", text)
+    return " ".join([word.lstrip(punctuation) for word in text.split()])
+
+def escape_low_alpha_density_words(text):
+
+    return " ".join([word for word in text.split() if calculate_alpha_density(word) > 0.93])
+
+def remove_repeating_fragments(text):
+
+    words = text.split()
+    duplicates = np.full((len(words)), False)
+    for i in range(1, len(words)):
+        max_step = (i + 1) // 2
+        for step in range(1, max_step + 1):
+            first_fragment = ' '.join(words[i-step+1:i+1])
+            second_fragment = ' '.join(words[i-2*step+1:i-step+1])
+            if first_fragment == second_fragment:
+                duplicates[i-step+1:i+1] = True
+
+    result = []
+    for i, word in enumerate(words):
+        if not duplicates[i]:
+            result.append(word)
+
+    return " ".join(result)
 
 def escape_odd_spaces(text):
     
@@ -83,7 +109,9 @@ def clean(text):
     text = escape_links(text, LINK_STARTERS)
     text = escape_stack_trace(text)
     text = escape_hex_character_codes(text)
-    #text = escape_non_alphanum(text)
+    text = escape_punctuation_boundaries(text)
+    text = escape_low_alpha_density_words(text)
+    text = remove_repeating_fragments(text)
     text = escape_odd_spaces(text)
     return text
 
