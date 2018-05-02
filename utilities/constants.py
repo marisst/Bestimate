@@ -1,9 +1,11 @@
+CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
+WEIGTHS_FOLDER = "weigths"
+
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
-WEIGTHS_FOLDER = "weigths"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -53,6 +55,9 @@ TIMESPENT_FIELD_KEY = "timespent"
 FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 ALPHA_FIELD = "alpha"
+
+def get_running_configuration_filename(configuration_name):
+    return "%s/%s%s" % (CONFIGURATIONS_FOLDER, configuration_name, JSON_FILE_EXTENSION)
 
 def get_repository_search_url(repository_base_url):
     return URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH

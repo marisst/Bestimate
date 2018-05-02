@@ -64,10 +64,12 @@ def escape_low_alpha_density_words(text):
 
 def remove_repeating_fragments(text):
 
+    MAX_FRAGMENT_LENGTH = 15
+
     words = text.split()
     duplicates = np.full((len(words)), False)
     for i in range(1, len(words)):
-        max_step = (i + 1) // 2
+        max_step = min(MAX_FRAGMENT_LENGTH, (i + 1) // 2)
         for step in range(1, max_step + 1):
             first_fragment = ' '.join(words[i-step+1:i+1])
             second_fragment = ' '.join(words[i-2*step+1:i-step+1])
