@@ -10,9 +10,10 @@ def run_configuration(configuration_name):
     configuration = load_json(filename)
 
     repositories = configuration.get("repositories")
-    if repositories is not None:
-        for repository in repositories:
-            if not os.path.exists(DATA_FOLDER)
+    # if repositories is not None:
+        # for repository in repositories:
+            # if not os.path.exists(DATA_FOLDER)
+
         
 
 if len(sys.argv) != 2:

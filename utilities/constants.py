@@ -4,7 +4,7 @@ WEIGTHS_FOLDER = "weigths"
 
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
-VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
+TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
 
 URL_PREFIX = "https://"
@@ -90,8 +90,8 @@ def get_merged_dataset_filename(dataset_name):
 def get_filtered_dataset_filename(dataset_name):
     return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
-def get_vectorized_dataset_filename(dataset_name):
-    return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
+def get_token_count_filename(dataset_name):
+    return "%s/%s%s" % (TOKEN_COUNT_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)

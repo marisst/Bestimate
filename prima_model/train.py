@@ -118,7 +118,6 @@ def train_on_dataset(dataset):
 
     # Save the model
     model.save(weigths_directory_name + "/model.h5")
-
     
 
 train_on_dataset(sys.argv[1])
