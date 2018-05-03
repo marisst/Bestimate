@@ -5,6 +5,7 @@ WEIGTHS_FOLDER = "weigths"
 MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
+DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
 
 URL_PREFIX = "https://"
@@ -55,6 +56,7 @@ TIMESPENT_FIELD_KEY = "timespent"
 FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 ALPHA_FIELD = "alpha"
+TOTAL_KEY = "total"
 
 def get_running_configuration_filename(configuration_name):
     return "%s/%s%s" % (CONFIGURATIONS_FOLDER, configuration_name, JSON_FILE_EXTENSION)

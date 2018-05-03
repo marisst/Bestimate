@@ -15,6 +15,18 @@ def load_dataset(dataset):
     filename = get_merged_dataset_filename(dataset)
     return load_data.load_json(filename)
 
+def remove_unlabeled_datapoints(data):
+
+    labeled_data = [datapoint for datapoint in data if TIMESPENT_FIELD_KEY in datapoint]
+
+    print(len(labeled_data))
+    print(len(data))
+
+    if(len(labeled_data) != len(data)):
+        print("%d (%d%%) of %d datapoints were removed because they were unlabeled" % string_utils.get_part_strings(len(data)-len(labeled_data), len(data)))
+
+    return labeled_data
+
 def print_extreme(data, extreme):
 
     extreme_datapoint = extreme.value(data, key=lambda datapoint: datapoint[TIMESPENT_FIELD_KEY])
@@ -99,6 +111,8 @@ def filter(dataset):
     data = load_dataset(dataset)
     if data is None:
         return
+
+    data = remove_unlabeled_datapoints(data)
 
     print_extreme(data, Extreme.MINIMUM)
     maximum = print_extreme(data, Extreme.MAXIMUM)

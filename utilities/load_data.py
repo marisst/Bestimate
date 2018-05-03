@@ -19,6 +19,11 @@ def load_json(filename):
     
     return json.load(open(filename))
 
+def save_json(filename, data):
+
+    with open(filename, "w") as file:
+        json.dump(data, file, indent=JSON_INDENT)
+
 def load_csv(filename, keys):
 
     if not os.path.isfile(filename):
