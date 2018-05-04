@@ -7,6 +7,7 @@ FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
 DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
+NUMERIC_FOLDER = DATA_FOLDER + "/numeric"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -57,6 +58,7 @@ FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESP
 
 ALPHA_FIELD = "alpha"
 TOTAL_KEY = "total"
+NUMERIC_TEXT_KEY = "numeric_text"
 
 def get_running_configuration_filename(configuration_name):
     return "%s/%s%s" % (CONFIGURATIONS_FOLDER, configuration_name, JSON_FILE_EXTENSION)
@@ -97,6 +99,9 @@ def get_token_count_filename(dataset_name):
 
 def get_dictionary_filename(dataset_name):
     return "%s/%s%s" % (DICTIONARY_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
+
+def get_numeric_folder(dataset_name):
+    return "%s/%s%s" % (NUMERIC_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)

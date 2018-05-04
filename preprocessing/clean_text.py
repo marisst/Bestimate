@@ -115,6 +115,7 @@ def clean(text):
     text = escape_low_alpha_density_words(text)
     text = remove_repeating_fragments(text)
     text = escape_odd_spaces(text)
+    text = text.lower()
     return text
 
 def load_file(filename):

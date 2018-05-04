@@ -18,13 +18,8 @@ def load_dataset(dataset):
 def remove_unlabeled_datapoints(data):
 
     labeled_data = [datapoint for datapoint in data if TIMESPENT_FIELD_KEY in datapoint]
-
-    print(len(labeled_data))
-    print(len(data))
-
     if(len(labeled_data) != len(data)):
         print("%d (%d%%) of %d datapoints were removed because they were unlabeled" % string_utils.get_part_strings(len(data)-len(labeled_data), len(data)))
-
     return labeled_data
 
 def print_extreme(data, extreme):
