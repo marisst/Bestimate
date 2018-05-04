@@ -8,9 +8,10 @@ def calculate_frequencies(token_counts):
     print("Calculating frequencies")
     token_stats = {}
     for key in token_counts:
+        token_stats[key] = {}
         word_count = sum([e[1] for e in token_counts[key]])
         for token_count in token_counts[key]:
-            token_stats[token_count[0]] = {
+            token_stats[key][token_count[0]] = {
                 "count" : token_count[1],
                 "frequency" : token_count[1] / word_count * 100
             }

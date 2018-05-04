@@ -95,6 +95,9 @@ def get_filtered_dataset_filename(dataset_name):
 def get_token_count_filename(dataset_name):
     return "%s/%s%s" % (TOKEN_COUNT_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
+def get_dictionary_filename(dataset_name):
+    return "%s/%s%s" % (DICTIONARY_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
+
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)
 
