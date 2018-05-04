@@ -160,11 +160,6 @@ def get_clean_content(filename):
 
     return sorted(data, key = lambda datapoint: datapoint[ALPHA_FIELD] if ALPHA_FIELD in datapoint else 101)
 
-def save_content(filename, data):
-
-    with open(filename, 'w') as file:
-        json.dump(data, file, indent=JSON_INDENT)
-
 def clean_text(datasets_from_input):
 
     datasets = input_parser.select_datasets(datasets_from_input)
@@ -180,12 +175,12 @@ def clean_text(datasets_from_input):
         labeled_data_filename = get_labeled_raw_filename(dataset_name)
         labeled_cleaned_data_filename = get_labeled_cleaned_filename(dataset_name)
         clean_labeled_content = get_clean_content(labeled_data_filename)
-        save_content(labeled_cleaned_data_filename, clean_labeled_content)
+        load_data.save_json(labeled_cleaned_data_filename, clean_labeled_content)
 
         unlabeled_data_filename = get_unlabeled_raw_filename(dataset_name)
         unlabeled_cleaned_data_filename = get_unlabeled_cleaned_filename(dataset_name)
         clean_unlabeled_content = get_clean_content(unlabeled_data_filename)
-        save_content(unlabeled_cleaned_data_filename, clean_unlabeled_content)
+        load_data.save_json(unlabeled_cleaned_data_filename, clean_unlabeled_content)
 
 datasets_from_input = sys.argv[1:]
 clean_text(datasets_from_input)
