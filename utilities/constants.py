@@ -8,6 +8,7 @@ TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
 DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
 NUMERIC_FOLDER = DATA_FOLDER + "/numeric"
+VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -93,6 +94,9 @@ def get_merged_dataset_filename(dataset_name):
 
 def get_filtered_dataset_filename(dataset_name):
     return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
+
+def get_vectorized_dataset_filename(dataset_name):
+    return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
 
 def get_token_count_filename(dataset_name):
     return "%s/%s%s" % (TOKEN_COUNT_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from preprocessing import projects
+from preprocess import projects
 from utilities import load_data
 from utilities.constants import *
 

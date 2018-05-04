@@ -2,7 +2,7 @@ from enum import Enum
 import json
 import sys
 
-from preprocessing import projects
+from preprocess import projects
 from utilities import load_data, string_utils
 from utilities.constants import *
 

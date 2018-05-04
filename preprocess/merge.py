@@ -3,7 +3,7 @@ import os
 import re
 import sys
 
-from preprocessing import projects
+from preprocess import projects
 from utilities import input_parser, load_data
 from utilities.constants import *
 

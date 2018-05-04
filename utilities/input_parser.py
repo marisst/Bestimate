@@ -1,7 +1,7 @@
 import os
 import re
 
-from preprocessing import projects
+from preprocess import projects
 from utilities.constants import *
 
 def select_datasets(datasets):

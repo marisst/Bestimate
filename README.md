@@ -62,7 +62,7 @@ The fetched datapoints are further processed by cleaning textual task descriptio
 
 ### Cleaning Text
 ```
-python -m preprocessing.clean_text DATASET1 DATASET2 DATASET3
+python -m preprocess.clean DATASET1 DATASET2 DATASET3
 ```
 A single dataset or a list of datasets can get cleaned as shown above. If no datasets are selected, all available datasets will get cleaned. The text is processed according to [Atlassian formatting notation](https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all) as follows:
 - text contained in tags such as `{code}` and `{noformat}` and the tags themselves are removed;
@@ -78,14 +78,14 @@ Datapoints with cleaned text are saved in `data/DATASET` forlder in JSON format.
 ### Selecting or Excluding Projects and Merging Datasets
 Datasets for model training and testing are composed from the cleaned data fetched from JIRA repositories. At this stage data from several JIRA repositories can be merged together and particular projects can be selected or excluded from the training and testing datasets.
 ```
-python -m preprocessing.merge_data DATASET1 DATASET2
+python -m preprocess.merge DATASET1 DATASET2
 ```
 If you whish to create a training and testing dataset from one repository only, just pass the name of that single repository. If no datasets are selected, all available datasets will get merged together in a new dataset. Each new merged dataset is automatically assigned a hexadecimal sequence number and saved in `data/merged` folder.
 
 ### Filtering Data
 Datapoints with short textual descriptions, extreme outliers and small projects can be removed as well as skewed data distributions can be made even by using the filtering module. The module can also make skewed data distributions even by removing datapoints from any bins that are more populated than the least populated one.
 ```
-python -m preprocessing.filter_data A
+python -m preprocess.filter A
 ```
 Replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to filter.
 
