@@ -29,7 +29,7 @@ def serialize(vectorized_data, dataset_name):
 
 def vectorize_dataset(dataset):
 
-    filename = get_filtered_dataset_filename(dataset)
+    filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     filtered_data = load_data.load_json(filename)
     datapoint_count = len(filtered_data)
     max_text_length = int(input("Please input maximum text length: "))

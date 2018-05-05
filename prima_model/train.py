@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from preprocessing import projects
+from preprocess import projects
 from prima_model import calculate_baselines as bsl
 from prima_model import graph_helpers as gph
 from prima_model import load_data as load
@@ -17,10 +17,10 @@ from utilities import load_data
 from utilities.constants import *
 
 # training parameters
-split_percentage = 75
-learning_rate = 0.02
-epochs = 1000
 batch_size = 50
+epochs = 1000
+learning_rate = 0.02
+split_percentage = 75
 
 def train_on_dataset(dataset):
 

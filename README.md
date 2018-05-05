@@ -5,7 +5,7 @@ Automated software development task estimation on JIRA
 
 *datapoint* - a JIRA issue which belongs to a project, has summary text and optionally description and time spent reported  
 *label* - `timespent` field which is greated than zero  
-*labeled issue* - resolved issue with `timespent` value greater than zero
+*labeled datapoint* - resolved issue with `timespent` value greater than zero
 
 
 ## Data gathering
@@ -20,7 +20,7 @@ Replace `BING_API_KEY` with [Bing Web Search BING_API_KEY](https://azure.microso
 ### Fetching Data from JIRA Repository
 To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:
 ```
-python -m fetching.fetch_data DATASET jira.repositoryname.com
+python -m fetch.data DATASET jira.repositoryname.com
 ```
 A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
 
