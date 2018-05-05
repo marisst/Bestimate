@@ -2,7 +2,6 @@ CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
 WEIGTHS_FOLDER = "weigths"
 
-MERGED_DATA_FOLDER = DATA_FOLDER + "/merged"
 FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
 DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
@@ -15,7 +14,8 @@ JIRA_REST = "/rest/api/latest"
 JIRA_SEARCH = "/search"
 
 RAW_POSTFIX = "raw"
-CLEANED_POSTFIX = "cln"
+CLEANED_POSTFIX = "clean"
+MERGED_POSTFIX = "merged"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
@@ -61,6 +61,9 @@ ALPHA_FIELD = "alpha"
 TOTAL_KEY = "total"
 NUMERIC_TEXT_KEY = "numeric_text"
 
+def get_dataset_filename(dataset_name, labeling, data_type, extension):
+    return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
+
 def get_running_configuration_filename(configuration_name):
     return "%s/%s%s" % (CONFIGURATIONS_FOLDER, configuration_name, JSON_FILE_EXTENSION)
 
@@ -72,25 +75,6 @@ def get_repo_list_filename(search_engine):
 
 def get_folder_name(dataset_name):
     return "%s/%s" % (DATA_FOLDER, dataset_name)
-
-def get_labeled_raw_filename(dataset_name):
-    folder = get_folder_name(dataset_name)
-    return "%s/%s_%s_%s%s" % (folder, dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
-
-def get_unlabeled_raw_filename(dataset_name):
-    folder = get_folder_name(dataset_name)
-    return "%s/%s_%s_%s%s" % (folder, dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
-
-def get_labeled_cleaned_filename(dataset_name):
-    folder = get_folder_name(dataset_name)
-    return "%s/%s_%s_%s%s" % (folder, dataset_name, LABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
-
-def get_unlabeled_cleaned_filename(dataset_name):
-    folder = get_folder_name(dataset_name)
-    return "%s/%s_%s_%s%s" % (folder, dataset_name, UNLABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
-
-def get_merged_dataset_filename(dataset_name):
-    return "%s/%s%s" % (MERGED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_filtered_dataset_filename(dataset_name):
     return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)

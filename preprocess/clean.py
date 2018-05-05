@@ -172,15 +172,17 @@ def clean_text(datasets_from_input):
 
     for dataset_name in datasets:
 
-        labeled_data_filename = get_labeled_raw_filename(dataset_name)
-        labeled_cleaned_data_filename = get_labeled_cleaned_filename(dataset_name)
+        labeled_data_filename = get_dataset_filename(dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
+        labeled_cleaned_data_filename = get_dataset_filename(dataset_name, LABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
         clean_labeled_content = get_clean_content(labeled_data_filename)
         load_data.save_json(labeled_cleaned_data_filename, clean_labeled_content)
+        print("Cleaned data saved at", labeled_cleaned_data_filename)
 
-        unlabeled_data_filename = get_unlabeled_raw_filename(dataset_name)
-        unlabeled_cleaned_data_filename = get_unlabeled_cleaned_filename(dataset_name)
+        unlabeled_data_filename = get_dataset_filename(dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
+        unlabeled_cleaned_data_filename = get_dataset_filename(dataset_name, UNLABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
         clean_unlabeled_content = get_clean_content(unlabeled_data_filename)
         load_data.save_json(unlabeled_cleaned_data_filename, clean_unlabeled_content)
+        print("Cleaned data saved at", unlabeled_cleaned_data_filename)
 
 datasets_from_input = sys.argv[1:]
 clean_text(datasets_from_input)

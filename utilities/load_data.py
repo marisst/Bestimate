@@ -3,6 +3,7 @@ import os
 import json
 import pickle
 import platform
+import shutil
 import sys
 
 from utilities.constants import *
@@ -88,7 +89,21 @@ def create_folder_if_needed(folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 
-def get_next_dataset_name(folder_name):
+def get_next_dataset_name():
 
-    existing_dataset_count = sum(1 for f in os.listdir(folder_name))
-    return str(hex(existing_dataset_count + 1))[2::].upper()
+    existing_dataset_count = sum(1 for f in os.listdir(DATA_FOLDER))
+    return str(existing_dataset_count + 1)
+
+def create_dataset_folder(dataset_name):
+
+    if not os.path.exists(DATA_FOLDER):
+        os.makedirs(DATA_FOLDER)
+    
+    dataset_folder = get_folder_name(dataset_name)
+    if os.path.exists(dataset_folder):
+        if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
+            sys.exit()
+        shutil.rmtree(dataset_folder)
+    os.makedirs(dataset_folder)
+
+    return dataset_folder

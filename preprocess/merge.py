@@ -7,11 +7,11 @@ from preprocess import projects
 from utilities import input_parser, load_data
 from utilities.constants import *
 
-def load_and_parse_data(datasets):
+def load_and_parse_data(datasets, labeling):
 
     data = []
     for dataset in datasets:
-        filename = get_labeled_cleaned_filename(dataset)
+        filename = get_dataset_filename(dataset, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
         dataset_data = load_data.load_json(filename)
 
         if dataset_data is None:
@@ -40,6 +40,8 @@ def load_and_parse_data(datasets):
 
 def filter_by_projects(data, selected_projects):
 
+    print("Merging data from the following projects:", *selected_projects)
+
     filtered_data = []
     for datapoint in data:
         if projects.is_in(datapoint, selected_projects):
@@ -52,16 +54,17 @@ def filter_by_projects(data, selected_projects):
 
 def exclude_projects(data):
 
+    all_projects = projects.get(data)
     if input("Would you like to exclude any particular projects? (y/n) ") != "y":
-        return data
+        return all_projects
 
     excluded_projects = input_parser.select_projects(data)
     if len(excluded_projects) == 0:
         print("No projects were excluded")
-        return data
+        return all_projects
 
-    selected_projects = projects.get(data) - excluded_projects
-    return filter_by_projects(data, selected_projects)
+    selected_projects = all_projects - excluded_projects
+    return selected_projects
 
 def select_projects(data):
 
@@ -77,14 +80,13 @@ def select_projects(data):
         print("No projects were selected")
         return
 
-    print("Merging data from the following projects:", *selected_projects)
-    return filter_by_projects(data, selected_projects)
+    return selected_projects
 
 def save_merged_data(data):
 
-    load_data.create_folder_if_needed(MERGED_DATA_FOLDER)
-    dataset_name = load_data.get_next_dataset_name(MERGED_DATA_FOLDER)
-    filename = get_merged_dataset_filename(dataset_name)
+    dataset_name = load_data.get_next_dataset_name()
+    load_data.create_dataset_folder(dataset_name)
+    filename = get_dataset_filename(dataset_name, LABELED_FILENAME, MERGED_POSTFIX, JSON_FILE_EXTENSION)
 
     with open(filename, 'w') as file:
         json.dump(data, file, indent=JSON_INDENT)
@@ -101,8 +103,12 @@ def merge_data(datasets_from_input):
         print("No datasets selected")
         return
 
-    data = load_and_parse_data(datasets)
-    data = select_projects(data)
+    labeled_data = load_and_parse_data(datasets, LABELED_FILENAME)
+    unlabeled_data = load_and_parse_data(datasets, UNLABELED_FILENAME)
+
+    selected_projects = select_projects(labeled_data)
+    data = filter_by_projects(labeled_data, selected_projects)
+
     if data is None:
         return
 

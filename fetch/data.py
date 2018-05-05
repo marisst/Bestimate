@@ -2,30 +2,14 @@ import csv
 import os
 import re
 import requests
-import shutil
 import sys
 import time
 
-from fetching.count_issues import count as get_issue_count
+from fetch.count_issues import count as get_issue_count
+from utilities.load_data import create_dataset_folder
 from utilities.constants import *
 
 MAX_RECORDS_PER_REQUEST = 50
-
-def create_folder(dataset_name):
-
-    if not os.path.exists(DATA_FOLDER):
-        os.makedirs(DATA_FOLDER)
-    
-    dataset_folder = get_folder_name(dataset_name)
-    if os.path.exists(dataset_folder):
-        if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
-            sys.exit()
-        shutil.rmtree(dataset_folder)
-    os.makedirs(dataset_folder)
-
-    return dataset_folder
-
-
 
 def print_issue_counts(repository_search_url, auth):
 
@@ -127,16 +111,20 @@ def fetch_and_save_issues(target_file, repository_search_url, auth, jql=""):
 
 def fetch_data(dataset_name, repository_base_url, auth = None):
 
-    dataset_folder = create_folder(dataset_name)
+    if dataset_name.isdigit():
+        print("Digit names are reserved for merged datasets, please choose a different name")
+        sys.exit()
+
+    dataset_folder = create_dataset_folder(dataset_name)
 
     repository_search_url = get_repository_search_url(repository_base_url)
     
     print_issue_counts(repository_search_url, auth)
 
-    labeled_data_filename = get_labeled_raw_filename(dataset_name)
+    labeled_data_filename = get_dataset_filename(dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
     labeled_issue_count = fetch_and_save_issues(labeled_data_filename, repository_search_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_data_filename = get_unlabeled_raw_filename(dataset_name)
+    unlabeled_data_filename = get_dataset_filename(dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
     unlabeled_issue_count = fetch_and_save_issues(unlabeled_data_filename, repository_search_url, auth, UNLABELED_DATA_JQL)
 
     if labeled_issue_count + unlabeled_issue_count > 0:

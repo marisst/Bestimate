@@ -6,7 +6,7 @@ import requests
 import sys
 import time
 
-from fetching.count_issues import count as get_issue_count
+from fetch.count_issues import count as get_issue_count
 from utilities.constants import *
 from utilities.string_utils import get_part_strings
 
