@@ -20,8 +20,13 @@ def calculate_frequencies(token_counts):
 
 def count_tokens(dataset):
 
-    filename = get_filtered_dataset_filename(dataset)
-    data = load_json(filename)
+    labeled_data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    labeled_data = load_json(labeled_data_filename)
+
+    unlabeled_data_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    unlabeled_data = load_json(unlabeled_data_filename)
+
+    data = labeled_data + unlabeled_data
 
     print("Counting tokens...")
 
@@ -51,8 +56,7 @@ def count_tokens(dataset):
 
     token_stats = calculate_frequencies(token_counts)
 
-    create_folder_if_needed(TOKEN_COUNT_DATA_FOLDER)
-    filename = get_token_count_filename(dataset)
+    filename = get_dataset_filename(dataset, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
     save_json(filename, token_stats)
 
     print("Token counts saved at %s" % filename)

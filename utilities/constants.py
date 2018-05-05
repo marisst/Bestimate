@@ -2,8 +2,6 @@ CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
 WEIGTHS_FOLDER = "weigths"
 
-TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
-DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
 NUMERIC_FOLDER = DATA_FOLDER + "/numeric"
 VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
@@ -16,6 +14,8 @@ RAW_POSTFIX = "raw"
 CLEANED_POSTFIX = "clean"
 MERGED_POSTFIX = "merged"
 FILTERED_POSTFIX = "filtered"
+TOKEN_COUNT_POSTFIX = "tokens"
+DICTIONARY_POSTFIX = "dictionary"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
@@ -26,6 +26,7 @@ TEXT_FILE_EXTENSION = ".txt"
 
 LABELED_FILENAME = "lab"
 UNLABELED_FILENAME = "unl"
+ALL_FILENAME = "all"
 RESULTS_FILENAME = "results"
 CONFIGURATION_FILENAME = "configuration"
 REPO_LIST_FILENAME = "open_repositories"
@@ -78,12 +79,6 @@ def get_folder_name(dataset_name):
 
 def get_vectorized_dataset_filename(dataset_name):
     return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
-
-def get_token_count_filename(dataset_name):
-    return "%s/%s%s" % (TOKEN_COUNT_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
-
-def get_dictionary_filename(dataset_name):
-    return "%s/%s%s" % (DICTIONARY_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_numeric_folder(dataset_name):
     return "%s/%s%s" % (NUMERIC_FOLDER, dataset_name, JSON_FILE_EXTENSION)

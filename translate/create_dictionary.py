@@ -5,15 +5,14 @@ import sys
 
 def create_dictionary(dataset, field_key):
 
-    filename = get_token_count_filename(dataset)
+    filename = get_dataset_filename(dataset, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
     data = load_json(filename)
 
     dictionary = {}
     for i, word in enumerate(data[field_key]):
         dictionary[word] = i+1
 
-    create_folder_if_needed(DICTIONARY_DATA_FOLDER)
-    filename = get_dictionary_filename(dataset)
+    filename = get_dataset_filename(dataset, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
     save_json(filename, dictionary)
 
     print("Dictionary created and saved at %s" % filename)
