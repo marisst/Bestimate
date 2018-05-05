@@ -9,7 +9,7 @@ def select_datasets(datasets):
     # selecting all datasets
     if len(datasets) == 0:
         data_folder_subfolders = [entry for entry in os.listdir(DATA_FOLDER) if os.path.isdir("%s/%s" % (DATA_FOLDER, entry))]
-        non_dataset_folders = [FILTERED_DATA_FOLDER, STATISTICS_FOLDER]
+        non_dataset_folders = [STATISTICS_FOLDER]
         non_dataset_folders = [x[len(DATA_FOLDER)+1:] for x in non_dataset_folders]
         return [x for x in data_folder_subfolders if x not in non_dataset_folders and not x.isdigit()]
 

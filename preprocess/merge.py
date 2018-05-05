@@ -40,8 +40,6 @@ def load_and_parse_data(datasets, labeling):
 
 def filter_by_projects(data, selected_projects):
 
-    print("Merging data from the following projects:", *selected_projects)
-
     filtered_data = []
     for datapoint in data:
         if projects.is_in(datapoint, selected_projects):
@@ -82,11 +80,9 @@ def select_projects(data):
 
     return selected_projects
 
-def save_merged_data(data):
+def save_merged_data(data, dataset_name, labeling):
 
-    dataset_name = load_data.get_next_dataset_name()
-    load_data.create_dataset_folder(dataset_name)
-    filename = get_dataset_filename(dataset_name, LABELED_FILENAME, MERGED_POSTFIX, JSON_FILE_EXTENSION)
+    filename = get_dataset_filename(dataset_name, labeling, MERGED_POSTFIX, JSON_FILE_EXTENSION)
 
     with open(filename, 'w') as file:
         json.dump(data, file, indent=JSON_INDENT)
@@ -107,12 +103,20 @@ def merge_data(datasets_from_input):
     unlabeled_data = load_and_parse_data(datasets, UNLABELED_FILENAME)
 
     selected_projects = select_projects(labeled_data)
-    data = filter_by_projects(labeled_data, selected_projects)
+    print("Merging data from the following projects:", *selected_projects)
 
-    if data is None:
+    labeled_data = filter_by_projects(labeled_data, selected_projects)
+    unlabeled_data = filter_by_projects(unlabeled_data, selected_projects)
+
+    if labeled_data is None:
+        print("No labeled data was selected, merge is cancelled")
         return
 
-    save_merged_data(data)
+    dataset_name = load_data.get_next_dataset_name()
+    load_data.create_dataset_folder(dataset_name)
+
+    save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)
+    save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)
 
 datasets_from_input = sys.argv[1:]
 merge_data(datasets_from_input)

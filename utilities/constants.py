@@ -2,7 +2,6 @@ CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
 WEIGTHS_FOLDER = "weigths"
 
-FILTERED_DATA_FOLDER = DATA_FOLDER + "/filtered"
 TOKEN_COUNT_DATA_FOLDER = DATA_FOLDER + "/token_counts"
 DICTIONARY_DATA_FOLDER = DATA_FOLDER + "/dictionaries"
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
@@ -16,6 +15,7 @@ JIRA_SEARCH = "/search"
 RAW_POSTFIX = "raw"
 CLEANED_POSTFIX = "clean"
 MERGED_POSTFIX = "merged"
+FILTERED_POSTFIX = "filtered"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
@@ -75,9 +75,6 @@ def get_repo_list_filename(search_engine):
 
 def get_folder_name(dataset_name):
     return "%s/%s" % (DATA_FOLDER, dataset_name)
-
-def get_filtered_dataset_filename(dataset_name):
-    return "%s/%s%s" % (FILTERED_DATA_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_vectorized_dataset_filename(dataset_name):
     return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)

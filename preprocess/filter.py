@@ -10,9 +10,9 @@ class Extreme(Enum):
     MINIMUM = min
     MAXIMUM = max
 
-def load_dataset(dataset):
+def load_dataset(dataset, labeling):
     
-    filename = get_merged_dataset_filename(dataset)
+    filename = get_dataset_filename(dataset, labeling, MERGED_POSTFIX, JSON_FILE_EXTENSION)
     return load_data.load_json(filename)
 
 def remove_unlabeled_datapoints(data):
@@ -43,12 +43,8 @@ def remove_outliers(data, minimum_timespent_seconds, maximum_timespent_seconds):
         % string_utils.get_part_strings(len(filtered_data), len(data)))
 
     return filtered_data
-    
-def remove_small_projects(data, minimum_project_size):
 
-    issue_counts = projects.get_issue_counts(data)
-    selected_projects = {issue_count[0] for issue_count in issue_counts if issue_count[1] >= minimum_project_size}
-    print("%d (%.2f%%) of %d projects were selected" % string_utils.get_part_strings(len(selected_projects), len(projects.get(data))))
+def filter_data_by_projects(data, selected_projects):
 
     if len(selected_projects) == 0:
         return
@@ -58,10 +54,18 @@ def remove_small_projects(data, minimum_project_size):
 
     return selected_data
 
-def save_filtered_data(data, dataset_name):
+    
+def remove_small_projects(data, minimum_project_size):
 
-    load_data.create_folder_if_needed(FILTERED_DATA_FOLDER)
-    filename = get_filtered_dataset_filename(dataset_name)
+    issue_counts = projects.get_issue_counts(data)
+    selected_projects = {issue_count[0] for issue_count in issue_counts if issue_count[1] >= minimum_project_size}
+    print("%d (%.2f%%) of %d projects were selected" % string_utils.get_part_strings(len(selected_projects), len(projects.get(data))))
+
+    return selected_projects
+
+def save_filtered_data(data, dataset_name, labeling):
+
+    filename = get_dataset_filename(dataset_name, labeling, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
 
     with open(filename, 'w') as file:
         json.dump(data, file, indent=JSON_INDENT)
@@ -103,32 +107,38 @@ def escape_short_texts(data, minimum_text_length):
 
 def filter(dataset):
 
-    data = load_dataset(dataset)
-    if data is None:
+    labeled_data = load_dataset(dataset, LABELED_FILENAME)
+    if labeled_data is None:
+        print("No labeled data was loaded, filtering cancelled")
         return
+    unlabeled_data = load_dataset(dataset, UNLABELED_FILENAME)
 
-    data = remove_unlabeled_datapoints(data)
-
-    print_extreme(data, Extreme.MINIMUM)
-    maximum = print_extreme(data, Extreme.MAXIMUM)
+    labeled_data = remove_unlabeled_datapoints(labeled_data)
 
     if input("Would you like to remove tasks with short textual descriptions? (y/n) ") == "y":
         minimum_text_length = int(input("Please enter the minimum text length (words): "))
-        data = escape_short_texts(data, minimum_text_length)
+        labeled_data = escape_short_texts(labeled_data, minimum_text_length)
+        unlabeled_data = escape_short_texts(unlabeled_data, minimum_text_length)
+
+    print_extreme(labeled_data, Extreme.MINIMUM)
+    maximum = print_extreme(labeled_data, Extreme.MAXIMUM)
 
     if input("Would you like to remove extreme outliers? (y/n) ") == "y":
         lower_bound_minutes = int(input("Please enter the lower bound (integer) in minutes (input 0 to set no bound): "))
         upper_bound_minutes = int(input("Please enter the upper bound (integer) in minutes (input %s to set no bound): " % ((maximum + SECONDS_IN_MINUTE) // SECONDS_IN_MINUTE)))
-        data = remove_outliers(data, lower_bound_minutes * SECONDS_IN_MINUTE, upper_bound_minutes * SECONDS_IN_MINUTE)
+        labeled_data = remove_outliers(labeled_data, lower_bound_minutes * SECONDS_IN_MINUTE, upper_bound_minutes * SECONDS_IN_MINUTE)
 
     if input("Would you like to increase homogeneity by removing small projects? (y/n) ") == "y":
         minimum_project_size = int(input("Please enter the minimum number of labeled filtered datapoints in a project: "))
-        data = remove_small_projects(data, minimum_project_size)
+        selected_projects = remove_small_projects(labeled_data, minimum_project_size)
+        labeled_data = filter_data_by_projects(labeled_data, selected_projects)
+        unlabeled_data = filter_data_by_projects(unlabeled_data, selected_projects)
 
     if input("Would you like to make even distribution by removing skewed data? (y/n) ") == "y":
-        data = even_distribution(data)
+        labeled_data = even_distribution(labeled_data)
 
-    save_filtered_data(data, dataset)    
+    save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
+    save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)  
 
 sys_argv_count = len(sys.argv)
 
