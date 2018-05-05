@@ -3,7 +3,6 @@ DATA_FOLDER = "data"
 WEIGTHS_FOLDER = "weigths"
 
 STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
-NUMERIC_FOLDER = DATA_FOLDER + "/numeric"
 VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
 
 URL_PREFIX = "https://"
@@ -16,6 +15,7 @@ MERGED_POSTFIX = "merged"
 FILTERED_POSTFIX = "filtered"
 TOKEN_COUNT_POSTFIX = "tokens"
 DICTIONARY_POSTFIX = "dictionary"
+NUMERIC_POSTFIX = "numeric"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
@@ -79,9 +79,6 @@ def get_folder_name(dataset_name):
 
 def get_vectorized_dataset_filename(dataset_name):
     return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
-
-def get_numeric_folder(dataset_name):
-    return "%s/%s%s" % (NUMERIC_FOLDER, dataset_name, JSON_FILE_EXTENSION)
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)

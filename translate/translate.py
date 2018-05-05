@@ -24,13 +24,10 @@ def translate_text(text, dictionary):
 
     return translated_words
 
-def translate_dataset(dataset, key, enable_prelearning):
+def translate_data(dataset, key, dictionary, labeling):
 
-    dictionary_filename = get_dictionary_filename(dataset)
-    dictionary = load_json(dictionary_filename)
-
-    data_filename = get_filtered_dataset_filename(dataset)
-    data = load_json(data_filename)
+    filename = get_dataset_filename(dataset, labeling, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    data = load_json(filename)
 
     print("Translating dataset")
     numeric_data = []
@@ -39,21 +36,24 @@ def translate_dataset(dataset, key, enable_prelearning):
         numeric_text = translate_text(text, dictionary)
         
         numeric_datapoint = {}
-        numeric_datapoint[NUMERIC_TEXT_KEY] = numeric_text
+        numeric_datapoint[NUMERIC_TEXT_KEY] = " ".join([str(number) for number in numeric_text])
         if TIMESPENT_FIELD_KEY in datapoint:
             numeric_datapoint[TIMESPENT_FIELD_KEY] = datapoint[TIMESPENT_FIELD_KEY]
         numeric_data.append(numeric_datapoint)
 
-    create_folder_if_needed(NUMERIC_FOLDER)
-    filename = get_numeric_folder(dataset)
+    filename = get_dataset_filename(dataset, labeling, NUMERIC_POSTFIX, JSON_FILE_EXTENSION)
     save_json(filename, numeric_data)
-
     print("Dataset translated and saved at", filename)
+
+def translate_dataset(dataset, key):
+
+    dictionary_filename = get_dataset_filename(dataset, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
+    dictionary = load_json(dictionary_filename)
+    translate_data(dataset, key, dictionary, LABELED_FILENAME)
+    translate_data(dataset, key, dictionary, UNLABELED_FILENAME)
 
 if len(sys.argv) != 3:
     print("Please select one dataset and one of the following field keys:", SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TOTAL_KEY)
-    sys.exit();
+    sys.exit()
 
-enable_prelearning = input("Would you like to enable prelearning? (y/n) ") == "y"
-
-translate_dataset(sys.argv[1], sys.argv[2], enable_prelearning)
+translate_dataset(sys.argv[1], sys.argv[2])
