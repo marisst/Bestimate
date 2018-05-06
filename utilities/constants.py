@@ -61,6 +61,7 @@ FIELD_KEYS = PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, DESCRIPTION_FIELD_KEY, TIMESP
 ALPHA_FIELD = "alpha"
 TOTAL_KEY = "total"
 NUMERIC_TEXT_KEY = "numeric_text"
+PRELEARNING = "pre"
 
 def get_dataset_filename(dataset_name, labeling, data_type, extension):
     return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
