@@ -1,4 +1,4 @@
-from keras.models import Model, load_model
+from keras.models import Model
 from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate
 from keras.utils import plot_model
 

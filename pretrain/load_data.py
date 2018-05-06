@@ -16,7 +16,7 @@ def generate_prepoints(sentences, window_size):
         last_start_index = len(sentence) - window_size
         for start_index in range(0, last_start_index):
             prepoints_x.append(sentence[start_index:start_index+window_size])
-            prepoints_y.append(sentence[start_index+window_size:start_index+window_size+1])
+            prepoints_y.append(sentence[start_index+window_size])
 
     print("Generated %s pretraining datapoints" % len(prepoints_x))
     
