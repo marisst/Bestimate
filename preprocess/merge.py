@@ -112,7 +112,7 @@ def merge_data(datasets_from_input):
         print("No labeled data was selected, merge is cancelled")
         return
 
-    dataset_name = load_data.get_next_dataset_name()
+    dataset_name = load_data.get_next_dataset_name(DATA_FOLDER)
     load_data.create_dataset_folder(dataset_name)
 
     save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)

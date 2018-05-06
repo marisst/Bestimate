@@ -13,6 +13,12 @@ embedding_size = 10
 window_size = 5
 lstm_nodes = 50
 
+def get_vocabulary_size(dataset):
+
+    dictionary_filename = get_dataset_filename(dataset, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
+    dictionary = load_data.load_json(dictionary_filename)
+    return len(dictionary) + 1
+
 def train_on_dataset(dataset):
 
     # create results files
