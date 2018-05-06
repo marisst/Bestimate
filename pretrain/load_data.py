@@ -2,7 +2,7 @@ import numpy as np
 
 from utilities.constants import *
 from utilities.load_data import load_json
-from utilities.arrange import shuffle, split_train_test
+from utilities.arrange import shuffle
 
 def generate_prepoints(sentences, window_size):
 
@@ -21,9 +21,9 @@ def generate_prepoints(sentences, window_size):
     print("Generated %s pretraining datapoints" % len(prepoints_x))
     
     return np.array(prepoints_x), np.array(prepoints_y)
+    
 
-
-def load_and_arange(dataset, window_size, split_percentage):
+def load_and_arange(dataset, window_size):
 
     labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, NUMERIC_POSTFIX, JSON_FILE_EXTENSION)
     labeled_data = load_json(labeled_filename)
@@ -36,8 +36,7 @@ def load_and_arange(dataset, window_size, split_percentage):
 
     prepoints = generate_prepoints(sentences, window_size)
 
-    shuffled_prepoints = shuffle(prepoints)
-    return split_train_test(shuffled_prepoints, split_percentage)
+    return shuffle(prepoints)
 
 
 

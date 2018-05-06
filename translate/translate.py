@@ -20,6 +20,8 @@ def translate_text(text, dictionary):
     translated_words = []
     for word in text.split():
         if word in dictionary:
+            if dictionary.get(word) is None:
+                continue
             translated_words.append(dictionary[word])
 
     return translated_words
