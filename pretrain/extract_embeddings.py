@@ -25,15 +25,11 @@ def extract_embeddings(dataset, training_session, epoch, accuracy):
     input_tensor.resize((math.ceil(len(dictionary) / window_size), window_size))
     vectors = vector_eval_function([input_tensor])[0].reshape(-1, 10)
 
-    vectors_2dim = TSNE(n_components=2, verbose=1).fit_transform(vectors)
+    vectors_2dim = TSNE(n_components=2, verbose=1, perplexity=100, n_iter=1000).fit_transform(vectors)
 
     results = {}
     for word, word_num in dictionary.items():
-        results[word] = {
-            "word_num": word_num,
-            "x": vectors_2dim[word_num][0].item(),
-            "y": vectors_2dim[word_num][1].item()
-        }
+        results[word] = (vectors_2dim[word_num][0].item(), vectors_2dim[word_num][1].item())
 
     result_filename = get_dataset_filename(dataset, ALL_FILENAME, EMB2DIM_POSTFIX, JSON_FILE_EXTENSION)
     save_json(result_filename, results)
