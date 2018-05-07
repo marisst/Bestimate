@@ -13,7 +13,7 @@ from utilities.constants import *
 embedding_size = 10
 window_size = 5
 lstm_nodes = 50
-split_percentage = 85
+split_percentage = 90
 
 
 def train_on_dataset(dataset):
