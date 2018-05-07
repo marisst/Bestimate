@@ -1,44 +1,64 @@
 {
     "repositories": [
         {
-            "key": "EXO",
+            "key": "A_EXO",
             "url": "jira.exoplatform.org"
         },
         {
-            "key": "TDF",
+            "key": "A_TDF",
             "url": "jira.talendforge.org"
         },
         {
-            "key": "GZL",
+            "key": "A_GZL",
             "url": "gazelle.ihe.net/jira"
         },
         {
-            "key": "APC",
+            "key": "A_APC",
             "url": "issues.apache.org/jira"
         },
         {
-            "key": "JRA",
+            "key": "A_JRA",
             "url": "jira.atlassian.com"
         },
         {
-            "key": "JBO",
+            "key": "A_JBO",
             "url": "issues.jboss.org"
         },
         {
-            "key": "HSC",
+            "key": "A_HSC",
             "url": "ticket.hilscher.com"
         },
         {
-            "key": "MRS",
+            "key": "A_MRS",
             "url": "issues.openmrs.org"
         },
         {
-            "key": "EZZ",
+            "key": "A_EZZ",
             "url": "jira.ez.no"
         },
         {
-            "key": "PTH",
+            "key": "A_PTH",
             "url": "jira.pentaho.com"
+        },
+        {
+            "key": "A_SPG",
+            "url": "jira.spring.io"
+        },
+        {
+            "key": "A_MDB",
+            "url": "mariadb.atlassian.net"
+        },
+        {
+            "key": "A_SNT",
+            "url": "issues.sonatype.org"
+        },
+        {
+            "key": "A_NIH",
+            "url": "tracker.nci.nih.gov"
+        },
+        {
+            "key": "A_HYB",
+            "url": "hybernate.atlassian.net"
         }
     ]
 }
