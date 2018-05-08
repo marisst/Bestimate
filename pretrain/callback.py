@@ -12,14 +12,14 @@ class PretrainingCallback(Callback):
         self.batch = 0
 
     def on_batch_end(self, batch, logs={}):
-        self.batch += 1
+        self.batch = batch
         self.save_results(logs["acc"])
-        if batch % SAVE_WEIGHTS_BATCHES == 0:
+        if self.batch % SAVE_WEIGHTS_BATCHES == 0:
             self.save_weights(logs["acc"])
         
 
     def on_epoch_end(self, epoch, logs={}):
-        self.epoch += 1
+        self.epoch = epoch
         self.save_results(logs["acc"])
         self.save_weights(logs["acc"])
 
