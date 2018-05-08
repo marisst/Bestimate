@@ -3,6 +3,7 @@ import os
 
 from fetch.fetch_data import fetch_data
 from preprocess.clean_module import clean_text
+from preprocess.merge_module import merge_data
 from utilities.constants import *
 from utilities.load_data import load_json
 
@@ -37,6 +38,7 @@ def run_configuration(configuration_name):
                     print("Skipping because the following exception was thrown:")
                     print(e)
                     continue
+        merge_data(repository_keys)
 
 
 

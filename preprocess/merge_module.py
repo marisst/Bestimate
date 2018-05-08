@@ -88,7 +88,7 @@ def save_merged_data(data, dataset_name, labeling):
     
     print("Merged dataset %s created and saved on %s" % (dataset_name, filename))
 
-def merge_data(datasets_from_input):
+def merge_data(datasets_from_input, enable_manual_project_selection = False):
 
     datasets = input_parser.select_datasets(datasets_from_input)
     
@@ -101,7 +101,11 @@ def merge_data(datasets_from_input):
     labeled_data = load_and_parse_data(datasets, LABELED_FILENAME)
     unlabeled_data = load_and_parse_data(datasets, UNLABELED_FILENAME)
 
-    selected_projects = select_projects(labeled_data)
+    if enable_manual_project_selection == True:
+        selected_projects = select_projects(labeled_data + unlabeled_data)
+    else:
+        selected_projects = projects.get(labeled_data + unlabeled_data)
+
     if selected_projects is None or len(selected_projects) == 0:
         print("No projects selected, merge is cancelled")
         return
