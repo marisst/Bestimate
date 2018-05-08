@@ -59,6 +59,46 @@
         {
             "key": "A_HYB",
             "url": "hybernate.atlassian.net"
+        },
+        {
+            "key": "A_SEC",
+            "url": "jira.secondlife.com"
+        },
+        {
+            "key": "A_MFG",
+            "url": "mifosforge.jira.com"
+        },
+        {
+            "key": "A_ECS",
+            "url": "ecosystem.atlassian.net"
+        },
+        {
+            "key": "A_MDL",
+            "url": "tracker.moodle.org"
+        },
+        {
+            "key": "A_DSP",
+            "url": "jira.duraspace.org"
+        },
+        {
+            "key": "A_WSO",
+            "url": "wso2.org/jira"
+        },
+        {
+            "key": "A_MSF",
+            "url": "mulesoft.org/jira"
+        },
+        {
+            "key": "A_TPP",
+            "url": "thepluginpeople.atlassian.net"
+        },
+        {
+            "key": "A_BQT",
+            "url": "bugreports.qt.io"
+        },
+        {
+            "key": "A_ONP",
+            "url": "jira.onap.org"
         }
     ]
 }

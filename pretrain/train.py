@@ -10,10 +10,10 @@ from utilities import load_data
 from utilities.constants import *
 
 # training parameters
-embedding_size = 10
-window_size = 5
+embedding_size = 15
+window_size = 7
 lstm_nodes = 50
-split_percentage = 90
+split_percentage = 95
 
 
 def train_on_dataset(dataset):

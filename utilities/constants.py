@@ -1,9 +1,10 @@
 CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
+DATASET_FOLDER = "training_datasets"
 WEIGTHS_FOLDER = "weigths"
 
-STATISTICS_FOLDER = DATA_FOLDER + "/statistics"
-VECTORIZED_DATA_FOLDER = DATA_FOLDER + "/vectorized"
+STATISTICS_FOLDER = DATASET_FOLDER + "/statistics"
+VECTORIZED_DATA_FOLDER = DATASET_FOLDER + "/vectorized"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -64,8 +65,11 @@ TOTAL_KEY = "total"
 NUMERIC_TEXT_KEY = "numeric_text"
 PRELEARNING = "pre"
 
-def get_dataset_filename(dataset_name, labeling, data_type, extension):
+def get_data_filename(dataset_name, labeling, data_type, extension):
     return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
+
+def get_dataset_filename(dataset_name, labeling, data_type, extension):
+    return "%s/%s/%s_%s_%s%s" % (DATASET_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
 
 def get_running_configuration_filename(configuration_name):
     return "%s/%s%s" % (CONFIGURATIONS_FOLDER, configuration_name, JSON_FILE_EXTENSION)
@@ -75,9 +79,6 @@ def get_repository_search_url(repository_base_url):
 
 def get_repo_list_filename(search_engine):
     return "%s/%s_%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, search_engine, JSON_FILE_EXTENSION)
-
-def get_folder_name(dataset_name):
-    return "%s/%s" % (DATA_FOLDER, dataset_name)
 
 def get_vectorized_dataset_filename(dataset_name):
     return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)

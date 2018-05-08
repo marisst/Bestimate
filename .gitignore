@@ -39,6 +39,7 @@ Thumbs.db
 # User defined directories and files #
 ######################################
 data/
+training_datasets/
 weigths/
 __pycache__/
 .vscode/

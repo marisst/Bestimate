@@ -115,16 +115,16 @@ def fetch_data(dataset_name, repository_base_url, auth = None):
         print("Digit names are reserved for merged datasets, please choose a different name")
         sys.exit()
 
-    dataset_folder = create_dataset_folder(dataset_name)
+    dataset_folder = create_dataset_folder(dataset_name, DATA_FOLDER)
 
     repository_search_url = get_repository_search_url(repository_base_url)
     
     print_issue_counts(repository_search_url, auth)
 
-    labeled_data_filename = get_dataset_filename(dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
+    labeled_data_filename = get_data_filename(dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
     labeled_issue_count = fetch_and_save_issues(labeled_data_filename, repository_search_url, auth, LABELED_DATA_JQL)
 
-    unlabeled_data_filename = get_dataset_filename(dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
+    unlabeled_data_filename = get_data_filename(dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
     unlabeled_issue_count = fetch_and_save_issues(unlabeled_data_filename, repository_search_url, auth, UNLABELED_DATA_JQL)
 
     if labeled_issue_count + unlabeled_issue_count > 0:

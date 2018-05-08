@@ -94,12 +94,12 @@ def get_next_dataset_name(folder):
     existing_dataset_count = sum(1 for f in os.listdir(folder))
     return str(existing_dataset_count + 1)
 
-def create_dataset_folder(dataset_name):
+def create_dataset_folder(dataset_name, folder):
 
-    if not os.path.exists(DATA_FOLDER):
-        os.makedirs(DATA_FOLDER)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
     
-    dataset_folder = get_folder_name(dataset_name)
+    dataset_folder = "%s/%s" % (folder, dataset_name)
     if os.path.exists(dataset_folder):
         if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
             sys.exit()
