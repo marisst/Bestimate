@@ -22,6 +22,10 @@ def remove_unlabeled_datapoints(data):
         print("%d (%d%%) of %d datapoints were removed because they were unlabeled" % string_utils.get_part_strings(len(data)-len(labeled_data), len(data)))
     return labeled_data
 
+def get_unlabeled_datapoints(data):
+
+    return [datapoint for datapoint in data if TIMESPENT_FIELD_KEY not in datapoint]
+
 def print_extreme(data, extreme):
 
     extreme_datapoint = extreme.value(data, key=lambda datapoint: datapoint[TIMESPENT_FIELD_KEY])
@@ -113,7 +117,13 @@ def filter(dataset):
         return
     unlabeled_data = load_dataset(dataset, UNLABELED_FILENAME)
 
+    unlabeled_labeled_data = get_unlabeled_datapoints(labeled_data)
+    if (len(unlabeled_labeled_data) > 0):
+        unlabeled_data = unlabeled_data + unlabeled_labeled_data
+        print("%d unlabeled datapoints marked as labeled moved to unlabeled dataset" % len(unlabeled_labeled_data))
+
     labeled_data = remove_unlabeled_datapoints(labeled_data)
+
 
     if input("Would you like to remove tasks with short textual descriptions? (y/n) ") == "y":
         minimum_text_length = int(input("Please enter the minimum text length (words): "))
