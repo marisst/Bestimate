@@ -12,7 +12,7 @@ from utilities.constants import *
 
 # training parameters
 embedding_size = 15
-window_size = 7
+window_size = 10
 lstm_nodes = 50
 batch_size = 100
 epochs = 5
@@ -40,7 +40,8 @@ def train_on_dataset(dataset):
 
     weights_filename = get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{batch:07d}-{acc:.2f}" + HDF5_FILE_EXTENSION
     results_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, CSV_FILE_EXTENSION)
+    graph_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, PNG_FILE_XTENSION)
     print(results_filename)
-    model.fit_generator(generator=training_generator, epochs=epochs, callbacks=[PretrainingCallback(model, weights_filename, results_filename)])
+    model.fit_generator(generator=training_generator, epochs=epochs, callbacks=[PretrainingCallback(model, weights_filename, results_filename, graph_filename)])
 
 train_on_dataset(sys.argv[1])
