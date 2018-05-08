@@ -124,3 +124,5 @@ def merge_data(datasets_from_input, enable_manual_project_selection = False):
 
     save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)
     save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)
+
+    return dataset_name

@@ -38,8 +38,7 @@ def run_configuration(configuration_name):
                     print("Skipping because the following exception was thrown:")
                     print(e)
                     continue
-        merge_data(repository_keys)
-
+        training_dataset_name = merge_data(repository_keys)
 
 
 if len(sys.argv) != 2:
