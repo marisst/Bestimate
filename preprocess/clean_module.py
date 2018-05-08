@@ -8,6 +8,7 @@ import re
 from utilities import load_data, input_parser
 from utilities.constants import *
 
+MAX_CHARS_PROCESSED = 10000
 NO_TEXT_TAGS = "code", "noformat"
 ESCAPE_TAGS = "color", "quote", "anchor", "panel"
 ESCAPE_STRINGS = "\\r", "\\n", "\\t", "\\f", "\\v", "\"", "\\\\", "h1. ", "h2. ", "h3. ", "h4. ", "h5. ", "h6. "
@@ -104,6 +105,7 @@ def calculate_alpha_density(text):
 
 def clean(text):
 
+    text = text[:MAX_CHARS_PROCESSED]
     text = escape_tags_and_content(text, NO_TEXT_TAGS)
     text = escape_tags(text, ESCAPE_TAGS)
     text = escape_strings(text, ESCAPE_STRINGS)
