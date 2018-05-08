@@ -14,7 +14,7 @@ embedding_size = 15
 window_size = 7
 lstm_nodes = 50
 split_percentage = 95
-
+batch_size = 50
 
 def train_on_dataset(dataset):
 
@@ -36,8 +36,8 @@ def train_on_dataset(dataset):
     training_ids = permutation[:split_index]
     validation_ids = permutation[split_index:]
 
-    training_generator = DataGenerator(training_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size)
-    validation_generator = DataGenerator(validation_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size)
+    training_generator = DataGenerator(training_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size, batch_size=batch_size)
+    validation_generator = DataGenerator(validation_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size, batch_size=batch_size)
 
     model = create_model(window_size, embedding_size, vocabuary_size, lstm_nodes)
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
