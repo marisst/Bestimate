@@ -13,6 +13,8 @@ NO_TEXT_TAGS = "code", "noformat"
 ESCAPE_TAGS = "color", "quote", "anchor", "panel"
 ESCAPE_STRINGS = "\\r", "\\n", "\\t", "\\f", "\\v", "\"", "\\\\", "h1. ", "h2. ", "h3. ", "h4. ", "h5. ", "h6. "
 LINK_STARTERS = r"\#", r"\^", r"http\:\/\/", r"https\:\/\/", r"malto\:", r"file\:", r"\~"
+MIN_ALPHA_DENSITY = 0.93
+SENTENCE_SEPARATOR = ". "
 
 def escape_tags_and_content(text, tags):
 
@@ -56,11 +58,22 @@ def escape_hex_character_codes(text):
 
 def escape_punctuation_boundaries(text):
 
-    return " ".join([word.strip(punctuation) for word in text.split()])
+    return " ".join([word.strip(punctuation.replace(".", "")).lstrip(".") for word in text.split()])
 
 def escape_low_alpha_density_words(text):
 
-    return " ".join([word for word in text.split() if calculate_alpha_density(word) > 0.93 or word.count("'") == 1])
+    clean_words = []
+    for word in text.split():
+
+        alpha_density = calculate_alpha_density(word)
+        if alpha_density < MIN_ALPHA_DENSITY:
+            allowed_symbol_count = word.count("'") + word.count(".")
+            if word.count("'") > 1 or word.count(".") > 1 or alpha_density != (len(word) - allowed_symbol_count) / len(word):
+                continue
+
+        clean_words.append(word)
+
+    return " ".join(clean_words)
 
 def remove_repeating_fragments(text):
 
@@ -117,7 +130,7 @@ def clean(text):
     text = remove_repeating_fragments(text)
     text = escape_odd_spaces(text)
     text = text.lower()
-    return text
+    return text.split(SENTENCE_SEPARATOR)
 
 def load_file(filename):
 
@@ -149,9 +162,10 @@ def get_clean_content(filename):
             
             clean_description = clean(datapoint[DESCRIPTION_FIELD_KEY])
             
-            if clean_description != None and clean_description != "":
+            if clean_description != None and len(clean_description) != 0:
                 datapoint[DESCRIPTION_FIELD_KEY] = clean_description
-                datapoint[ALPHA_FIELD] = int("%.0f" % (calculate_alpha_density(datapoint[DESCRIPTION_FIELD_KEY]) * 100))
+                alpha_density = np.average(np.array([calculate_alpha_density(sentence) for sentence in datapoint[DESCRIPTION_FIELD_KEY]]))
+                datapoint[ALPHA_FIELD] = int("%.0f" % (alpha_density * 100))
             else:
                 datapoint.pop(DESCRIPTION_FIELD_KEY, None)
 
