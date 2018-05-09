@@ -18,6 +18,10 @@ def load_and_parse_data(datasets, labeling):
             continue
 
         for dataset_datapoint in dataset_data:
+
+            if dataset_datapoint.get(SUMMARY_FIELD_KEY) is None:
+                continue
+
             training_datapoint = {
                 PROJECT_FIELD_KEY : "%s-%s" % (dataset, dataset_datapoint[PROJECT_FIELD_KEY]),
                 SUMMARY_FIELD_KEY : dataset_datapoint[SUMMARY_FIELD_KEY]
