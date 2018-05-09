@@ -1,20 +1,23 @@
 from keras.utils import to_categorical
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import LambdaCallback, ModelCheckpoint
 import numpy as np
 import sys
 
 from pretrain.load_data import get_sentences, get_vocabulary_size, get_prepoint_params
 from pretrain.model import create_model
 from pretrain.data_generator import DataGenerator
+from pretrain.callback import PretrainingCallback
 from utilities import load_data
 from utilities.constants import *
 
+# http://adventuresinmachinelearning.com/word2vec-keras-tutorial/
+
 # training parameters
 embedding_size = 15
-window_size = 7
+window_size = 10
 lstm_nodes = 50
-split_percentage = 95
-
+batch_size = 20
+epochs = 5
 
 def train_on_dataset(dataset):
 
@@ -31,22 +34,15 @@ def train_on_dataset(dataset):
     # fix random seed for reproducibility
     np.random.seed(7)
     permutation = np.random.permutation(len(prepoint_params))
-    split_index = len(prepoint_params) * split_percentage // 100
-    
-    training_ids = permutation[:split_index]
-    validation_ids = permutation[split_index:]
-
-    training_generator = DataGenerator(training_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size)
-    validation_generator = DataGenerator(validation_ids, sentences, prepoint_params, window_size, n_classes=vocabuary_size)
+    training_generator = DataGenerator(permutation, sentences, prepoint_params, window_size, n_classes=vocabuary_size, batch_size=batch_size)
 
     model = create_model(window_size, embedding_size, vocabuary_size, lstm_nodes)
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
 
-    weigths_filename = get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_acc:.2f}" + HDF5_FILE_EXTENSION
-    save_weigths = ModelCheckpoint(weigths_filename)
-    
-    callbacks = [save_weigths]
-
-    model.fit_generator(generator=training_generator, validation_data=validation_generator, epochs=500, callbacks=callbacks)
+    weights_filename = get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{batch:04d}-{acc:.2f}" + HDF5_FILE_EXTENSION
+    results_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, CSV_FILE_EXTENSION)
+    graph_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, PNG_FILE_XTENSION)
+    model.fit_generator(generator=training_generator, epochs=epochs, callbacks=[PretrainingCallback(model, weights_filename, results_filename, graph_filename)])
 
 train_on_dataset(sys.argv[1])
