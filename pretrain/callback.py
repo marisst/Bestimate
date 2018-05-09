@@ -34,8 +34,8 @@ class PretrainingCallback(Callback):
         self.epoch = epoch + 1
 
     def save_weights(self, acc):
-        filename = self.weights_filename.format(epoch=self.epoch, batch=self.batch, acc=acc)
-        self.model.save_weights(filename)
+        filename = self.weights_filename.format(epoch=self.epoch, batch=self.batch // 1000, acc=acc)
+        self.model.save(filename)
 
     def save_results(self, loss, acc):
         with open(self.results_filename, "a", newline="", encoding="utf-8-sig") as resultFile:

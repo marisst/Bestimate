@@ -10,12 +10,13 @@ from utilities.load_data import load_json, save_json
 
 # https://github.com/keras-team/keras/issues/5204
 
-def extract_embeddings(dataset, training_session, epoch, accuracy):
+def extract_embeddings(dataset, training_session, epoch, batch, accuracy):
 
     dictionary_filename = get_dataset_filename(dataset, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
     dictionary = load_json(dictionary_filename)
 
-    weights_filename = "%s/%s-%s_%s/weights-%04d-%.2f%s" % (WEIGTHS_FOLDER, dataset, training_session, PRELEARNING, epoch, accuracy, HDF5_FILE_EXTENSION)
+    weights_filename = "%s/%s-%s_%s/weights-%04d-%04d-%.2f%s" % (WEIGTHS_FOLDER, dataset, training_session, PRELEARNING, epoch, batch, accuracy, HDF5_FILE_EXTENSION)
+    print("Loading model from", weights_filename)
     model = load_model(weights_filename)
     print("Model loaded")
 
@@ -35,4 +36,4 @@ def extract_embeddings(dataset, training_session, epoch, accuracy):
     save_json(result_filename, results)
     print("Embeddings reduced to two dimensions with t-SNE and saved at", result_filename)
 
-extract_embeddings(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]))
+extract_embeddings(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]), float(sys.argv[5]))

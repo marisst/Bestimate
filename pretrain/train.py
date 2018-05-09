@@ -10,11 +10,13 @@ from pretrain.callback import PretrainingCallback
 from utilities import load_data
 from utilities.constants import *
 
+# http://adventuresinmachinelearning.com/word2vec-keras-tutorial/
+
 # training parameters
 embedding_size = 15
 window_size = 10
 lstm_nodes = 50
-batch_size = 100
+batch_size = 20
 epochs = 5
 
 def train_on_dataset(dataset):
@@ -38,10 +40,9 @@ def train_on_dataset(dataset):
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    weights_filename = get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{batch:07d}-{acc:.2f}" + HDF5_FILE_EXTENSION
+    weights_filename = get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{batch:04d}-{acc:.2f}" + HDF5_FILE_EXTENSION
     results_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, CSV_FILE_EXTENSION)
     graph_filename = "%s/%s-%s/%s%s" % (WEIGTHS_FOLDER, dataset, training_session_name, RESULTS_FILENAME, PNG_FILE_XTENSION)
-    print(results_filename)
     model.fit_generator(generator=training_generator, epochs=epochs, callbacks=[PretrainingCallback(model, weights_filename, results_filename, graph_filename)])
 
 train_on_dataset(sys.argv[1])

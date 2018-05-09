@@ -13,7 +13,7 @@ def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_base
     axs.clear()
     axs.set_title("Predicting eleventh word in JIRA issue text") #axs.set_title("Training and testing losses")
     axs.set_ylabel("Loss", fontsize=FONTSIZE) #axs.set_ylabel("Mean absolute error, hours", fontsize=FONTSIZE)
-    axs.set_xlabel("Examples seen, hundreds") #axs.set_xlabel("Epoch")
+    axs.set_xlabel("Batch") #axs.set_xlabel("Epoch")
 
     epochs = len(training_losses)
     y_bottom = min_value - loss_range * GRAPH_SPACE
