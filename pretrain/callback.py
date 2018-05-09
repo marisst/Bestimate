@@ -15,17 +15,17 @@ class PretrainingCallback(Callback):
         self.batch = 0
 
         #graph
-        self.accuracy_history = []
+        self.loss_history = []
         self.axs = plt.gca()
 
     def on_batch_end(self, batch, logs={}):
         self.batch = batch
         self.save_results(logs["loss"], logs["acc"])
-        self.accuracy_history.append(logs["acc"])
-        self.update_graph()
-
+        self.loss_history.append(logs["loss"])
+        
         if int(self.batch) % SAVE_WEIGHTS_BATCHES == 0:
             self.save_weights(logs["acc"])
+            self.update_graph()
         
 
     def on_epoch_end(self, epoch, logs={}):
@@ -42,5 +42,5 @@ class PretrainingCallback(Callback):
             print(",".join([str(self.epoch), str(self.batch), "%.4f" % loss, "%.2f" % acc]), file=resultFile)
 
     def update_graph(self):
-        plot_losses(self.axs, self.accuracy_history, [], 0, 0, 1)
+        plot_losses(self.axs, self.loss_history, [], 0, 0, 1)
         plt.savefig(self.graph_filename)
