@@ -17,6 +17,7 @@ FILTERED_POSTFIX = "filtered"
 TOKEN_COUNT_POSTFIX = "tokens"
 DICTIONARY_POSTFIX = "dictionary"
 NUMERIC_POSTFIX = "numeric"
+EMB_POSTFIX = "emb"
 EMB2DIM_POSTFIX = "emb2dim"
 
 JSON_FILE_EXTENSION = ".json"

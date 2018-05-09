@@ -12,6 +12,7 @@ def load_data(dataset, max_sentence_length):
     x_arr = [[int(word) for word in datapoint[NUMERIC_TEXT_KEY].split()] for datapoint in data]
     y_arr = [datapoint[TIMESPENT_FIELD_KEY] for datapoint in data]
 
+
     x = np.zeros((len(x_arr), max_sentence_length), dtype='int32')
     for i, sentence in enumerate(x_arr):
         start_index = max([max_sentence_length - len(sentence), 0])
