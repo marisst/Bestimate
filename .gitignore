@@ -43,3 +43,6 @@ training_datasets/
 weigths/
 __pycache__/
 .vscode/
+
+.ipynb_checkpoints/
+Untitled.ipynb

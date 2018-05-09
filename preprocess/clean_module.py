@@ -56,11 +56,11 @@ def escape_hex_character_codes(text):
 
 def escape_punctuation_boundaries(text):
 
-    return " ".join([word.lstrip(punctuation) for word in text.split()])
+    return " ".join([word.strip(punctuation) for word in text.split()])
 
 def escape_low_alpha_density_words(text):
 
-    return " ".join([word for word in text.split() if calculate_alpha_density(word) > 0.93])
+    return " ".join([word for word in text.split() if calculate_alpha_density(word) > 0.93 or word.count("'") == 1])
 
 def remove_repeating_fragments(text):
 

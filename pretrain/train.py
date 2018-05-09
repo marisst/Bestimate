@@ -14,8 +14,8 @@ from utilities.constants import *
 
 # training parameters
 embedding_size = 32
-window_size = 5
-lstm_nodes = 64
+window_size = 4
+lstm_nodes = 32
 batch_size = 32
 epochs = 1
 
