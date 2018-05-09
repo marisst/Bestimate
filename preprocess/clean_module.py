@@ -130,7 +130,13 @@ def clean(text):
     text = remove_repeating_fragments(text)
     text = escape_odd_spaces(text)
     text = text.lower()
-    return text.split(SENTENCE_SEPARATOR.strip(".")) if len(text) > 0 else None
+
+    if len(text) == 0:
+        return None
+
+    sentences = text.split(SENTENCE_SEPARATOR.strip(".")) if len(text) > 0 else None
+
+    return [sentence.strip(".") for sentence in text.split(SENTENCE_SEPARATOR)]
 
 def load_file(filename):
 
