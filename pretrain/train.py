@@ -13,11 +13,11 @@ from utilities.constants import *
 # http://adventuresinmachinelearning.com/word2vec-keras-tutorial/
 
 # training parameters
-embedding_size = 15
-window_size = 10
-lstm_nodes = 50
-batch_size = 20
-epochs = 5
+embedding_size = 32
+window_size = 5
+lstm_nodes = 64
+batch_size = 32
+epochs = 1
 
 def train_on_dataset(dataset):
 

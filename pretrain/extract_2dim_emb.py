@@ -12,8 +12,7 @@ def extract_2dim_embeddings(dataset, training_session, epoch, batch, accuracy):
     dictionary_filename = get_dataset_filename(dataset, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
     dictionary = load_json(dictionary_filename)
 
-    vectors = extract_emb(dataset, training_session, epoch, batch)
-
+    vectors = extract_emb(dataset, training_session, epoch, batch, accuracy)
     vectors_2dim = TSNE(n_components=2, verbose=1, perplexity=100, n_iter=1000).fit_transform(vectors)
 
     results = {}
