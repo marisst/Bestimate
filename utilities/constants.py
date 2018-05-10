@@ -4,7 +4,6 @@ DATASET_FOLDER = "training_datasets"
 WEIGTHS_FOLDER = "weigths"
 
 STATISTICS_FOLDER = DATASET_FOLDER + "/statistics"
-VECTORIZED_DATA_FOLDER = DATASET_FOLDER + "/vectorized"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
@@ -19,6 +18,8 @@ DICTIONARY_POSTFIX = "dictionary"
 NUMERIC_POSTFIX = "numeric"
 EMB_POSTFIX = "emb"
 EMB2DIM_POSTFIX = "emb2dim"
+VECTORIZED_POSTFIX = "vectorized"
+SPACY_LOOKUP_POSTFIX = "spacy_lookup"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"
@@ -80,9 +81,6 @@ def get_repository_search_url(repository_base_url):
 
 def get_repo_list_filename(search_engine):
     return "%s/%s_%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, search_engine, JSON_FILE_EXTENSION)
-
-def get_vectorized_dataset_filename(dataset_name):
-    return "%s/%s%s" % (VECTORIZED_DATA_FOLDER, dataset_name, PICKLE_FILE_EXTENSION)
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)

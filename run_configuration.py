@@ -8,7 +8,6 @@ from preprocess.filter_module import filter_data
 from preprocess.filter_config import FilterConfig
 from translate.tokens_module import count_tokens
 from translate.dictionary_module import create_dictionary
-from prima_model.vectorize_module import vectorize_dataset
 from utilities.constants import *
 from utilities.load_data import load_json
 
@@ -83,7 +82,7 @@ def run_configuration(configuration_name, training_dataset_name = "0"):
 
     train_config = configuration.get("train")
     if train_config is not None:
-        vectorize_dataset(training_dataset_name, train_config.get("max_word_count"))
+        pass
 
 
 if len(sys.argv) < 2 or len(sys.argv) > 3:
