@@ -111,6 +111,6 @@
     },
     "pretrain":
     {
-        "min_word_occurence": 5
+        "min_word_occurence": 30
     }
 }

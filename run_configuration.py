@@ -50,28 +50,38 @@ def run_configuration(configuration_name, training_dataset_name = "0"):
     filename = get_running_configuration_filename(configuration_name)
     configuration = load_json(filename)
 
-    if training_dataset_name != "0":
+    if training_dataset_name == "0":
         training_dataset_name = create_training_dataset(configuration)
 
-    filter_config = FilterConfig()
-    filter_params = configuration.get("filter")
-    if filter_params is not None:
-        for param_name, param_value in filter_params.items():
-            filter_config.set_param(param_name, param_value)
-    filter_data(training_dataset_name, filter_config)
+    # filter
+    labeled_filtered_filename = get_dataset_filename(training_dataset_name, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    unlabeled_filtered_filename = get_dataset_filename(training_dataset_name, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    if not os.path.exists(labeled_filtered_filename) or not os.path.exists(unlabeled_filtered_filename):
+        filter_config = FilterConfig()
+        filter_params = configuration.get("filter")
+        if filter_params is not None:
+            for param_name, param_value in filter_params.items():
+                filter_config.set_param(param_name, param_value)
+        filter_data(training_dataset_name, filter_config)
     
     pretrain_config = configuration.get("pretrain")
     if pretrain_config is not None:
-        print("PREPARING DATA FOR PRETRAINING - CONVERTING WORDS TO INTEGERS")
         
-        count_tokens(training_dataset_name)
-        create_dictionary(training_dataset_name, TOTAL_KEY, pretrain_config.get("min_word_occurence"))
+        # token counts
+        token_count_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
+        if not os.path.exists(token_count_filename):
+            count_tokens(training_dataset_name)
 
-if len(sys.argv) < 2:
-    print("Please enter the name of the configuration which you want to run")
+        # dictionary
+        dictionary_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
+        if not os.path.exists(dictionary_filename):
+            create_dictionary(training_dataset_name, TOTAL_KEY, pretrain_config.get("min_word_occurence"))
+
+if len(sys.argv) < 2 or len(sys.argv) > 3:
+    print("Please enter the name of the configuration which you want to run and optionally the name of the training dataset")
 
 if len(sys.argv) == 3:
     run_configuration(sys.argv[1], sys.argv[2])
-
-run_configuration(sys.argv[1])
+else:
+    run_configuration(sys.argv[1])
 
