@@ -1,5 +1,5 @@
 import sys
-from translate.count_tokens_module import count_tokens
+from translate.tokens_module import count_tokens
 
 if len(sys.argv) != 2:
     print("Please select one dataset")

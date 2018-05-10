@@ -108,5 +108,9 @@
         "max_timespent_minutes": 915,
         "min_project_size": 0,
         "even_distribution_bin_count": 0
+    },
+    "pretrain":
+    {
+        "min_word_occurence": 5
     }
 }
