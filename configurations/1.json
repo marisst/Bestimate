@@ -103,10 +103,10 @@
     ],
     "filter":
     {
-        "min_text_word_count": 15,
+        "min_word_count": 15,
         "min_timespent_minutes": 15,
         "max_timespent_minutes": 915,
         "min_project_size": 0,
-        "even_distribution": false
+        "even_distribution_bin_count": 0
     }
 }

@@ -4,6 +4,8 @@ import os
 from fetch.fetch_data import fetch_data
 from preprocess.clean_module import clean_text
 from preprocess.merge_module import merge_data
+from preprocess.filter_module import filter_data
+from preprocess.filter_config import FilterConfig
 from utilities.constants import *
 from utilities.load_data import load_json
 
@@ -39,6 +41,15 @@ def run_configuration(configuration_name):
                     print(e)
                     continue
         training_dataset_name = merge_data(repository_keys)
+        filter_config = FilterConfig()
+        filter_params = configuration.get("filter")
+        if filter_params is not None:
+            for param_name, param_value in filter_params.items():
+                filter_config.set_param(param_name, param_value)
+        filter_data(training_dataset_name, filter_config)
+        
+
+
 
 
 if len(sys.argv) != 2:
