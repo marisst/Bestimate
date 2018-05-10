@@ -112,5 +112,9 @@
     "pretrain":
     {
         "min_word_occurence": 30
+    },
+    "train":
+    {
+        "max_word_count": 250
     }
 }

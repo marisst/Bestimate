@@ -8,11 +8,14 @@ from preprocess.filter_module import filter_data
 from preprocess.filter_config import FilterConfig
 from translate.tokens_module import count_tokens
 from translate.dictionary_module import create_dictionary
+from prima_model.vectorize_module import vectorize_dataset
 from utilities.constants import *
 from utilities.load_data import load_json
 
+
 def get_clean_filename(dataset, labeling):
     return get_data_filename(dataset, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
+
 
 def create_training_dataset(configuration):
 
@@ -45,6 +48,7 @@ def create_training_dataset(configuration):
 
     return training_dataset_name
 
+
 def run_configuration(configuration_name, training_dataset_name = "0"):
 
     filename = get_running_configuration_filename(configuration_name)
@@ -76,6 +80,11 @@ def run_configuration(configuration_name, training_dataset_name = "0"):
         dictionary_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
         if not os.path.exists(dictionary_filename):
             create_dictionary(training_dataset_name, TOTAL_KEY, pretrain_config.get("min_word_occurence"))
+
+    train_config = configuration.get("train")
+    if train_config is not None:
+        vectorize_dataset(training_dataset_name, train_config.get("max_word_count"))
+
 
 if len(sys.argv) < 2 or len(sys.argv) > 3:
     print("Please enter the name of the configuration which you want to run and optionally the name of the training dataset")
