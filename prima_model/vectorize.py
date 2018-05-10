@@ -13,7 +13,7 @@ def get_vectors(text, max_text_length, embedding_size):
     vectors = np.zeros((max_text_length, embedding_size))
     if text != None:
         doc = nlp(text)
-        j = max(0, max_text_length - len(doc))  
+        j = max(0, max_text_length - len(doc))
         for token in doc:
             vectors[j] = np.array(token.vector)
             j=j+1
