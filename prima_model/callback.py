@@ -28,8 +28,8 @@ class PrimaCallback(Callback):
 
         # calculate baseline losses
         train_mean, train_median = bsl.mean_and_median(y_train)
-        self.mean_baseline = bsl.mean_absolute_error(y_test, train_mean)
-        self.median_baseline = bsl.mean_absolute_error(y_test, train_median)
+        self.mean_baseline = bsl.mean_squared_error(y_test, train_mean)
+        self.median_baseline = bsl.mean_squared_error(y_test, train_median)
 
     def on_epoch_end(self, epoch, logs={}):
 

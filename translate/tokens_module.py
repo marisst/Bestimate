@@ -25,7 +25,9 @@ def count_tokens(dataset):
     unlabeled_data_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     unlabeled_data = load_json(unlabeled_data_filename)
 
-    data = labeled_data + unlabeled_data
+    data = labeled_data
+    if unlabeled_data is not None:
+        data = data + unlabeled_data
 
     print("Counting tokens...")
 

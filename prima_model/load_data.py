@@ -11,7 +11,7 @@ MAX_WORDS = 100
 def load_and_arrange(dataset, split_percentage):
 
     data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    filtered_data = load_data.load_json(data_filename)[:100]
+    filtered_data = load_data.load_json(data_filename)
 
     lookup_filename = get_dataset_filename(dataset, ALL_FILENAME, SPACY_LOOKUP_POSTFIX, JSON_FILE_EXTENSION)
     lookup = load_data.load_json(lookup_filename)

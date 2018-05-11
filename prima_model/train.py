@@ -31,9 +31,10 @@ def train_on_dataset(dataset):
 
     # create model
     max_text_length = x_test.shape[1]
-    model = mdl.create_model(max_text_length)
+    embedding_size = x_test.shape[2]
+    model = mdl.create_model(max_text_length, embedding_size)
     rmsprop = optimizers.RMSprop(lr=learning_rate)
-    model.compile(loss=losses.mean_absolute_error, optimizer=rmsprop)
+    model.compile(loss=losses.mean_squared_error, optimizer=rmsprop)
     print(model.summary())
 
     #preload weights

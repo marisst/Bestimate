@@ -3,17 +3,16 @@ import sys
 from utilities.constants import *
 from utilities.load_data import load_json, create_folder_if_needed, save_json
 
-def get_text_for_key(datapoint, key):
+def get_sentences_for_key(datapoint, key):
 
-    text = ""
+    sentences = []
     if key == SUMMARY_FIELD_KEY or key == TOTAL_KEY:
-        text = datapoint[SUMMARY_FIELD_KEY]
+        sentences = datapoint[SUMMARY_FIELD_KEY]
 
     if (key == DESCRIPTION_FIELD_KEY or key == TOTAL_KEY) and datapoint.get(DESCRIPTION_FIELD_KEY) is not None:
-        separator_if_needed = " " if len(text) > 0 else ""
-        text = "%s%s%s" % (text, separator_if_needed, datapoint[DESCRIPTION_FIELD_KEY])
+        sentences = sentences + datapoint.get(DESCRIPTION_FIELD_KEY)
 
-    return text
+    return sentences
 
 def translate_text(text, dictionary):
     
@@ -34,11 +33,11 @@ def translate_data(dataset, key, dictionary, labeling):
     print("Translating dataset")
     numeric_data = []
     for datapoint in data:
-        text = get_text_for_key(datapoint, key)
-        numeric_text = translate_text(text, dictionary)
-        
         numeric_datapoint = {}
-        numeric_datapoint[NUMERIC_TEXT_KEY] = " ".join([str(number) for number in numeric_text])
+        numeric_datapoint[NUMERIC_TEXT_KEY] = []
+        sentences = get_sentences_for_key(datapoint, key)
+        for sentence in sentences:
+            numeric_datapoint[NUMERIC_TEXT_KEY].append(translate_text(sentence, dictionary))
         if TIMESPENT_FIELD_KEY in datapoint:
             numeric_datapoint[TIMESPENT_FIELD_KEY] = datapoint[TIMESPENT_FIELD_KEY]
         numeric_data.append(numeric_datapoint)
