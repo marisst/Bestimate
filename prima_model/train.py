@@ -8,29 +8,23 @@ import numpy as np
 import sys
 
 from preprocess import projects
-from prima_model import calculate_baselines as bsl
-from prima_model import graph_helpers as gph
 from prima_model import load_data as load
 from prima_model import model as mdl
 from prima_model import save_results as save
+from prima_model.callback import PrimaCallback
 from utilities import load_data
 from utilities.constants import *
 
 # training parameters
-batch_size = 50
+batch_size = 25
 epochs = 1000
-learning_rate = 0.02
+learning_rate = 0.01
 split_percentage = 75
 
 def train_on_dataset(dataset):
 
     # load and arrange data
     x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage)
-
-    # calculate baseline losses
-    train_mean, train_median = bsl.mean_and_median(y_train)
-    mean_baseline = bsl.mean_absolute_error(y_test, train_mean)
-    median_baseline = bsl.mean_absolute_error(y_test, train_median)
 
     # weight initialization with median value
     #y_train = np.full(y_train.shape, train_median)
@@ -53,8 +47,8 @@ def train_on_dataset(dataset):
     load_data.create_folder_if_needed(weigths_directory_name)
 
     # save configuration
-    configuration_filename = get_configuration_filename(dataset, training_session_name)
-    filtered_data = load_data.load_json(get_filtered_dataset_filename(dataset))
+    '''configuration_filename = get_configuration_filename(dataset, training_session_name)
+    filtered_data = load_data.load_json(get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION))
     min_text_length_datapoint = min(filtered_data, key=lambda datapoint: len(datapoint.get(SUMMARY_FIELD_KEY, "").split()) + len(datapoint.get(DESCRIPTION_FIELD_KEY, "").split()))
     min_text_length = len(min_text_length_datapoint.get(SUMMARY_FIELD_KEY, "").split()) + len(min_text_length_datapoint.get(DESCRIPTION_FIELD_KEY, "").split())
     project_issue_counts = projects.get_issue_counts(filtered_data)
@@ -91,21 +85,11 @@ def train_on_dataset(dataset):
         }
     }
     with open(configuration_filename, "w") as configuration_file:
-        json.dump(configuration, configuration_file, indent=JSON_INDENT)
+        json.dump(configuration, configuration_file, indent=JSON_INDENT)'''
     
-    # update losses plot after every update
-    training_losses = []
-    testing_losses = []
-    axs = plt.gca()
-    log_training_loss = LambdaCallback(on_epoch_end=lambda epoch, logs: training_losses.append(logs['loss']))
-    log_testing_loss = LambdaCallback(on_epoch_end=lambda epoch, logs: testing_losses.append(logs['val_loss']))
-    update_graph = LambdaCallback(on_epoch_end=lambda epoch, logs: gph.plot_losses(axs, training_losses, testing_losses, mean_baseline, median_baseline, SECONDS_IN_HOUR))
     plot_filename = get_results_plot_filename(dataset, training_session_name)
-    save_graph = LambdaCallback(on_epoch_end=lambda epoch, logs: plt.savefig(plot_filename, bbox_inches=PLOT_BBOX_INCHES))
-
-    # save weights and results after every epoch
     weigths_filename = get_weigths_filename(dataset, training_session_name)
-    save_weights = ModelCheckpoint(weigths_filename)
+    #save_weights = ModelCheckpoint(weigths_filename)
     results_filename = get_results_filename(dataset, training_session_name)
     save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(results_filename, epoch, logs))
 
@@ -113,7 +97,7 @@ def train_on_dataset(dataset):
     model.save(weigths_directory_name + "/model.h5")
     
     # train and validate
-    callbacks = [save_weights, save_results, log_training_loss, log_testing_loss, update_graph, save_graph]
+    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename)]
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=batch_size, callbacks=callbacks)
 
     # Save the model

@@ -6,7 +6,7 @@ from prima_model.highway import highway_layers
 
 # model hyperparameters
 highway_layer_count = 20
-lstm_nodes = 10
+lstm_nodes = 100
 lstm_dropout = 0.1
 lstm_recurrent_dropout = 0.1
 final_dropout = 0.3
@@ -14,14 +14,14 @@ highway_activation = "relu" # relu or tanh
 
 def create_model(max_text_length):
     
-    text_input = Input(shape=(max_text_length, 384))
+    text_input = Input(shape=(max_text_length, 300))
     masked_text_input = Masking()(text_input)
 
-    context = LSTM(lstm_nodes, dropout=lstm_dropout, recurrent_dropout=lstm_recurrent_dropout)(masked_text_input)
-
-    highway_layer = highway_layers(context, highway_layer_count, highway_activation)
-    drop = Dropout(final_dropout)(highway_layer)
-    output = Dense(1)(drop)
+    context = LSTM(lstm_nodes)(masked_text_input)
+    dense1 = Dense(12)(context)
+    dense2 = Dense(12)(dense1)
+    dense3 = Dense(6)(dense2)
+    output = Dense(1)(dense3)
 
     model = Model(inputs=[text_input], outputs=[output])
 
