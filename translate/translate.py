@@ -23,7 +23,7 @@ def translate_text(text, dictionary):
                 continue
             translated_words.append(dictionary[word])
 
-    return translated_words
+    return " ".join([str(word) for word in translated_words])
 
 def translate_data(dataset, key, dictionary, labeling):
 

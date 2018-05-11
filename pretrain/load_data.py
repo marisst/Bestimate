@@ -29,7 +29,11 @@ def get_sentences(dataset):
     unlabeled_data = load_json(unlabeled_filename)
 
     data = labeled_data + unlabeled_data
-    return [[int(word) for word in datapoint[NUMERIC_TEXT_KEY].split()] for datapoint in data]
+    sentences = []
+    for datapoint in data:
+        for sentence in datapoint[NUMERIC_TEXT_KEY]:
+            sentences.append([int(word) for word in sentence.split()])
+    return sentences
 
 def get_vocabulary_size(dataset):
 
