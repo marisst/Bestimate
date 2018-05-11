@@ -1,7 +1,7 @@
 from keras.callbacks import Callback
 import matplotlib.pyplot as plt
 import numpy as np
-from prima_model.graph_helpers import plot_losses
+from pretrain.graph_helpers import plot_accuracy
 
 SAVE_WEIGHTS_BATCHES = 1000
 
@@ -55,5 +55,5 @@ class PretrainingCallback(Callback):
         if (len(self.accuracy_history_long) < 2):
             return
             
-        plot_losses(self.axs, self.accuracy_history_long, [], 0, 0, 1)
+        plot_accuracy(self.axs, self.accuracy_history_long)
         plt.savefig(self.graph_filename)
