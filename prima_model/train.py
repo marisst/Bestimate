@@ -17,14 +17,21 @@ from utilities.constants import *
 
 # training parameters
 batch_size = 25
-epochs = 1000
 learning_rate = 0.01
+epochs = 1000
 split_percentage = 75
 
 def train_on_dataset(dataset):
 
     # load and arrange data
     x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage)
+
+    max_y = max([np.max(y_train), np.max(y_test)])
+    min_y = min([np.min(y_train), np.min(y_test)])
+    norm_params = (min_y, max_y - min_y)
+    y_train = (y_train - norm_params[0]) / norm_params[1]
+    y_test = (y_test - norm_params[0]) / norm_params[1]
+    
 
     # weight initialization with median value
     #y_train = np.full(y_train.shape, train_median)
@@ -98,7 +105,7 @@ def train_on_dataset(dataset):
     model.save(weigths_directory_name + "/model.h5")
     
     # train and validate
-    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename)]
+    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, norm_params)]
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=batch_size, callbacks=callbacks)
 
     # Save the model

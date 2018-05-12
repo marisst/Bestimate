@@ -9,26 +9,28 @@ from utilities.constants import *
 
 SPLIT_PERCENTAGE = 75
 
-def predict(model, x_train, x_test, y_train, y_test, max_plot_hours, ax_left, ax_right):
+def predict(model, x_train, x_test, y_train, y_test, norm_params, ax_left, ax_right):
 
     ax_left.clear()
     ax_right.clear()
-
-    y_train = y_train / SECONDS_IN_HOUR
-    y_test = y_test / SECONDS_IN_HOUR
     
     # predict
-    training_predictions = model.predict([x_train]) / SECONDS_IN_HOUR
-    testing_predictions = model.predict([x_test]) / SECONDS_IN_HOUR
+    training_predictions = model.predict([x_train])
+    testing_predictions = model.predict([x_test])
+
+    training_predictions = norm_params[0] + norm_params[1] * training_predictions
+    testing_predictions = norm_params[0] + norm_params[1] * testing_predictions
+    y_train = norm_params[0] + norm_params[1] * y_train
+    y_test = norm_params[0] + norm_params[1] * y_test
 
     # calculate deviations
     training_deviations = [abs(prediction[0] - y_train[i]) for i, prediction in enumerate(training_predictions)]
     testing_deviations = [abs(prediction[0] - y_test[i]) for i, prediction in enumerate(testing_predictions)]
 
-    gph.create_prediction_scatter(ax_left, "Training dataset predictions", max_plot_hours)
+    gph.create_prediction_scatter(ax_left, "Training dataset predictions", norm_params[0] + norm_params[1])
     ax_left.scatter(y_train, training_predictions, c=training_deviations, cmap='coolwarm_r', marker='x', alpha = 0.5)
 
-    gph.create_prediction_scatter(ax_right, "Testing dataset predictions", max_plot_hours)
+    gph.create_prediction_scatter(ax_right, "Testing dataset predictions", norm_params[0] + norm_params[1])
     ax_right.scatter(y_test, testing_predictions, c=testing_deviations, cmap='coolwarm_r', marker='x', alpha = 0.5)
 
 def predict_timespent(dataset, training_session_name, epoch, val_loss):

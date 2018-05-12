@@ -28,7 +28,7 @@ def load_and_arrange(dataset, split_percentage):
         for j, word in enumerate(words):
             x[i, start_index + j] = np.array(lookup[word])
 
-    y = np.array([datapoint[TIMESPENT_FIELD_KEY] for datapoint in filtered_data])
+    y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in filtered_data])
 
     shuffled_data = shuffle((x, y))
     return split_train_test(shuffled_data, split_percentage)
