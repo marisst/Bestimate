@@ -21,10 +21,10 @@ learning_rate = 0.01
 epochs = 1000
 split_percentage = 75
 
-def train_on_dataset(dataset):
+def train_on_dataset(dataset, embeddings):
 
     # load and arrange data
-    x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage)
+    x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage, embeddings)
 
     max_y = max([np.max(y_train), np.max(y_test)])
     min_y = min([np.min(y_train), np.min(y_test)])
@@ -112,4 +112,4 @@ def train_on_dataset(dataset):
     model.save(weigths_directory_name + "/model.h5")
     
 
-train_on_dataset(sys.argv[1])
+train_on_dataset(sys.argv[1], sys.argv[2])

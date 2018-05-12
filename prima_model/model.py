@@ -14,10 +14,9 @@ def create_model(max_text_length, embedding_size):
     
     text_input = Input(shape=(max_text_length, embedding_size))
     masked_text_input = Masking()(text_input)
-    context = LSTM(150)(masked_text_input)
-    highway = highway_layers(context, 50, activation="relu")
-    prediction = Dense(1)(highway)
-    output = Activation("relu")(prediction)
+    context = LSTM(100)(masked_text_input)
+    highway = highway_layers(context, 20, activation="relu")
+    output = Dense(1)(highway)
     model = Model(inputs=[text_input], outputs=[output])
 
     print("Model created")
