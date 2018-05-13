@@ -16,7 +16,7 @@ from utilities import load_data
 from utilities.constants import *
 
 # training parameters
-batch_size = 25
+batch_size = 50
 learning_rate = 0.01
 epochs = 1000
 split_percentage = 75

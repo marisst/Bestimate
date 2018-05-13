@@ -20,7 +20,7 @@ EMB_POSTFIX = "emb"
 EMB2DIM_POSTFIX = "emb2dim"
 VECTORIZED_POSTFIX = "vectorized"
 SPACY_LOOKUP_POSTFIX = "spacy_lookup"
-GENSIM_MODEL = "gensim.model"
+GENSIM_MODEL = "gensim_model"
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"

@@ -1,105 +1,30 @@
 {
     "repositories": [
-        {
-            "key": "A_EXO",
-            "url": "jira.exoplatform.org"
-        },
-        {
-            "key": "A_TDF",
-            "url": "jira.talendforge.org"
-        },
-        {
-            "key": "A_GZL",
-            "url": "gazelle.ihe.net/jira"
-        },
-        {
-            "key": "A_APC",
-            "url": "issues.apache.org/jira"
-        },
-        {
-            "key": "A_JRA",
-            "url": "jira.atlassian.com"
-        },
-        {
-            "key": "A_JBO",
-            "url": "issues.jboss.org"
-        },
-        {
-            "key": "A_HSC",
-            "url": "ticket.hilscher.com"
-        },
-        {
-            "key": "A_MRS",
-            "url": "issues.openmrs.org"
-        },
-        {
-            "key": "A_EZZ",
-            "url": "jira.ez.no"
-        },
-        {
-            "key": "A_PTH",
-            "url": "jira.pentaho.com"
-        },
-        {
-            "key": "A_SPG",
-            "url": "jira.spring.io"
-        },
-        {
-            "key": "A_MDB",
-            "url": "mariadb.atlassian.net"
-        },
-        {
-            "key": "A_SNT",
-            "url": "issues.sonatype.org"
-        },
-        {
-            "key": "A_NIH",
-            "url": "tracker.nci.nih.gov"
-        },
-        {
-            "key": "A_HYB",
-            "url": "hybernate.atlassian.net"
-        },
-        {
-            "key": "A_SEC",
-            "url": "jira.secondlife.com"
-        },
-        {
-            "key": "A_MFG",
-            "url": "mifosforge.jira.com"
-        },
-        {
-            "key": "A_ECS",
-            "url": "ecosystem.atlassian.net"
-        },
-        {
-            "key": "A_MDL",
-            "url": "tracker.moodle.org"
-        },
-        {
-            "key": "A_DSP",
-            "url": "jira.duraspace.org"
-        },
-        {
-            "key": "A_WSO",
-            "url": "wso2.org/jira"
-        },
-        {
-            "key": "A_MSF",
-            "url": "mulesoft.org/jira"
-        },
-        {
-            "key": "A_TPP",
-            "url": "thepluginpeople.atlassian.net"
-        },
-        {
-            "key": "A_BQT",
-            "url": "bugreports.qt.io"
-        },
-        {
-            "key": "A_ONP",
-            "url": "jira.onap.org"
-        }
+        ["A_EXO", "jira.exoplatform.org"],
+        ["A_TDF", "jira.talendforge.org"],
+        ["A_GZL", "gazelle.ihe.net/jira"],
+        ["A_APC", "issues.apache.org/jira"],
+        ["A_JRA", "jira.atlassian.com"],
+        ["A_JBO", "issues.jboss.org"],
+        ["A_HSC", "ticket.hilscher.com"],
+        ["A_MRS", "issues.openmrs.org"],
+        ["A_EZZ", "jira.ez.no"],
+        ["A_PTH", "jira.pentaho.com"],
+        ["A_SPG", "jira.spring.io"],
+        ["A_MDB", "mariadb.atlassian.net"],
+        ["A_SNT", "issues.sonatype.org"],
+        ["A_NIH", "tracker.nci.nih.gov"],
+        ["A_HYB", "hybernate.atlassian.net"],
+        ["A_SEC", "jira.secondlife.com"],
+        ["A_MFG", "mifosforge.jira.com"],
+        ["A_ECS", "ecosystem.atlassian.net"],
+        ["A_MDL", "tracker.moodle.org"],
+        ["A_DSP", "jira.duraspace.org"],
+        ["A_WSO", "wso2.org/jira"],
+        ["A_MSF", "mulesoft.org/jira"],
+        ["A_TPP", "thepluginpeople.atlassian.net"],
+        ["A_BQT", "bugreports.qt.io"],
+        ["A_ONP", "jira.onap.org"]
     ],
     "filter":
     {
@@ -111,10 +36,16 @@
     },
     "pretrain":
     {
-        "min_word_occurence": 30
+        "min_word_occurence": 3,
+        "window_size": 7,
+        "embedding_size": 50
     },
     "train":
     {
-        "max_word_count": 250
+        "embeddings": "gensim",
+        "max_word_count": 250,
+        "input": "normalized",
+        "epochs": 1000,
+        "batch_size": 25
     }
 }

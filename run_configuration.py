@@ -25,9 +25,9 @@ def create_training_dataset(configuration):
         
     print("FETCHING DATA")
     for repository in repositories:
-        if not os.path.exists("%s/%s" % (DATA_FOLDER, repository["key"])):
+        if not os.path.exists("%s/%s" % (DATA_FOLDER, repository[0])):
             try:
-                fetch_data(repository["key"], repository["url"])
+                fetch_data(repository[0], repository[1])
             except Exception as e:
                 print("Skipping because the following exception was thrown:")
                 print(e)
