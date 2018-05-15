@@ -93,11 +93,11 @@ def get_jira_base(url):
 
 
 def test_repos(potential_jira_repo_url_list, min_labeled_issue_count = 100):
-    """Test a list of URLs and return JIRA repository base URLs with publicly available 'timespent' field and at least min_labeled_issue_count labeled issues
+    """Test a list of URLs and return JIRA repository URLs with publicly available 'timespent' field and at least min_labeled_issue_count labeled issues
     A labeled issue is a resolved issue with 'timespent' reporten greater than zero.
 
     Arguments:\n
-    potential_jira_repo_url_list -- a list containing potential JIRA repository base URLs, such as ['jira.exoplatform.org', 'not-jira-url.com', 'issues.apache.org/jira']\n
+    potential_jira_repo_url_list -- a list containing potential JIRA repository URLs, such as ['https://jira.go2group.com/secure/Dashboard.jspa', 'not-jira-url.com', 'issues.apache.org/jira']\n
     min_labeled_issue_count -- the minimal number of labeled issues for a repository to be qualified (default 100)
     """
     
@@ -111,7 +111,7 @@ def test_repos(potential_jira_repo_url_list, min_labeled_issue_count = 100):
         print
 
         print("-----------------------------")
-        url = url.strip()
+        url = get_jira_base(url.strip())
         print("Trying out %s" % url)
 
         repository_search_url = get_repository_search_url(url)
