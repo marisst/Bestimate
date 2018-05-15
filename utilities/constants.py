@@ -2,6 +2,7 @@ CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "data"
 DATASET_FOLDER = "training_datasets"
 WEIGTHS_FOLDER = "weigths"
+DATA_COLLECTION_FOLDER = "data_collection"
 
 STATISTICS_FOLDER = DATASET_FOLDER + "/statistics"
 
@@ -21,6 +22,8 @@ EMB2DIM_POSTFIX = "emb2dim"
 VECTORIZED_POSTFIX = "vectorized"
 SPACY_LOOKUP_POSTFIX = "spacy_lookup"
 GENSIM_MODEL = "gensim_model"
+
+POTENTIAL_REPOS_FILENAME = "%s/%s" % (DATA_COLLECTION_FOLDER, "potential_repos.txt")
 
 JSON_FILE_EXTENSION = ".json"
 CSV_FILE_EXTENSION = ".csv"

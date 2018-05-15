@@ -1,16 +1,15 @@
 # Bestimate
-Automated software development task estimation on JIRA
+With this package you can train a neural network model to estimate JIRA issues from both publicly available and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
 
-## Glossary
+## 1. Data Collection
+The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jum over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to try find new publicly available repositories.
 
-*datapoint* - a JIRA issue which belongs to a project, has summary text and optionally description and time spent reported  
-*label* - `timespent` field which is greated than zero  
-*labeled datapoint* - resolved issue with `timespent` value greater than zero
+### Discovering Publicly Available JIRA Repositories
+To test a number of potential publicly available JIRA repositories, add their base URLs to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) by separating each URL by a line break and run the following command:
+```
+python -m data_collection.test_repos
+```
 
-
-## Data gathering
-
-### Discovering repositories
 To discover JIRA repositories with at least 100 labeled issues and save their Urls at `/data/open_repositories.json`, run the following command:
 ```
 python -m fetching.discover_repos BING_API_KEY
@@ -23,6 +22,8 @@ To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subf
 python -m fetch.data DATASET jira.repositoryname.com
 ```
 A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
+
+### Bulk Fetch
 
 JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 

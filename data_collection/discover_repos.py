@@ -1,12 +1,12 @@
 from googleapiclient.discovery import build
 import json
 import math
-import re
 import requests
 import sys
 import time
 
-from fetch.count_issues import count as get_issue_count
+from data_collection.count_issues import count as get_issue_count
+from data_collection.test_repos import discover_repositories, get_jira_base
 from utilities.constants import *
 from utilities.string_utils import get_part_strings
 
@@ -98,92 +98,6 @@ def google_search(keyword, google_api_key, cse_id):
     print("%d potential JIRA instances found" % len(results))
     return results
 
-
-def get_jira_base(url):
-
-    return re.sub(r"((.*?)\:\/\/)|((\/)(.*?).jspa)|(\/secure)", "", url).strip("/")
-
-def is_timespent_returned(repository_search_url):
-    
-    params = {
-        "maxResults": 1,
-        "fields": TIMESPENT_FIELD_KEY,
-        "expand": "",
-        "jql": LABELED_DATA_JQL
-    }
-
-    try:
-        response = requests.get(repository_search_url, params=params)
-    except requests.exceptions.RequestException:
-        return False
-
-    if response.status_code != 200:
-        return False
-
-    try:
-        json_response = response.json()
-    except json.JSONDecodeError:
-        return False
-
-    issues = json_response.get("issues", None)
-    if issues is None or len(issues) < 1:
-        return False
-
-    fields = issues[0].get("fields", None)
-    if fields is None or len(fields) < 1:
-        return False
-
-    timespent = int(fields.get(TIMESPENT_FIELD_KEY, "0"))
-    if timespent < 1:
-        return False
-    
-    return True
-
-def discover_repositories(search_result_urls):
-    
-    examined_website_count = len(search_result_urls)
-    open_repos = []
-    too_small_count = 0
-    unreadable_labels_count = 0
-    for url in search_result_urls:
-
-        print("-----------------------------")
-        print("Trying out %s" % url)
-
-        repository_search_url = get_repository_search_url(url)
-        
-        total_labeled_issues = get_issue_count(repository_search_url, None, LABELED_DATA_JQL)
-        if total_labeled_issues < MIN_LABELED_ISSUE_COUNT:
-            if total_labeled_issues > 0:
-                too_small_count = too_small_count + 1
-            continue
-
-        if not is_timespent_returned(repository_search_url):
-            unreadable_labels_count = unreadable_labels_count + 1
-            continue
-
-        total_issues = get_issue_count(repository_search_url)
-        labeling_coverage = total_labeled_issues / total_issues * 100 if total_issues > 0 else 0
-
-        issue_statement = "%s contains %d issues in total of which %d (%.2f%%) are labeled."
-        print(issue_statement % (url, total_issues, total_labeled_issues, labeling_coverage))
-
-        repo = {
-            "url": url,
-            "labeled_issues": total_labeled_issues,
-            "total_issues": total_issues,
-            "labeling_coverage": round(labeling_coverage, 2)
-        }
-        print(repo)
-        open_repos.append(repo)
-
-    open_repos = sorted(open_repos, key=lambda result: result["labeled_issues"], reverse=True)
-    return {
-        "examined_websites": examined_website_count,
-        "too_small": too_small_count,
-        "labels_unreadable": unreadable_labels_count,
-        "open_repos": open_repos
-    }
 
 def discover_repositories_bing(bing_api_key):
 
