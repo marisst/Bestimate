@@ -53,10 +53,14 @@ def train_on_dataset(dataset, embedding_type, model_params):
     
     # train and validate
     callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, norm_params)]
-    model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=model_params["batch_size"], callbacks=callbacks)
+    history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=model_params["batch_size"], callbacks=callbacks)
+
+    
 
     # Save the model
     model.save(weigths_directory_name + "/model.h5")
+
+
     
 
 #train_on_dataset(sys.argv[1], sys.argv[2])
