@@ -43,20 +43,25 @@ JIRA repositories in English, mainly from open source projects as per 4/22/2018:
 | [mariadb.atlassian.net](https://mariadb.atlassian.net) | 1,848 | 8,617 | 21.45% |
 | [issues.sonatype.org](https://issues.sonatype.org) | 1,655 | 48,160 | 3.44% |
 | [tracker.nci.nih.gov](https://tracker.nci.nih.gov) | 1,571 | 13,985 | 11.23% |
+| [openlmis.atlassian.net](https://openlmis.atlassian.net) | 1,484 | 4,312 | 32.18% |
 | [hibernate.atlassian.net](https://hibernate.atlassian.net) | 1,018 | 24,190 | 4.21% |
+| [jira.sakaiproject.org](https://jira.sakaiproject.org/) | 549 | 44,904 | 1.22% |
 | [jira.secondlife.com](https://jira.secondlife.com) | 520 | 6,564 | 7.92% |
 | [mifosforge.jira.com](https://mifosforge.jira.com) | 506 | 10,763 | 4.70% |
 | [ecosystem.atlassian.net](https://ecosystem.atlassian.net) | 469 | 35,028 | 1.34% |
+| [opencast.jira.com](https://opencast.jira.com/) | 454 | 12,824 | 3.54% |
+| [jira.percona.com](https://jira.percona.com/) | 402 | 8,628 | 4.66% |
+| [jira.xwiki.org](https://jira.xwiki.org/) | 251 | 23,619 | 1.06% |
 | [tracker.moodle.org](https://tracker.moodle.org) | 199 | 82,007 | 0.24% |
 | [jira.duraspace.org](https://jira.duraspace.org) | 154 | 12,134 | 1.27% |
 | [wso2.org/jira](https://wso2.org/jira) | 144 | 81,448 | 0.18% |
 | [mulesoft.org/jira](https://www.mulesoft.org/jira) | 144 | 15,234 | 0.95% |
 | [thepluginpeople.atlassian.net](https://thepluginpeople.atlassian.net) | 130 | 2,696 | 4.82% |
+| [jira.onap.org](https://jira.onap.org/) | 120 | 12,615 | 0.95% |
 | [bugreports.qt.io](https://bugreports.qt.io) | 117 | 97,765 | 0.12% |
-| [jira.onap.org](https://jira.onap.org/) | 106 | 11,813 | 0.90% |
-| Total: | 62,624 | 2,038,127 | 3.07% |
+| Total: | 65,778 | 2,133,516 | 3.10% |
 
-Issue counts were obtained 4/22/2018.
+Issue counts were obtained between 4/22/2018 and 5/15/2018.
 
 ## Preprocessing Data
 The fetched datapoints are further processed by cleaning textual task descriptions, merging data from several repositories together and filtering them in order to increase data homogeinity.
