@@ -8,6 +8,7 @@ from preprocess.filter_module import filter_data
 from preprocess.filter_config import FilterConfig
 from translate.tokens_module import count_tokens
 from translate.dictionary_module import create_dictionary
+from pretrain.train_gensim import train_gensim
 from utilities.constants import *
 from utilities.load_data import load_json
 
@@ -44,7 +45,6 @@ def create_training_dataset(configuration):
                 print(e)
                 continue
     training_dataset_name = merge_data(repository_keys)
-
     return training_dataset_name
 
 
@@ -53,32 +53,47 @@ def run_configuration(configuration_name, training_dataset_name = "0"):
     filename = get_running_configuration_filename(configuration_name)
     configuration = load_json(filename)
 
+    is_regenerate_needed = False
+
     if training_dataset_name == "0":
         training_dataset_name = create_training_dataset(configuration)
-
+        is_regenerate_needed = True
+    
     # filter
     labeled_filtered_filename = get_dataset_filename(training_dataset_name, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     unlabeled_filtered_filename = get_dataset_filename(training_dataset_name, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    if not os.path.exists(labeled_filtered_filename) or not os.path.exists(unlabeled_filtered_filename):
+    if not os.path.exists(labeled_filtered_filename) or not os.path.exists(unlabeled_filtered_filename) or is_regenerate_needed == True:
         filter_config = FilterConfig()
         filter_params = configuration.get("filter")
         if filter_params is not None:
             for param_name, param_value in filter_params.items():
                 filter_config.set_param(param_name, param_value)
         filter_data(training_dataset_name, filter_config)
+        is_regenerate_needed = True
     
     pretrain_config = configuration.get("pretrain")
     if pretrain_config is not None:
         
         # token counts
         token_count_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
-        if not os.path.exists(token_count_filename):
+        if not os.path.exists(token_count_filename) or is_regenerate_needed == True:
+            print("Counting tokens")
             count_tokens(training_dataset_name)
+            is_regenerate_needed = True
 
         # dictionary
         dictionary_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION)
-        if not os.path.exists(dictionary_filename):
+        if not os.path.exists(dictionary_filename) or is_regenerate_needed == True:
+            print("Creating dictionary")
             create_dictionary(training_dataset_name, TOTAL_KEY, pretrain_config.get("min_word_occurence"))
+            is_regenerate_needed = True
+
+        # gensim_model
+        gensim_model_filename = get_dataset_filename(training_dataset_name, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
+        if not os.path.exists(gensim_model_filename) or is_regenerate_needed == True:
+            print("Pretraining word vectors with Gensim")
+            train_gensim(training_dataset_name)
+            is_regenerate_needed = True
 
     train_config = configuration.get("train")
     if train_config is not None:

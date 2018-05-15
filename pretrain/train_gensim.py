@@ -7,7 +7,7 @@ from utilities.constants import *
 #https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/
 #https://radimrehurek.com/gensim/models/word2vec.html
 
-def train_on_dataset(dataset):
+def train_gensim(dataset):
 
     labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
@@ -29,4 +29,4 @@ def train_on_dataset(dataset):
     model.save(filename)
     print("Model saved at", filename)
 
-train_on_dataset(sys.argv[1])
+#train_on_dataset(sys.argv[1])
