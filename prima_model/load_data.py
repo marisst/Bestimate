@@ -6,9 +6,7 @@ from utilities.arrange import shuffle, split_train_test
 from utilities.constants import *
 from utilities.string_utils import merge_sentences
 
-MAX_WORDS = 100
-
-def load_and_arrange(dataset, split_percentage, embeddings):
+def load_and_arrange(dataset, split_percentage, embeddings, max_words):
 
     data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     filtered_data = load_data.load_json(data_filename)
@@ -25,12 +23,12 @@ def load_and_arrange(dataset, split_percentage, embeddings):
         lookup = model.wv
         embedding_size = model.vector_size
 
-    x = np.zeros((datapoint_count, MAX_WORDS, embedding_size))
+    x = np.zeros((datapoint_count, max_words, embedding_size))
     for i, datapoint in enumerate(filtered_data):
         text = merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, []))
         words = text.split()
-        words = [word for word in words if word in lookup][:MAX_WORDS]
-        start_index = MAX_WORDS - len(words)
+        words = [word for word in words if word in lookup][:max_words]
+        start_index = max_words - len(words)
         for j, word in enumerate(words):
             x[i, start_index + j] = np.array(lookup[word])
 

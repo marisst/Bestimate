@@ -7,7 +7,7 @@ from utilities.constants import *
 #https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/
 #https://radimrehurek.com/gensim/models/word2vec.html
 
-def train_gensim(dataset):
+def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations):
 
     labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
@@ -22,7 +22,13 @@ def train_gensim(dataset):
             training_sentences.append([word for word in sentence.split()])
     print("Sentences prepared")
 
-    model = Word2Vec(training_sentences, size=10, window=5, sg=1, compute_loss=True, iter=5)
+    model = Word2Vec(training_sentences,
+    min_count=minimum_count,
+    size=embedding_size,
+    window=window_size,
+    sg=1 if algorithm == "skip-gram" else 0,
+    compute_loss=True,
+    iter=iterations)
     print("Model computed, loss:", model.get_latest_training_loss())
 
     filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)

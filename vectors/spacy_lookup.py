@@ -31,4 +31,4 @@ def spacy_lookup(dataset):
     save_json(lookup_filename, lookup)
     print("Lookup table saved at", lookup_filename)
 
-spacy_lookup(sys.argv[1])
+#spacy_lookup(sys.argv[1])

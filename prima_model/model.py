@@ -11,13 +11,13 @@ def create_deep_dense(hidden_unit_counts, previous_layer):
         previous_layer = Dense(hidden_unit_count)(previous_layer)
     return previous_layer
 
-def create_model(max_text_length, embedding_size):
+def create_model(max_text_length, embedding_size, model_params):
     
     text_input = Input(shape=(max_text_length, embedding_size))
     masked_text_input = Masking()(text_input)
-    context = LSTM(10, dropout=0.1, recurrent_dropout=0.1, activity_regularizer=l2(0.0001))(masked_text_input)
-    highway = highway_layers(context, 20, activation="relu", kernel_regularizer=l2(0.0001))
-    drop = Dropout(0.2)(highway)
+    context = LSTM(model_params['lstm_node_count'], dropout=model_params['lstm_dropout'], recurrent_dropout=model_params['lstm_recurrent_dropout'], activity_regularizer=l2(0.00001))(masked_text_input)
+    highway = highway_layers(context, model_params['highway_layer_count'], activation=model_params['highway_activation'], kernel_regularizer=l2(0.00001))
+    drop = Dropout(model_params['dropout'])(highway)
     estimate = Dense(1)(drop)
     model = Model(inputs=[text_input], outputs=[estimate])
 
