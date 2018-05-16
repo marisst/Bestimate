@@ -18,6 +18,7 @@
     ["A_SKP", "jira.sakaiproject.org"],
     ["A_SEC", "jira.secondlife.com"],
     ["A_MFG", "mifosforge.jira.com"],
+    ["A_KYL", "kylo-io.atlassian.net"],
     ["A_ECS", "ecosystem.atlassian.net"],
     ["A_OPC", "opencast.jira.com"],
     ["A_PCN", "jira.percona.com"],
@@ -27,6 +28,8 @@
     ["A_WSO", "wso2.org/jira"],
     ["A_MSF", "mulesoft.org/jira"],
     ["A_TPP", "thepluginpeople.atlassian.net"],
-    ["A_ONP", "jira.onap.org"]
-    ["A_BQT", "bugreports.qt.io"]
+    ["A_ONP", "jira.onap.org"],
+    ["A_BQT", "bugreports.qt.io"],
+    ["A_LNR", "projects.linaro.org"],
+    ["A_ZNT", "zanata.atlassian.net"]
 ]

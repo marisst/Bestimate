@@ -92,13 +92,13 @@ def get_jira_base(url):
     return re.sub(r"((.*?)\:\/\/)|((\/)(.*?).jspa)|(\/secure)", "", url).strip("/")
 
 
-def test_repos(potential_jira_repo_url_list, min_labeled_issue_count = 100):
+def test_repos(potential_jira_repo_url_list, min_labeled_issue_count):
     """Test a list of URLs and return JIRA repository URLs with publicly available 'timespent' field and at least min_labeled_issue_count labeled issues
     A labeled issue is a resolved issue with 'timespent' reporten greater than zero.
 
     Arguments:\n
     potential_jira_repo_url_list -- a list containing potential JIRA repository URLs, such as ['https://jira.go2group.com/secure/Dashboard.jspa', 'not-jira-url.com', 'issues.apache.org/jira']\n
-    min_labeled_issue_count -- the minimal number of labeled issues for a repository to be qualified (default 100)
+    min_labeled_issue_count -- the minimal number of labeled issues for a repository to be qualified
     """
     
     examined_website_count = len(potential_jira_repo_url_list)
@@ -149,6 +149,27 @@ def test_repos(potential_jira_repo_url_list, min_labeled_issue_count = 100):
         "open_repos": open_repos
     }
 
+def print_test_result(result, min_labeled_issue_count):
+    """Print JIRA repository test result in command line
+    
+    Arguments:\n
+    result -- result dictionary\n
+    min_labeled_issue_count -- the minimal number of labeled issues for a repository to be qualified, only for printing purposes
+    """
+
+    print("-----------------------------")
+    print("Examined %d potential websites." % result["examined_websites"])
+    if result["labels_unreadable"] > 0:
+        print("%d were disqualified because 'timespent' field was not publicly accessible." % result["labels_unreadable"])
+    if result["too_small"] > 0:
+        print("%d were disqualified before they contained less than %d labeled issues." % (result["too_small"], min_labeled_issue_count))
+    if len(result["open_repos"]) == 0:
+        print("No repositories satisfying the criteria were found.")
+        sys.exit()
+
+    print("%d publicly available repositories fullfilling the criteria were found:" % len(result["open_repos"]))
+    for repo in result["open_repos"]:
+        print("%s - %d labeled issues, %d total issues, %.2f%% labeling coverage" % (repo["url"], repo["labeled_issues"], repo["total_issues"], repo["labeling_coverage"]))
 
 if __name__ == "__main__":
 
@@ -162,17 +183,4 @@ if __name__ == "__main__":
     min_labeled_issue_count = int(input("Please enter the minimum number of resolved issues with time spent greater than zero necessary to qualify a repository: "))
     
     result = test_repos(potential_repo_url_list, min_labeled_issue_count)
-
-    print("-----------------------------")
-    print("Examined %d potential websites." % result["examined_websites"])
-    if result["labels_unreadable"] > 0:
-        print("%d were disqualified because 'timespent' field was not publicly accessible." % result["labels_unreadable"])
-    if result["too_small"] > 0:
-        print("%d were disqualified before they contained less than %d labeled issues." % (result["too_small"], min_labeled_issue_count))
-    if len(result["open_repos"]) == 0:
-        print("No repositories satisfying the criteria were found.")
-        sys.exit()
-
-    print("%d publicly avaiable repositories fullfilling the criteria were found:" % len(result["open_repos"]))
-    for repo in result["open_repos"]:
-        print("%s - %d labeled issues, %d total issues, %.2f%% labeling coverage" % (repo["url"], repo["labeled_issues"], repo["total_issues"], repo["labeling_coverage"]))
+    print_test_result(result, min_labeled_issue_count)

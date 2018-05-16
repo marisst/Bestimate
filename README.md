@@ -5,16 +5,15 @@ With this package you can train a neural network model to estimate JIRA issues f
 The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
 
 ### Discovering Publicly Available JIRA Repositories
-To test a number of potential publicly available JIRA repositories, add their base URLs to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) by separating each URL by a line break and run the following command:
+To find new repositories using [Bing Web Search API](https://azure.microsoft.com/en-us/services/cognitive-services/bing-web-search-api/) or [Google Custom Search Engine API](https://cse.google.com/cse/), run the following command:
+```
+python -m data_collection.discover_repos
+```
+You will be asked to provide Google API key, Google CSE ID or Bing Web Search API key. Both search engines offer a trial version. Bing does not requre much more setup than just a simple registration as opposed to Google which needs to be configured to search the whole web as described in the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results both in trial and paid versions. Therefore you might want to collect the potential links manually, add them to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to retrieve a list of publicly available repositories:
 ```
 python -m data_collection.test_repos
 ```
 
-To discover JIRA repositories with at least 100 labeled issues and save their Urls at `/data/open_repositories.json`, run the following command:
-```
-python -m fetching.discover_repos BING_API_KEY
-```
-Replace `BING_API_KEY` with [Bing Web Search API](https://azure.microsoft.com/en-us/services/cognitive-services/bing-web-search-api/) key.
 
 ### Fetching Data from JIRA Repository
 To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:

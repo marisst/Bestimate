@@ -37,7 +37,6 @@ UNLABELED_FILENAME = "unl"
 ALL_FILENAME = "all"
 RESULTS_FILENAME = "results"
 CONFIGURATION_FILENAME = "configuration"
-REPO_LIST_FILENAME = "open_repositories"
 
 LABEL_DISTRIBUTION_STAT = "label_distribution"
 PROJECT_SIZE_STAT = "project_size"
@@ -52,10 +51,6 @@ REQUEST_TIMEOUT_SECONDS = 15
 
 PLOT_BBOX_INCHES = "tight"
 OSX_PLATFORM_SYSTEM = "Darwin"
-
-BING = "bing"
-GOOGLE = "google"
-SEARCH_ENGINES = [BING, GOOGLE]
 
 LABELED_DATA_JQL = "timespent > 0 and resolution != Unresolved"
 UNLABELED_DATA_JQL = "timespent <= 0 or timespent is EMPTY or resolution is EMPTY"
@@ -82,9 +77,6 @@ def get_running_configuration_filename(configuration_name):
 
 def get_repository_search_url(repository_base_url):
     return URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
-
-def get_repo_list_filename(search_engine):
-    return "%s/%s_%s%s" % (DATA_FOLDER, REPO_LIST_FILENAME, search_engine, JSON_FILE_EXTENSION)
 
 def get_weigths_folder_name(dataset, training_session_name):
     return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)
