@@ -14,7 +14,7 @@ To discover JIRA repositories with at least 100 labeled issues and save their Ur
 ```
 python -m fetching.discover_repos BING_API_KEY
 ```
-Replace `BING_API_KEY` with [Bing Web Search BING_API_KEY](https://azure.microsoft.com/en-us/services/cognitive-services/bing-web-search-api/) key.
+Replace `BING_API_KEY` with [Bing Web Search API](https://azure.microsoft.com/en-us/services/cognitive-services/bing-web-search-api/) key.
 
 ### Fetching Data from JIRA Repository
 To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:

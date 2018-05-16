@@ -108,10 +108,11 @@ def test_repos(potential_jira_repo_url_list, min_labeled_issue_count = 100):
 
     for url in potential_jira_repo_url_list:
 
-        print
-
-        print("-----------------------------")
         url = get_jira_base(url.strip())
+        is_already_added = sum(1 for repo in open_repos if repo["url"] == url) > 0
+        if is_already_added == True:
+            continue
+        print("-----------------------------")
         print("Trying out %s" % url)
 
         repository_search_url = get_repository_search_url(url)
@@ -161,4 +162,17 @@ if __name__ == "__main__":
     min_labeled_issue_count = int(input("Please enter the minimum number of resolved issues with time spent greater than zero necessary to qualify a repository: "))
     
     result = test_repos(potential_repo_url_list, min_labeled_issue_count)
-    print("Result:\n", result)
+
+    print("-----------------------------")
+    print("Examined %d potential websites." % result["examined_websites"])
+    if result["labels_unreadable"] > 0:
+        print("%d were disqualified because 'timespent' field was not publicly accessible." % result["labels_unreadable"])
+    if result["too_small"] > 0:
+        print("%d were disqualified before they contained less than %d labeled issues." % (result["too_small"], min_labeled_issue_count))
+    if len(result["open_repos"]) == 0:
+        print("No repositories satisfying the criteria were found.")
+        sys.exit()
+
+    print("%d publicly avaiable repositories fullfilling the criteria were found:" % len(result["open_repos"]))
+    for repo in result["open_repos"]:
+        print("%s - %d labeled issues, %d total issues, %.2f%% labeling coverage" % (repo["url"], repo["labeled_issues"], repo["total_issues"], repo["labeling_coverage"]))
