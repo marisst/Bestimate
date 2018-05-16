@@ -1,52 +1,29 @@
-import sys
 import os
 
-from fetch.fetch_data import fetch_data
-from preprocess.clean_module import clean_text
-from preprocess.merge_module import merge_data
-from preprocess.filter_module import filter_data
-from preprocess.filter_config import FilterConfig
-from translate.tokens_module import count_tokens
-from translate.dictionary_module import create_dictionary
-from pretrain.train_gensim import train_gensim
-from utilities.constants import *
-from utilities.load_data import load_json
+from data_collection.fetch_data import fetch_data
+from utilities.file_utils import load_json
 
+from utilities.constants import DATA_FOLDER, DATA_COLLECTION_FOLDER
 
-def get_clean_filename(dataset, labeling):
-    return get_data_filename(dataset, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
+REPOSITORY_LIST_FILENAME = DATA_COLLECTION_FOLDER + "/known_repos.json"
 
-
-def create_training_dataset(repositories):
+def fetch_repositories(repositories):
+    """Fetching data from a list of JIRA repositories"""
 
     if repositories is None:
-        print("Configuration doesn't contain any repositories")
+        print("No JIRA repositories were found at", REPOSITORY_LIST_FILENAME)
         return
         
-    print("FETCHING DATA")
     for repository in repositories:
         if not os.path.exists("%s/%s" % (DATA_FOLDER, repository[0])):
             try:
                 fetch_data(repository[0], repository[1])
             except Exception as e:
-                print("Skipping because the following exception was thrown:")
-                print(e)
-                continue
-    
-    print("CLEANING DATA")
-    repository_keys = [repository["key"] for repository in repositories]
-    for repository_key in repository_keys:
-        if not os.path.exists(get_clean_filename(repository_key, LABELED_FILENAME)) or not os.path.exists(get_clean_filename(repository_key, UNLABELED_FILENAME)):
-            try:
-                clean_text([repository_key])
-            except Exception as e:
-                print("Skipping because the following exception was thrown:")
+                print("Skipping %s because the following exception was thrown:" % repository[1])
                 print(e)
                 continue
 
+if __name__ == "__main__":
 
-def run_configuration():
-
-    repositories = load_json("fetch/datasets.json")
-    create_training_dataset(repositories)
-
+    repositories = load_json(REPOSITORY_LIST_FILENAME)
+    fetch_repositories(repositories)

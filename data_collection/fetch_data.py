@@ -6,7 +6,8 @@ import sys
 import time
 
 from data_collection.test_repos import get_issue_count, get_jira_base_url
-from utilities.constants import CSV_FILE_EXTENSION, DATA_FOLDER, FIELD_KEYS, LABELED_DATA_JQL, LABELED_FILENAME, RAW_POSTFIX, UNLABELED_FILENAME, UNLABELED_DATA_JQL
+from utilities.constants import CSV_FILE_EXTENSION, DATA_FOLDER, FIELD_KEYS, LABELED_DATA_JQL
+from utilities.constants import LABELED_FILENAME, RAW_POSTFIX, UNLABELED_FILENAME, UNLABELED_DATA_JQL
 from utilities.file_utils import create_subfolder, get_repository_search_url, get_data_filename
 
 MAX_RECORDS_PER_REQUEST = 50
@@ -53,7 +54,8 @@ def fetch_slice(repository_search_url, auth, jql, start_at, max_results):
         requestSucc = True
 
     if response.status_code != 200:
-        print("%s returned unexpected status code %d when trying to fetch slice with the following JQL query: %s" % (repository_search_url, response.status_code, jql))
+        print("%s returned unexpected status code %d when trying to fetch slice with the following JQL query: %s"
+            % (repository_search_url, response.status_code, jql))
 
         error_messages = response.json().get("errorMessages")
         if error_messages is not None and len(error_messages) > 0:
@@ -134,7 +136,8 @@ def fetch_and_save_issues(target_filename, repository_search_url, auth, jql=""):
         records_processed = min(startAt + MAX_RECORDS_PER_REQUEST, total_issues)
         if records_processed > 0:
             processed_percentage = records_processed / total_issues * 100
-            print("%d (%.2f%%) of %d issues fetched and saved at %s" % (records_processed, processed_percentage, total_issues, target_filename))     
+            print("%d (%.2f%%) of %d issues fetched and saved at %s"
+                % (records_processed, processed_percentage, total_issues, target_filename))     
 
         slice_num = slice_num + 1
 

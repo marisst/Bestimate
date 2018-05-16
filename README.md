@@ -1,5 +1,5 @@
 # Bestimate
-With this package you can train a neural network model to estimate JIRA issues from both publicly available and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
+With this package you can train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
 
 ## 1. Data Collection
 The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
@@ -9,7 +9,7 @@ To find new repositories using [Bing Web Search API](https://azure.microsoft.com
 ```
 python -m data_collection.discover_repos
 ```
-You will be asked to provide Google API key and Google Custom Search Engine ID or Bing Web Search API key. Both search engines offer free trial versions of their products. Bing does not requre other setup than just a simple registration as opposed to Google which needs to be configured to search the whole web, which can be done by following the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results. Therefore you might want to collect the potential links manually, add them to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to retrieve a list of publicly available repositories:
+You will be asked to provide Google API key and Google Custom Search Engine ID or Bing Web Search API key. Both search engines offer free trial versions of their products. Bing does not requre other setup than just a simple registration as opposed to Google which needs to be configured to search the whole web by following the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results for each query. Therefore you might want to collect the potential links manually, add them to [/data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to test if they lead to a public JIRA repository:
 ```
 python -m data_collection.test_repos
 ```
@@ -23,32 +23,13 @@ You will be asked to provide the URL of the JIRA repository, e.g. "jira.exoplatf
 
 ### Bulk Fetch
 
-JIRA repositories in English, mainly from open source projects as per 4/22/2018:
+As a part of this research project, 33 publicly available JIRA repositories, each containing at least 100 resolved issues with time spent greater than zero, were found and listed at [/data_collection/known_repos.json](data_collection/known_repos.json). The total number of labeled issues exceeds 65,000 and the number of unlabeled issues exceeds 2,000,000. To fetch data from all of these these repositories by a single command, run:
+```
+python -m data_collection.bulk_fetch
+```
+You can add more repository identifier and URL pairs to [/data_collection/known_repos.json](data_collection/known_repos.json) to fetch those when you run the command. If a folder with a known repository identifier already exists in [/raw_data](raw_data) folder, it will not be reloaded when running the command unless you manually delete it.
 
-| Url | Labeled issues | Total issues | Labeling coverage |
-| --- | ---: | ---:| ---:|
-| [jira.exoplatform.org](https://jira.exoplatform.org) | 9,736 | 36,219 | 26.88% |
-| [jira.talendforge.org](https://jira.talendforge.org) | 9,034 | 100,381 | 9.00% |
-| [gazelle.ihe.net/jira](https://gazelle.ihe.net/jira) | 7,072 | 13,507 | 52.36% |
-| [issues.apache.org/jira](https://issues.apache.org/jira) | 6,331 | 756,657 | 0.84% |
-| [jira.atlassian.com](https://jira.atlassian.com/secure) | 5,817 | 225,371 | 2.58% |
-| [issues.jboss.org](https://issues.jboss.org) | 3,919 | 302,967 | 1.29% |
-| [ticket.hilscher.com](https://ticket.hilscher.com) | 3,804 | 6,558 | 58.01% |
-| [issues.openmrs.org](https://issues.openmrs.org) | 2,242| 17,953 | 12.49% |
-| [jira.ez.no](https://jira.ez.no) | 2,156 | 25,520 | 8.45% |
-| [jira.pentaho.com](https://jira.pentaho.com) | 2,073 | 39,667 | 5.23% |
-| [jira.spring.io](https://jira.spring.io) | 1,859 | 62,923 | 2.95% |
-| [mariadb.atlassian.net](https://mariadb.atlassian.net) | 1,848 | 8,617 | 21.45% |
-| [issues.sonatype.org](https://issues.sonatype.org) | 1,655 | 48,160 | 3.44% |
-| [tracker.nci.nih.gov](https://tracker.nci.nih.gov) | 1,571 | 13,985 | 11.23% |
-| [openlmis.atlassian.net](https://openlmis.atlassian.net) | 1,484 | 4,312 | 32.18% |
-| [hibernate.atlassian.net](https://hibernate.atlassian.net) | 1,018 | 24,190 | 4.21% |
-| + 14 repositories |
-| Total: | 65,778 | 2,133,516 | 3.10% |
-
-Issue counts were obtained between 4/22/2018 and 5/15/2018.
-
-## Preprocessing Data
+## 2. Data Preprocessing
 The fetched datapoints are further processed by cleaning textual task descriptions, merging data from several repositories together and filtering them in order to increase data homogeinity.
 
 ### Cleaning Text
