@@ -1,5 +1,5 @@
 CONFIGURATIONS_FOLDER = "configurations"
-DATA_FOLDER = "data"
+DATA_FOLDER = "raw_data"
 DATASET_FOLDER = "training_datasets"
 WEIGTHS_FOLDER = "weigths"
 DATA_COLLECTION_FOLDER = "data_collection"

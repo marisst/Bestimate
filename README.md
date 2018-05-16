@@ -15,11 +15,11 @@ python -m data_collection.test_repos
 ```
 
 ### Fetching Data from JIRA Repository
-To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:
+To fetch data  a single private or public repository, run the following command:
 ```
-python -m fetch.data DATASET jira.repositoryname.com
+python -m data_collection.fetch_data
 ```
-A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the targeted JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key. Labeled and unlabeled datapoints are stored seperately.
+You will be asked to provide the URL of the JIRA repository, e.g. "jira.exoplatform.org" and an identifier of the repository, which will be used to identify the fetched data when composing a new training dataset. A new request to JIRA REST service is made for each 50 record chunk due to JIRA's constraints until all records are loaded. You can sign in to the JIRA repository by username and [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) to gain access to more data. If the API token is not working, an alternative is to create a new user account and use its password instead of the API key.
 
 ### Bulk Fetch
 

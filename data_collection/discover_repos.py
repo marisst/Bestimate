@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     if search_engine == GOOGLE:
         print("You can obtain Google API key and Google Custom Search Engine ID as described on https://stackoverflow.com/a/37084643 (step 1 and 2).")
-        print ("The custom search engine should be configured to search the whole web.")
+        print("The custom search engine should be configured to search the whole web.")
         google_api_key = input("Google API key: ")
         cse_id = input("Google Custom Search Engine ID: ")
         for keyword in GOOGLE_KEYWORDS:

@@ -99,7 +99,7 @@ def is_timespent_returned(repository_search_url):
     return True
 
 
-def get_jira_base(url):
+def get_jira_base_url(url):
     """Extract JIRA repository base URL from dashboard, start page or similar URL"""
     return re.sub(r"((.*?)\:\/\/)|((\/)(.*?).jspa)|(\/secure)", "", url).strip("/")
 
@@ -125,7 +125,7 @@ def test_repos(potential_jira_repo_url_list, min_labeled_issue_count):
 
     for url in potential_jira_repo_url_list:
 
-        url = get_jira_base(url.strip())
+        url = get_jira_base_url(url.strip())
         is_already_added = sum(1 for repo in open_repos if repo["url"] == url) > 0
         if is_already_added == True:
             continue
