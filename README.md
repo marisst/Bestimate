@@ -9,11 +9,10 @@ To find new repositories using [Bing Web Search API](https://azure.microsoft.com
 ```
 python -m data_collection.discover_repos
 ```
-You will be asked to provide Google API key, Google CSE ID or Bing Web Search API key. Both search engines offer a trial version. Bing does not requre much more setup than just a simple registration as opposed to Google which needs to be configured to search the whole web as described in the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results both in trial and paid versions. Therefore you might want to collect the potential links manually, add them to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to retrieve a list of publicly available repositories:
+You will be asked to provide Google API key and Google Custom Search Engine ID or Bing Web Search API key. Both search engines offer free trial versions of their products. Bing does not requre other setup than just a simple registration as opposed to Google which needs to be configured to search the whole web, which can be done by following the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results. Therefore you might want to collect the potential links manually, add them to [data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to retrieve a list of publicly available repositories:
 ```
 python -m data_collection.test_repos
 ```
-
 
 ### Fetching Data from JIRA Repository
 To fetch data from `jira.repositoryname.com` and save it at `/data/DATASET` subfolder in CSV format run the following comment in Bestimate directory:
