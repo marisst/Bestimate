@@ -5,62 +5,82 @@ import os
 from string import punctuation
 import re
 
-from utilities import load_data, input_parser
-from utilities.constants import *
+from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, CSV_FILE_EXTENSION, DESCRIPTION_FIELD_KEY, FIELD_KEYS
+from utilities.constants import JSON_FILE_EXTENSION, LABELED_FILENAME, RAW_POSTFIX, SUMMARY_FIELD_KEY, UNLABELED_FILENAME
+from utilities.constants import get_data_filename
+from utilities.input_parser import select_datasets
+from utilities.file_utils import load_csv, save_json
 
 MAX_CHARS_PROCESSED = 10000
-NO_TEXT_TAGS = "code", "noformat"
-ESCAPE_TAGS = "color", "quote", "anchor", "panel"
-ESCAPE_STRINGS = "\\r", "\\n", "\\t", "\\f", "\\v", "\"", "\\\\", "h1. ", "h2. ", "h3. ", "h4. ", "h5. ", "h6. "
-LINK_STARTERS = r"\#", r"\^", r"http\:\/\/", r"https\:\/\/", r"malto\:", r"file\:", r"\~"
 MIN_ALPHA_DENSITY = 0.93
-SENTENCE_SEPARATOR = ". "
 
-def escape_tags_and_content(text, tags):
 
-    for tag in tags:
+def escape_tags_and_content(text):
+    """Escape tags and their content containing text, which is not written in natural language, such as code snippets"""
+
+    NO_TEXT_TAGS = "code", "noformat"
+    for tag in NO_TEXT_TAGS:
         regex_matching_tag = re.compile("\{%s(.*?)\}(.*?)\{%s\}" % (tag, tag), re.DOTALL)
         text = re.sub(regex_matching_tag, "", text)
 
     return text
 
-def escape_tags(text, tags):
 
-    for tag in tags:
+def escape_tags(text):
+    """Escape markup tags, but retain their content"""
+
+    ESCAPE_TAGS = "color", "quote", "anchor", "panel"
+    for tag in  ESCAPE_TAGS:
         text = re.sub("\{%s(.*?)\}" % tag, "", text)
 
     return text
 
-def escape_strings(text, escape_strings):
 
-    for escape_string in escape_strings:
+def escape_strings(text):
+    """Escape line breaks, tabulators, slashes and JIRA heading markup symbols"""
+
+    ESCAPE_STRINGS = "\\r", "\\n", "\\t", "\\f", "\\v", "\"", "\\\\", "h1. ", "h2. ", "h3. ", "h4. ", "h5. ", "h6. "
+    for escape_string in ESCAPE_STRINGS:
         text = text.replace(escape_string, " ")
 
     return text
 
-def escape_links(text, link_starters):
 
-    for link_starter in link_starters:
+def escape_links(text):
+    """Escape external and internal links, recognized by JIRA markup or leading 'http://' or 'https://' """
+
+    LINK_STARTERS = r"\#", r"\^", r"http\:\/\/", r"https\:\/\/", r"malto\:", r"file\:", r"\~"
+    for link_starter in LINK_STARTERS:
         text = re.sub("\[(.*?\\|)?%s(.*?)\]" % link_starter, "", text)
         text = re.sub(r"\bhttps?://\S+", "", text)
 
     return text
 
+
 def escape_stack_trace(text):
+    """Escape stack trace fragments which contain one or two words seperated by a space
+    and follwing by the keyword 'at', repeated at least three times"""
 
     text = re.sub(r"(at(\s+(\S+\s+){1,2}?)){3,}", "", text)
 
     return text
 
+
 def escape_hex_character_codes(text):
+    """Escape characters outside the latin alphabet which are converted to hex code representation"""
 
     return re.sub(r"\\x\w\w", "", text)
 
+
 def escape_punctuation_boundaries(text):
+    """Remove all punctuation marks from the beginning and end of words,
+    except for trailing period at the end of words"""
 
     return " ".join([word.strip(punctuation.replace(".", "")).lstrip(".") for word in text.split()])
 
+
 def escape_low_alpha_density_words(text):
+    """Escape words with low alpha density, except for those containing one apostrophe or one period"""
 
     clean_words = []
     for word in text.split():
@@ -75,10 +95,11 @@ def escape_low_alpha_density_words(text):
 
     return " ".join(clean_words)
 
+
 def remove_repeating_fragments(text):
+    """Remove repeating string fragments up to 15 words"""
 
     MAX_FRAGMENT_LENGTH = 15
-
     words = text.split()
     duplicates = np.full((len(words)), False)
     for i in range(1, len(words)):
@@ -96,14 +117,20 @@ def remove_repeating_fragments(text):
 
     return " ".join(result)
 
+
 def escape_odd_spaces(text):
+    """Replace several consequent spaces with one space
+    and remove spaces from string start and end"""
     
     text = re.sub(r"\s+", " ", text)
     text = text.strip()
 
     return text
 
+
 def calculate_alpha_density(text):
+    """Calculate alpha density which is the number of characters from a-zA-Z and apostrophe
+    divided by the total number of characters"""
 
     total = len(text)
     alphas = len(re.findall("[a-zA-Z]", text))
@@ -116,13 +143,15 @@ def calculate_alpha_density(text):
     
     return alphas / (symnums + alphas) if (symnums + alphas) > 0 else 0
 
+
 def clean(text):
+    """Clean and separate text in sentences"""
 
     text = text[:MAX_CHARS_PROCESSED]
-    text = escape_tags_and_content(text, NO_TEXT_TAGS)
-    text = escape_tags(text, ESCAPE_TAGS)
-    text = escape_strings(text, ESCAPE_STRINGS)
-    text = escape_links(text, LINK_STARTERS)
+    text = escape_tags_and_content(text)
+    text = escape_tags(text)
+    text = escape_strings(text)
+    text = escape_links(text)
     text = escape_stack_trace(text)
     text = escape_hex_character_codes(text)
     text = escape_punctuation_boundaries(text)
@@ -134,17 +163,18 @@ def clean(text):
     if len(text) == 0:
         return None
 
-    sentences = text.split(SENTENCE_SEPARATOR.strip(".")) if len(text) > 0 else None
-
+    SENTENCE_SEPARATOR = ". "
     return [sentence.strip(".") for sentence in text.split(SENTENCE_SEPARATOR)]
 
+
 def load_file(filename):
+    """Load datapoints from CSV file if it exists or contains any records"""
 
     if not os.path.isfile(filename):
         print("File %s does not exist" % filename)
         return
 
-    data = load_data.load_csv(filename, FIELD_KEYS)
+    data = load_csv(filename, FIELD_KEYS)
 
     if data is None:
         print("Skipping cleaning %s because it does not consist any data" % filename)
@@ -152,7 +182,10 @@ def load_file(filename):
 
     return data
 
+
 def get_clean_content(filename):
+    """Load data from a file, reduce noise in task textual descriptions, separate text in sentences,
+    calculate alpha density for description field sentences and return datapoints sorted by alpha density"""
 
     data = load_file(filename)
     if data is None:
@@ -165,9 +198,7 @@ def get_clean_content(filename):
             datapoint[SUMMARY_FIELD_KEY] = clean(datapoint[SUMMARY_FIELD_KEY])
         
         if DESCRIPTION_FIELD_KEY in datapoint:
-            
             clean_description = clean(datapoint[DESCRIPTION_FIELD_KEY])
-            
             if clean_description != None and len(clean_description) != 0:
                 datapoint[DESCRIPTION_FIELD_KEY] = clean_description
                 alpha_density = np.average(np.array([calculate_alpha_density(sentence) for sentence in datapoint[DESCRIPTION_FIELD_KEY]]))
@@ -181,10 +212,17 @@ def get_clean_content(filename):
 
     return sorted(data, key = lambda datapoint: datapoint[ALPHA_FIELD] if ALPHA_FIELD in datapoint else 101)
 
-def clean_text(datasets_from_input):
 
-    datasets = input_parser.select_datasets(datasets_from_input)
+def clean_text(datasets_from_input):
+    """Reduce noise from labeled and unlabeled task descriptions
     
+    Arguments:
+
+    datasets_from_input -- a list of identifiers of repositories which are to be cleaned,
+    leave blank to clean text in all downloaded repositories
+    """
+
+    datasets = select_datasets(datasets_from_input)
     if len(datasets) > 0:
         print("Cleaning text in the following dataset%s:" % ("s" if len(datasets) > 1 else ""), ", ".join(datasets))
     else:
@@ -193,14 +231,17 @@ def clean_text(datasets_from_input):
 
     for dataset_name in datasets:
 
-        labeled_data_filename = get_data_filename(dataset_name, LABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
-        labeled_cleaned_data_filename = get_data_filename(dataset_name, LABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
-        clean_labeled_content = get_clean_content(labeled_data_filename)
-        load_data.save_json(labeled_cleaned_data_filename, clean_labeled_content)
-        print("Cleaned data saved at", labeled_cleaned_data_filename)
+        for labeling in [LABELED_FILENAME, UNLABELED_FILENAME]:
+            data_filename = get_data_filename(dataset_name, labeling, RAW_POSTFIX, CSV_FILE_EXTENSION)
+            cleaned_data_filename = get_data_filename(dataset_name, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
+            clean_data = get_clean_content(data_filename)
+            if clean_data is None or len(clean_data) == 0:
+                continue
+            save_json(cleaned_data_filename, clean_data)
+            print("Cleaned data saved at", cleaned_data_filename)
 
-        unlabeled_data_filename = get_data_filename(dataset_name, UNLABELED_FILENAME, RAW_POSTFIX, CSV_FILE_EXTENSION)
-        unlabeled_cleaned_data_filename = get_data_filename(dataset_name, UNLABELED_FILENAME, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
-        clean_unlabeled_content = get_clean_content(unlabeled_data_filename)
-        load_data.save_json(unlabeled_cleaned_data_filename, clean_unlabeled_content)
-        print("Cleaned data saved at", unlabeled_cleaned_data_filename)
+
+if __name__ == "__main__":
+
+    repositories = input("List one or more repository identifiers which you want to clean or leave blank and press ENTER to clean all downloaded data: ")
+    clean_text(repositories)

@@ -40,7 +40,7 @@ space = {
         'dropout': hp.uniform('dropout', 0, 0.7),
         'batch_size': hp.choice('batch_size', [16, 32, 64, 128, 256]),
         'optimizer': hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
-        'loss': hp.choice('loss', ['mean_squared_error', 'mean_absolute_error'])
+        'loss': hp.choice('loss', ['mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error'])
     }
 }
 

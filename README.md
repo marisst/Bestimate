@@ -1,5 +1,5 @@
 # Bestimate
-With this package you can train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
+Bestimate allows let's you train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
 
 ## 1. Data Collection
 The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
@@ -9,13 +9,13 @@ To find new repositories using [Bing Web Search API](https://azure.microsoft.com
 ```
 python -m data_collection.discover_repos
 ```
-You will be asked to provide Google API key and Google Custom Search Engine ID or Bing Web Search API key. Both search engines offer free trial versions of their products. Bing does not requre other setup than just a simple registration as opposed to Google which needs to be configured to search the whole web by following the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results for each query. Therefore you might want to collect the potential links manually, add them to [/data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then run the following command to test if they lead to a public JIRA repository:
+You will be asked to provide Google API key and Google Custom Search Engine ID or Bing Web Search API key. Both search engines offer free trial versions of their products. Bing does not requre other setup than just a simple registration as opposed to Google which needs to be configured to search the whole web by following the first two steps in this [Stack Overflow answer](https://stackoverflow.com/a/37084643). Bing search results are not limited, but Google allows you to access only the first 100 search results for each query. Therefore you might want to collect the potential links manually and add them to [/data_collection/potential_repos.txt](data_collection/potential_repos.txt) file by separating each URL with a line break and then running the following command to test if they link to a public JIRA repository:
 ```
 python -m data_collection.test_repos
 ```
 
 ### Fetching Data from JIRA Repository
-To fetch data  a single private or public repository, run the following command:
+To fetch data from a single private or public JIRA repository, run the following command:
 ```
 python -m data_collection.fetch_data
 ```
@@ -23,31 +23,23 @@ You will be asked to provide the URL of the JIRA repository, e.g. "jira.exoplatf
 
 ### Bulk Fetch
 
-As a part of this research project, 33 publicly available JIRA repositories, each containing at least 100 resolved issues with time spent greater than zero, were found and listed at [/data_collection/known_repos.json](data_collection/known_repos.json). The total number of labeled issues exceeds 65,000 and the number of unlabeled issues exceeds 2,000,000. To fetch data from all of these these repositories by a single command, run:
+As a part of this research project, 33 publicly available JIRA repositories, each containing at least 100 resolved issues with time spent greater than zero, were found and listed at [/data_collection/known_repos.json](data_collection/known_repos.json). The total number of labeled issues exceeds 65,000 and the number of unlabeled issues exceeds 2,000,000. You can fetch data from all of these these repositories by running this command:
 ```
 python -m data_collection.bulk_fetch
 ```
 You can add more repository identifier and URL pairs to [/data_collection/known_repos.json](data_collection/known_repos.json) to fetch those when you run the command. If a folder with a known repository identifier already exists in [/raw_data](raw_data) folder, it will not be reloaded when running the command unless you manually delete it.
 
 ## 2. Data Preprocessing
-The fetched datapoints are further processed by cleaning textual task descriptions, merging data from several repositories together and filtering them in order to increase data homogeinity.
+Before training, the raw fetched datapoints are processed by cleaning textual task descriptions from noise, merging data from several repositories and filtering the resulting dataset.
 
 ### Cleaning Text
+Raw task textual descriptions fetched from JIRA REST API contain noise such as markup tags, code snippets, stack trace, links and programming object names. These can be removed by running the following command:
 ```
-python -m preprocess.clean DATASET1 DATASET2 DATASET3
+python -m data_preprocessing.clean_text
 ```
-A single dataset or a list of datasets can get cleaned as shown above. If no datasets are selected, all available datasets will get cleaned. The text is processed according to [Atlassian formatting notation](https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all) as follows:
-- text contained in tags such as `{code}` and `{noformat}` and the tags themselves are removed;
-- tags such as `{color}` and `{quote}` are removed while the content is preserved;
-- new line symbols and tabulators are replaced with spaces;
-- internal and external links staring strings such as `http://` and `file\:` are removed;
-- if the word "at" is followed by one or two words and this pattern is repeated at least 3 consequent times there is a high chance that it is a stack trace fragment and therefore is removed;
-- characters that are neither latin letters, numbers nor punctuation marks and have therefor been converted to a hexadecimal representation are removed;
-- finally, several consecutive spaces between words are replaced with one space and leading and trailing spaces are removed.
+Both a single dataset, a selection of datasets or all downloaded datasets can be cleaned by this command. Each text fragment is divided in sentences for pretraining purposes. An alpha density ratio is calculated indicating the number of alphabetic characters and apostrophes compared to the total number of characters except whitespaces in the description field. All records are sorted by the alpha density so that the text with possibly most noise comes first. Then all datapoints are saved in a JSON format in the repository folder.
 
-Datapoints with cleaned text are saved in `data/DATASET` forlder in JSON format. The `description` field often contains fragments which do not belong to natural language but is rather text from debugging or different technical codes. To recognize such text fragments, *alpha density* is calculated for `description` field and added to the JSON file. *Alpha density* is a ratio between latin letter character count and the count of all characters except spaces.
-
-### Selecting or Excluding Projects and Merging Datasets
+### Merging Datasets, Selecting and Excluding Projects
 Datasets for model training and testing are composed from the cleaned data fetched from JIRA repositories. At this stage data from several JIRA repositories can be merged together and particular projects can be selected or excluded from the training and testing datasets.
 ```
 python -m preprocess.merge DATASET1 DATASET2
