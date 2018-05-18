@@ -30,23 +30,23 @@ python -m data_collection.bulk_fetch
 You can add more repository identifier and URL pairs to [/data_collection/known_repos.json](data_collection/known_repos.json) to fetch those when you run the command. If a folder with a known repository identifier already exists in [/raw_data](raw_data) folder, it will not be reloaded when running the command unless you manually delete it.
 
 ## 2. Data Preprocessing
-Before training, the raw fetched datapoints are processed by cleaning textual task descriptions from noise, merging data from several repositories and filtering the resulting dataset.
+Before training, the raw fetched datapoints are processed by cleaning textual task descriptions from noise, data from several repositories is merged in a training dataset and filters are applied to the resulting training dataset.
 
 ### Cleaning Text
 Raw task textual descriptions fetched from JIRA REST API contain noise such as markup tags, code snippets, stack trace, links and programming object names. These can be removed by running the following command:
 ```
 python -m data_preprocessing.clean_text
 ```
-Both a single dataset, a selection of datasets or all downloaded datasets can be cleaned by this command. Each text fragment is divided in sentences for pretraining purposes. An alpha density ratio is calculated indicating the number of alphabetic characters and apostrophes compared to the total number of characters except whitespaces in the description field. All records are sorted by the alpha density so that the text with possibly most noise comes first. Then all datapoints are saved in a JSON format in the repository folder.
+Both a data from a single repository, a selection of repositories or all downloaded repositories can be cleaned by running this command. Each text fragment is divided in sentences for pretraining purposes. An alpha density ratio is calculated indicating the number of alphabetic characters and apostrophes compared to the total number of characters except whitespaces in the description field. All records are sorted by the alpha density so that the text with possibly most noise comes first. Then all datapoints are saved in a JSON format to the repository subfolder in [/raw_data](raw_data) folder.
 
-### Merging Datasets, Selecting and Excluding Projects
+### Merging Data from Multiple Repositories, Selecting and Excluding Projects
 Datasets for model training and testing are composed from the cleaned data fetched from JIRA repositories. At this stage data from several JIRA repositories can be merged together and particular projects can be selected or excluded from the training and testing datasets.
 ```
 python -m preprocess.merge DATASET1 DATASET2
 ```
 If you whish to create a training and testing dataset from one repository only, just pass the name of that single repository. If no datasets are selected, all available datasets will get merged together in a new dataset. Each new merged dataset is automatically assigned a hexadecimal sequence number and saved in `data/merged` folder.
 
-### Filtering Data
+### Filtering Merged Data To Create Training Dataset
 Datapoints with short textual descriptions, extreme outliers and small projects can be removed as well as skewed data distributions can be made even by using the filtering module. The module can also make skewed data distributions even by removing datapoints from any bins that are more populated than the least populated one.
 ```
 python -m preprocess.filter A

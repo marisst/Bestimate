@@ -1,13 +1,14 @@
 from hyperopt import fmin, tpe, hp
 
-from preprocess.filter_config import FilterConfig
-from preprocess.filter_module import filter_data
-from translate.tokens_module import count_tokens
-from translate.dictionary_module import create_dictionary
-from vectors.spacy_lookup import spacy_lookup
-from pretrain.train_gensim import train_gensim
-from prima_model.train import train_on_dataset
+from data_preprocessing.filter_config import FilterConfig
+from data_preprocessing.filter_data import filter_data
+from embedding_pretraining.tokens_module import count_tokens
+from embedding_pretraining.dictionary_module import create_dictionary
+from embedding_pretraining.spacy_lookup import spacy_lookup
+from embedding_pretraining.train_gensim import train_gensim
+from training.train import train_on_dataset
 from utilities.constants import *
+from utilities.file_utils import load_json
 
 space = {
     'data_selection' : hp.choice('data_selection', ['project', 'repository', 'cross-repository']),
@@ -81,10 +82,17 @@ def objective(configuration):
 
     return train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"])
 
-best = fmin(objective,
+def optimize_model(training_dataset_id):
+
+    best = fmin(objective,
     space=space,
     algo=tpe.suggest,
     max_evals=100)
 
-print("BEST:")
-print(best)
+    print("BEST:")
+    print(best)
+
+if __name__ == "__main__":
+
+    training_dataset_id = input("Please enter the identifier of the dataset you want train the model on: ")
+    optimize_model(training_dataset_id)

@@ -7,8 +7,8 @@ import re
 
 from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, CSV_FILE_EXTENSION, DESCRIPTION_FIELD_KEY, FIELD_KEYS
 from utilities.constants import JSON_FILE_EXTENSION, LABELED_FILENAME, RAW_POSTFIX, SUMMARY_FIELD_KEY, UNLABELED_FILENAME
-from utilities.constants import get_data_filename
-from utilities.input_parser import select_datasets
+from utilities.constants import get_repository_filename
+from utilities.input_parser import select_repositories
 from utilities.file_utils import load_csv, save_json
 
 MAX_CHARS_PROCESSED = 10000
@@ -147,18 +147,20 @@ def calculate_alpha_density(text):
 def clean(text):
     """Clean and separate text in sentences"""
 
-    text = text[:MAX_CHARS_PROCESSED]
-    text = escape_tags_and_content(text)
-    text = escape_tags(text)
-    text = escape_strings(text)
-    text = escape_links(text)
-    text = escape_stack_trace(text)
-    text = escape_hex_character_codes(text)
-    text = escape_punctuation_boundaries(text)
-    text = escape_low_alpha_density_words(text)
-    text = remove_repeating_fragments(text)
-    text = escape_odd_spaces(text)
-    text = text.lower()
+    text = text[:MAX_CHARS_PROCESSED].lower()
+    text_processing_methods = [
+        escape_tags_and_content,
+        escape_tags,
+        escape_strings,
+        escape_links,
+        escape_stack_trace,
+        escape_hex_character_codes,
+        escape_punctuation_boundaries,
+        escape_low_alpha_density_words,
+        remove_repeating_fragments,
+        escape_odd_spaces]
+    for method in text_processing_methods:
+        text = method(text)
 
     if len(text) == 0:
         return None
@@ -213,27 +215,27 @@ def get_clean_content(filename):
     return sorted(data, key = lambda datapoint: datapoint[ALPHA_FIELD] if ALPHA_FIELD in datapoint else 101)
 
 
-def clean_text(datasets_from_input):
+def clean_text(repository_identifiers):
     """Reduce noise from labeled and unlabeled task descriptions
     
     Arguments:
 
-    datasets_from_input -- a list of identifiers of repositories which are to be cleaned,
+    repository_identifiers -- a list of repository identifiers which are to be cleaned,
     leave blank to clean text in all downloaded repositories
     """
 
-    datasets = select_datasets(datasets_from_input)
-    if len(datasets) > 0:
-        print("Cleaning text in the following dataset%s:" % ("s" if len(datasets) > 1 else ""), ", ".join(datasets))
+    repositories = select_repositories(repository_identifiers)
+    if len(repositories) > 0:
+        print("Cleaning text in the following repositories:", ", ".join(repositories))
     else:
-        print("No datasets selected")
+        print("No repositories selected")
         return        
 
-    for dataset_name in datasets:
+    for repository_identifier in repositories:
 
         for labeling in [LABELED_FILENAME, UNLABELED_FILENAME]:
-            data_filename = get_data_filename(dataset_name, labeling, RAW_POSTFIX, CSV_FILE_EXTENSION)
-            cleaned_data_filename = get_data_filename(dataset_name, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
+            data_filename = get_repository_filename(repository_identifier, labeling, RAW_POSTFIX, CSV_FILE_EXTENSION)
+            cleaned_data_filename = get_repository_filename(repository_identifier, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
             clean_data = get_clean_content(data_filename)
             if clean_data is None or len(clean_data) == 0:
                 continue
@@ -243,5 +245,5 @@ def clean_text(datasets_from_input):
 
 if __name__ == "__main__":
 
-    repositories = input("List one or more repository identifiers which you want to clean or leave blank and press ENTER to clean all downloaded data: ")
-    clean_text(repositories)
+    repository_identifiers = input("List one or more repository identifiers which you want to clean or leave blank and press ENTER to clean all downloaded data: ")
+    clean_text(repository_identifiers)

@@ -40,7 +40,7 @@ Thumbs.db
 ######################################
 raw_data/
 results/
-training_data/
+training_datasets/
 __pycache__/
 .vscode/
 

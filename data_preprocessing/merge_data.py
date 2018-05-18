@@ -2,16 +2,20 @@ import json
 import os
 import re
 
-from preprocess import projects
-from utilities import input_parser, load_data
-from utilities.constants import *
+from utilities.constants import get_repository_filename, get_dataset_filename
+from utilities.data_utils import get_projects, is_in_projects
+from utilities.file_utils import create_subfolder, get_next_dataset_name, load_json, save_json
+from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, DATASET_FOLDER, DESCRIPTION_FIELD_KEY, JSON_FILE_EXTENSION, LABELED_FILENAME
+from utilities.constants import MERGED_POSTFIX, PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, TIMESPENT_FIELD_KEY, UNLABELED_FILENAME
+from utilities.input_parser import select_repositories, select_projects
+
 
 def load_and_parse_data(datasets, labeling):
 
     data = []
     for dataset in datasets:
-        filename = get_data_filename(dataset, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
-        dataset_data = load_data.load_json(filename)
+        filename = get_repository_filename(dataset, labeling, CLEANED_POSTFIX, JSON_FILE_EXTENSION)
+        dataset_data = load_json(filename)
 
         if dataset_data is None:
             print("%s does not contain labeled datapoints with cleaned text, please run python clean_text.py %s first" % (dataset, dataset))
@@ -41,11 +45,12 @@ def load_and_parse_data(datasets, labeling):
 
     return data
 
+
 def filter_by_projects(data, selected_projects):
 
     filtered_data = []
     for datapoint in data:
-        if projects.is_in(datapoint, selected_projects):
+        if is_in_projects(datapoint, selected_projects):
             filtered_data.append(datapoint)
 
     percentage = len(filtered_data) / len(data) * 100
@@ -53,13 +58,14 @@ def filter_by_projects(data, selected_projects):
 
     return filtered_data
 
+
 def exclude_projects(data):
 
-    all_projects = projects.get(data)
+    all_projects = get_projects(data)
     if input("Would you like to exclude any particular projects? (y/n) ") != "y":
         return all_projects
 
-    excluded_projects = input_parser.select_projects(data)
+    excluded_projects = select_projects(data)
     if len(excluded_projects) == 0:
         print("No projects were excluded")
         return all_projects
@@ -67,7 +73,9 @@ def exclude_projects(data):
     selected_projects = all_projects - excluded_projects
     return selected_projects
 
-def select_projects(data):
+
+def select_or_exclude_projects(data):
+    """Let user select of exclude particular projects from the pool"""
 
     if data is None:
         return
@@ -76,39 +84,48 @@ def select_projects(data):
     if input("Do you want to train and test only on selected projects? (y/n) ") != "y":
         return exclude_projects(data)
         
-    selected_projects = input_parser.select_projects(data)
+    selected_projects = select_projects(data)
     if len(selected_projects) == 0:
         print("No projects were selected")
         return
 
     return selected_projects
 
+
 def save_merged_data(data, dataset_name, labeling):
 
     filename = get_dataset_filename(dataset_name, labeling, MERGED_POSTFIX, JSON_FILE_EXTENSION)
-
-    with open(filename, 'w') as file:
-        json.dump(data, file, indent=JSON_INDENT)
-    
+    save_json(filename, data)  
     print("Merged dataset %s created and saved on %s" % (dataset_name, filename))
 
-def merge_data(datasets_from_input, enable_manual_project_selection = False):
 
-    datasets = input_parser.select_datasets(datasets_from_input)
+def merge_data(repository_identifiers, enable_manual_project_selection = False):
+    """Merge data from several repositories, select or exclude projects
+    and save as a new training dataset
+
+    Arguments:
+
+    repository_identifiers -- repository identifiers that are to get merged
+
+    enable_manual_project_selection -- allow user to select particular projects,
+    or exclude particular project throught command line interface (default False)
+    """
+
+    repositories = select_repositories(repository_identifiers)
     
-    if len(datasets) > 0:
-        print("Training and testing model on the following dataset%s:" % ("s" if len(datasets) > 1 else ""), ", ".join(datasets))
+    if len(repositories) > 0:
+        print("Merging the following repositories:", ", ".join(repositories))
     else:
-        print("No datasets selected")
+        print("No repositories selected")
         return
 
-    labeled_data = load_and_parse_data(datasets, LABELED_FILENAME)
-    unlabeled_data = load_and_parse_data(datasets, UNLABELED_FILENAME)
+    labeled_data = load_and_parse_data(repositories, LABELED_FILENAME)
+    unlabeled_data = load_and_parse_data(repositories, UNLABELED_FILENAME)
 
     if enable_manual_project_selection == True:
-        selected_projects = select_projects(labeled_data + unlabeled_data)
+        selected_projects = select_or_exclude_projects(labeled_data + unlabeled_data)
     else:
-        selected_projects = projects.get(labeled_data + unlabeled_data)
+        selected_projects = get_projects(labeled_data + unlabeled_data)
 
     if selected_projects is None or len(selected_projects) == 0:
         print("No projects selected, merge is cancelled")
@@ -122,11 +139,15 @@ def merge_data(datasets_from_input, enable_manual_project_selection = False):
         print("No labeled data was selected, merge is cancelled")
         return
 
-    load_data.create_folder_if_needed(DATASET_FOLDER)
-    dataset_name = load_data.get_next_dataset_name(DATASET_FOLDER)
-    load_data.create_dataset_folder(dataset_name, DATASET_FOLDER)
-
+    dataset_name = get_next_dataset_name(DATASET_FOLDER)
+    create_subfolder(DATASET_FOLDER, dataset_name)
     save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)
     save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)
 
     return dataset_name
+
+
+if __name__ == "__main__":
+    
+    repository_identifiers = input("List one or more repository identifiers which you want to merge or leave blank and press ENTER to merge all cleaned data: ")
+    merge_data(repository_identifiers, True)

@@ -1,6 +1,6 @@
 from utilities.constants import *
 
-def get(data):
+def get_projects(data):
 
     if data is None:
         return
@@ -9,7 +9,7 @@ def get(data):
 
 def get_issue_counts(data):
 
-    project_list = get(data)
+    project_list = get_projects(data)
     if project_list is None:
         return
 
@@ -20,7 +20,7 @@ def get_issue_counts(data):
 
     return sorted(project_issue_counts, key = lambda a: a[1])
 
-def is_in(datapoint, selected_projects):
+def is_in_projects(datapoint, selected_projects):
 
     return len({datapoint[PROJECT_FIELD_KEY]} & selected_projects) > 0
 

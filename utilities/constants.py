@@ -1,7 +1,7 @@
 CONFIGURATIONS_FOLDER = "configurations"
 DATA_FOLDER = "raw_data"
 DATASET_FOLDER = "training_datasets"
-WEIGTHS_FOLDER = "weigths"
+RESULTS_FOLDER = "results"
 DATA_COLLECTION_FOLDER = "data_collection"
 
 STATISTICS_FOLDER = DATASET_FOLDER + "/statistics"
@@ -66,8 +66,8 @@ TOTAL_KEY = "total"
 NUMERIC_TEXT_KEY = "numeric_text"
 PRELEARNING = "pre"
 
-def get_data_filename(dataset_name, labeling, data_type, extension):
-    return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
+def get_repository_filename(repository_name, labeling, data_type, extension):
+    return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, repository_name, repository_name, labeling, data_type, extension)
 
 def get_dataset_filename(dataset_name, labeling, data_type, extension):
     return "%s/%s/%s_%s_%s%s" % (DATASET_FOLDER, dataset_name, dataset_name, labeling, data_type, extension)
@@ -78,23 +78,11 @@ def get_running_configuration_filename(configuration_name):
 def get_repository_search_url(repository_base_url):
     return URL_PREFIX + repository_base_url + JIRA_REST + JIRA_SEARCH
 
-def get_weigths_folder_name(dataset, training_session_name):
-    return "%s/%s-%s" % (WEIGTHS_FOLDER, dataset, training_session_name)
+def get_results_folder_name(dataset, training_session_name):
+    return "%s/%s-%s" % (RESULTS_FOLDER, dataset, training_session_name)
 
 def get_statistics_image_filename(dataset, stat_name):
     return "%s/%s-%s%s" % (STATISTICS_FOLDER, dataset, stat_name, PNG_FILE_XTENSION)
 
-def get_weigths_filename(dataset, training_session_name):
-    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}" + HDF5_FILE_EXTENSION
-
 def get_results_filename(dataset, training_session_name):
-    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, CSV_FILE_EXTENSION)
-
-def get_results_plot_filename(dataset, training_session_name):
-    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), RESULTS_FILENAME, PNG_FILE_XTENSION)
-
-def get_configuration_filename(dataset, training_session_name):
-    return "%s/%s%s" % (get_weigths_folder_name(dataset, training_session_name), CONFIGURATION_FILENAME, TEXT_FILE_EXTENSION)
-
-def get_prediction_plot_filename(dataset, training_session_name):
-    return get_weigths_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}-predictions" + PNG_FILE_XTENSION
+    return get_results_folder_name(dataset, training_session_name) + "/weights-{epoch:04d}-{val_loss:.0f}" + HDF5_FILE_EXTENSION

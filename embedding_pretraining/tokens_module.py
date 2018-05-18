@@ -1,5 +1,5 @@
 from utilities.constants import *
-from utilities.load_data import load_json, create_folder_if_needed, save_json
+from utilities.file_utils import load_json, create_folder_if_needed, save_json
 from utilities.string_utils import merge_sentences
 
 def calculate_frequencies(token_counts):

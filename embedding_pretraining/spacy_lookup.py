@@ -1,9 +1,10 @@
 import spacy
 import sys
 
-from utilities.constants import *
-from utilities.load_data import load_json, save_json
+from utilities.constants import get_dataset_filename, ALL_FILENAME, DICTIONARY_POSTFIX, JSON_FILE_EXTENSION, SPACY_LOOKUP_POSTFIX
+from utilities.file_utils import load_json, save_json
 from utilities.string_utils import get_part_strings
+
 
 def spacy_lookup(dataset):
 
@@ -30,5 +31,3 @@ def spacy_lookup(dataset):
     lookup_filename = get_dataset_filename(dataset, ALL_FILENAME, SPACY_LOOKUP_POSTFIX, JSON_FILE_EXTENSION)
     save_json(lookup_filename, lookup)
     print("Lookup table saved at", lookup_filename)
-
-#spacy_lookup(sys.argv[1])

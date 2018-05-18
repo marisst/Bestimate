@@ -91,6 +91,9 @@ def create_folder_if_needed(folder_name):
 
 def get_next_dataset_name(folder):
 
+    if not os.path.exists(folder):
+        return 1
+
     existing_dataset_count = sum(1 for f in os.listdir(folder))
     return str(existing_dataset_count + 1)
 

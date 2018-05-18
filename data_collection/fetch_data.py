@@ -8,7 +8,7 @@ import time
 from data_collection.test_repos import get_issue_count, get_jira_base_url
 from utilities.constants import CSV_FILE_EXTENSION, DATA_FOLDER, FIELD_KEYS, LABELED_DATA_JQL
 from utilities.constants import LABELED_FILENAME, RAW_POSTFIX, UNLABELED_FILENAME, UNLABELED_DATA_JQL
-from utilities.file_utils import create_subfolder, get_repository_search_url, get_data_filename
+from utilities.file_utils import create_subfolder, get_repository_search_url, get_repository_filename
 
 MAX_RECORDS_PER_REQUEST = 50
 
@@ -163,7 +163,7 @@ def fetch_data(repository_identifier, repository_url, auth = None):
 
     issue_counts = {}
     for labeling in [(LABELED_FILENAME, LABELED_DATA_JQL), (UNLABELED_FILENAME, UNLABELED_DATA_JQL)]:
-        filename = get_data_filename(repository_identifier, labeling[0], RAW_POSTFIX, CSV_FILE_EXTENSION)
+        filename = get_repository_filename(repository_identifier, labeling[0], RAW_POSTFIX, CSV_FILE_EXTENSION)
         issue_counts[labeling[0]] = fetch_and_save_issues(filename, repository_search_url, auth, labeling[1])
 
     if issue_counts[LABELED_FILENAME] + issue_counts[UNLABELED_FILENAME] > 0:

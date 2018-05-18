@@ -1,11 +1,9 @@
 from gensim.models import Word2Vec
 import sys
 
-from utilities.load_data import load_json, create_folder_if_needed
+from utilities.file_utils import load_json, create_folder_if_needed
 from utilities.constants import *
 
-#https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/
-#https://radimrehurek.com/gensim/models/word2vec.html
 
 def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations):
 
@@ -34,5 +32,3 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
     filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
     model.save(filename)
     print("Model saved at", filename)
-
-#train_on_dataset(sys.argv[1])
