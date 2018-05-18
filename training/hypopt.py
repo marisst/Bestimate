@@ -1,4 +1,5 @@
 from hyperopt import fmin, tpe, hp
+import json
 
 from data_preprocessing.filter_config import FilterConfig
 from data_preprocessing.filter_data import filter_data
@@ -39,7 +40,7 @@ space = {
         'dropout': hp.uniform('dropout', 0, 0.7),
         'batch_size': hp.choice('batch_size', [16, 32, 64, 128, 256]),
         'optimizer': hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
-        'loss': hp.choice('loss', ['mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error'])
+        'loss': hp.choice('loss', ['mean_squared_error', 'mean_absolute_error']) #mean_absolute_percentage_error
     }
 }
 
@@ -57,7 +58,7 @@ def objective(configuration):
 
     notes_filename = "%s/%s/notes.txt" % (training_session_folder, run_id)
     with open(notes_filename, "a") as notes_file:
-        print(configuration, file=notes_file)
+        print(json.dumps(configuration), file=notes_file)
 
     filter_config = FilterConfig()
     filter_config.min_word_count = configuration["min_word_count"]
