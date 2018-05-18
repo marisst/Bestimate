@@ -4,7 +4,7 @@ import re
 
 from utilities.constants import get_repository_filename, get_dataset_filename
 from utilities.data_utils import get_projects, is_in_projects
-from utilities.file_utils import create_subfolder, get_next_dataset_name, load_json, save_json
+from utilities.file_utils import create_subfolder, get_next_subfolder_name, load_json, save_json
 from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, DATASET_FOLDER, DESCRIPTION_FIELD_KEY, JSON_FILE_EXTENSION, LABELED_FILENAME
 from utilities.constants import MERGED_POSTFIX, PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, TIMESPENT_FIELD_KEY, UNLABELED_FILENAME
 from utilities.input_parser import select_repositories, select_projects
@@ -139,7 +139,7 @@ def merge_data(repository_identifiers, enable_manual_project_selection = False):
         print("No labeled data was selected, merge is cancelled")
         return
 
-    dataset_name = get_next_dataset_name(DATASET_FOLDER)
+    dataset_name = get_next_subfolder_name(DATASET_FOLDER)
     create_subfolder(DATASET_FOLDER, dataset_name)
     save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)
     save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)

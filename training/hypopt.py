@@ -2,16 +2,14 @@ from hyperopt import fmin, tpe, hp
 
 from data_preprocessing.filter_config import FilterConfig
 from data_preprocessing.filter_data import filter_data
-from embedding_pretraining.tokens_module import count_tokens
-from embedding_pretraining.dictionary_module import create_dictionary
+from embedding_pretraining.count_tokens import count_tokens
 from embedding_pretraining.spacy_lookup import spacy_lookup
 from embedding_pretraining.train_gensim import train_gensim
 from training.train import train_on_dataset
 from utilities.constants import *
-from utilities.file_utils import load_json
+from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 space = {
-    'data_selection' : hp.choice('data_selection', ['project', 'repository', 'cross-repository']),
     'min_word_count': hp.choice('min_word_count', [1, 4, 8, 16, 32, 64]),
     'min_timespent_minutes': hp.choice('min_timespent_minutes', [1, 4, 8, 16, 32]),
     'max_timespent_minutes': hp.choice('max_timespent_minutes', [240, 360, 480, 720, 960, 1920]),
@@ -50,12 +48,16 @@ def objective(configuration):
     print("--- NEW CONFIGURATION ---")
     print(configuration)
 
-    training_datasets = {
-        'project': '2',
-        'repository': '3',
-        'cross-repository': '4'
-    }
-    training_dataset_name = training_datasets[configuration['data_selection']]
+    training_dataset_name = configuration['training_dataset_id']
+    training_session_id = configuration['training_session_id']
+
+    training_session_folder = "%s/%s" % (RESULTS_FOLDER, training_session_id)
+    run_id = get_next_subfolder_name(training_session_folder)
+    create_subfolder(training_session_folder, run_id)
+
+    notes_filename = "%s/%s/notes.txt" % (training_session_folder, run_id)
+    with open(notes_filename, "a") as notes_file:
+        print(configuration, file=notes_file)
 
     filter_config = FilterConfig()
     filter_config.min_word_count = configuration["min_word_count"]
@@ -63,13 +65,12 @@ def objective(configuration):
     filter_config.max_timespent_minutes = configuration["max_timespent_minutes"]
     filter_config.min_project_size = configuration["min_project_size"]
     filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
-    filter_data(training_dataset_name, filter_config)
-
+    filter_data(training_dataset_name, filter_config, notes_filename)
+    
+    count_tokens(training_dataset_name, notes_filename)
     emb_config = configuration["word_embeddings"]
     if emb_config["type"] == "spacy":
-        count_tokens(training_dataset_name)
-        create_dictionary(training_dataset_name, TOTAL_KEY, 0)
-        spacy_lookup(training_dataset_name)
+        spacy_lookup(training_dataset_name, notes_filename)
     
     if emb_config["type"] == "gensim":
         train_gensim(
@@ -78,11 +79,16 @@ def objective(configuration):
             emb_config["embedding_size"],
             emb_config["minimum_count"],
             emb_config["window_size"], 
-            emb_config["iterations"])
+            emb_config["iterations"],
+            notes_filename)
 
-    return train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"])
+    return train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
 
 def optimize_model(training_dataset_id):
+
+    space["training_dataset_id"] = training_dataset_id
+    space["training_session_id"] = get_next_subfolder_name(RESULTS_FOLDER)
+    create_subfolder(RESULTS_FOLDER, space["training_session_id"])
 
     best = fmin(objective,
     space=space,

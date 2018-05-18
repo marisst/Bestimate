@@ -89,7 +89,7 @@ def create_folder_if_needed(folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 
-def get_next_dataset_name(folder):
+def get_next_subfolder_name(folder):
 
     if not os.path.exists(folder):
         return 1

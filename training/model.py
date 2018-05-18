@@ -3,7 +3,7 @@ from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Acti
 from keras.utils import plot_model
 from keras.regularizers import l2
 
-from prima_model.highway import highway_layers
+from training.highway import highway_layers
 
 def create_deep_dense(hidden_unit_counts, previous_layer):
 

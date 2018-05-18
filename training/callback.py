@@ -2,9 +2,9 @@ from keras.callbacks import Callback
 import matplotlib.pyplot as plt
 import numpy as np
 
-from prima_model import calculate_baselines as bsl
-from prima_model import graph_helpers as gph
-from prima_model.predict import predict
+from training import calculate_baselines as bsl
+from training import graph_helpers as gph
+from training.predict import predict
 from utilities.constants import *
 
 class PrimaCallback(Callback):

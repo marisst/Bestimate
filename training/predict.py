@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-import prima_model.graph_helpers as gph
-import prima_model.load_data as load
+import training.graph_helpers as gph
+import training.load_data as load
 from utilities.constants import *
 
 SPLIT_PERCENTAGE = 75

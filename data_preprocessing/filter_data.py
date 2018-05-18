@@ -101,7 +101,7 @@ def escape_short_texts(data, minimum_words):
     return filtered_data
 
 
-def filter_data(dataset, filter_config):
+def filter_data(dataset, filter_config, notes_filename = None):
     """Filter data of a merged dataset according to a filter configuration and save in JSON format"""
 
     print("Loading data...")
@@ -117,6 +117,10 @@ def filter_data(dataset, filter_config):
         unlabeled_data = unlabeled_data + unlabeled_labeled_data
         print("%d unlabeled datapoints marked as labeled moved to unlabeled dataset" % len(unlabeled_labeled_data))
     labeled_data = remove_unlabeled_datapoints(labeled_data)
+
+    if notes_filename is not None:
+        with open(notes_filename, "a") as notes_file:
+            print("%d labeled and %d unlabeled issues before filtering" % (len(labeled_data), len(unlabeled_data)), file=notes_file)
 
     if filter_config.min_word_count > 0:
         print("Removing datapoints with short text descriptions...")
@@ -141,6 +145,9 @@ def filter_data(dataset, filter_config):
     save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
     save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
 
+    if notes_filename is not None:
+        with open(notes_filename, "a") as notes_file:
+            print("%d labeled and %d unlabeled issues after filtering" % (len(labeled_data), len(unlabeled_data)), file=notes_file)
 
 def print_extreme(dataset, extreme):
     "Print the minimum or maximum number of hours of time spent for a task in a merged dataset"

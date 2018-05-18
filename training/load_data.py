@@ -1,7 +1,7 @@
 import numpy as np
 from gensim.models import Word2Vec
 
-from utilities import load_data
+from utilities.file_utils import load_json
 from utilities.arrange import shuffle, split_train_test
 from utilities.constants import *
 from utilities.string_utils import merge_sentences
@@ -9,12 +9,12 @@ from utilities.string_utils import merge_sentences
 def load_and_arrange(dataset, split_percentage, embeddings, max_words):
 
     data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    filtered_data = load_data.load_json(data_filename)
+    filtered_data = load_json(data_filename)
     datapoint_count = len(filtered_data)
 
     if embeddings == "spacy":
         lookup_filename = get_dataset_filename(dataset, ALL_FILENAME, SPACY_LOOKUP_POSTFIX, JSON_FILE_EXTENSION)
-        lookup = load_data.load_json(lookup_filename)
+        lookup = load_json(lookup_filename)
         embedding_size = len(next(iter(lookup.values())))
 
     if embeddings == "gensim":
