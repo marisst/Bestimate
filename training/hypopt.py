@@ -1,4 +1,4 @@
-from hyperopt import fmin, tpe, hp
+from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
 import json
 
 from data_preprocessing.filter_config import FilterConfig
@@ -66,7 +66,12 @@ def objective(configuration):
     filter_config.max_timespent_minutes = configuration["max_timespent_minutes"]
     filter_config.min_project_size = configuration["min_project_size"]
     filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
-    filter_data(training_dataset_name, filter_config, notes_filename)
+    filtered_datapoint_count = filter_data(training_dataset_name, filter_config, notes_filename)
+    if filtered_datapoint_count == 0:
+        return {
+            "status": STATUS_FAIL
+        }
+
     
     count_tokens(training_dataset_name, notes_filename)
     emb_config = configuration["word_embeddings"]
@@ -83,7 +88,11 @@ def objective(configuration):
             emb_config["iterations"],
             notes_filename)
 
-    return train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
+    loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
+    return {
+        "loss": loss,
+        "status": STATUS_OK
+    }
 
 def optimize_model(training_dataset_id):
 

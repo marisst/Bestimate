@@ -5,7 +5,7 @@ import re
 from utilities.constants import get_repository_filename, get_dataset_filename
 from utilities.data_utils import get_projects, is_in_projects
 from utilities.file_utils import create_subfolder, get_next_subfolder_name, load_json, save_json
-from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, DATASET_FOLDER, DESCRIPTION_FIELD_KEY, JSON_FILE_EXTENSION, LABELED_FILENAME
+from utilities.constants import ALPHA_FIELD, CLEANED_POSTFIX, DATASET_FOLDER, DESCRIPTION_FIELD_KEY, ID_FIELD_KEY, JSON_FILE_EXTENSION, LABELED_FILENAME
 from utilities.constants import MERGED_POSTFIX, PROJECT_FIELD_KEY, SUMMARY_FIELD_KEY, TIMESPENT_FIELD_KEY, UNLABELED_FILENAME
 from utilities.input_parser import select_repositories, select_projects
 
@@ -18,7 +18,8 @@ def load_and_parse_data(datasets, labeling):
         dataset_data = load_json(filename)
 
         if dataset_data is None:
-            print("%s does not contain labeled datapoints with cleaned text, please run python clean_text.py %s first" % (dataset, dataset))
+
+            print("%s does not contain %s datapoints with cleaned text" % (dataset, "labeled" if labeling == LABELED_FILENAME else "unlabeled"))
             continue
 
         for dataset_datapoint in dataset_data:
@@ -27,8 +28,9 @@ def load_and_parse_data(datasets, labeling):
                 continue
 
             training_datapoint = {
-                PROJECT_FIELD_KEY : "%s-%s" % (dataset, dataset_datapoint[PROJECT_FIELD_KEY]),
-                SUMMARY_FIELD_KEY : dataset_datapoint[SUMMARY_FIELD_KEY]
+                ID_FIELD_KEY: int(dataset_datapoint[ID_FIELD_KEY]),
+                PROJECT_FIELD_KEY: "%s-%s" % (dataset, dataset_datapoint[PROJECT_FIELD_KEY]),
+                SUMMARY_FIELD_KEY: dataset_datapoint[SUMMARY_FIELD_KEY]
             }
             if DESCRIPTION_FIELD_KEY in dataset_datapoint:
                 training_datapoint[DESCRIPTION_FIELD_KEY] = dataset_datapoint[DESCRIPTION_FIELD_KEY]
@@ -40,7 +42,7 @@ def load_and_parse_data(datasets, labeling):
             data.append(training_datapoint)
 
     if len(data) == 0:
-        print("No data was selected")
+        print("No %s data was selected" % ("labeled" if labeling == LABELED_FILENAME else "unlabeled"))
         return
 
     return data
@@ -122,6 +124,12 @@ def merge_data(repository_identifiers, enable_manual_project_selection = False):
     labeled_data = load_and_parse_data(repositories, LABELED_FILENAME)
     unlabeled_data = load_and_parse_data(repositories, UNLABELED_FILENAME)
 
+    if labeled_data == None:
+        labeled_data = []
+
+    if unlabeled_data == None:
+        unlabeled_data = []
+
     if enable_manual_project_selection == True:
         selected_projects = select_or_exclude_projects(labeled_data + unlabeled_data)
     else:
@@ -132,17 +140,21 @@ def merge_data(repository_identifiers, enable_manual_project_selection = False):
         return
     print("Merging data from the following projects:", *selected_projects)
 
-    labeled_data = filter_by_projects(labeled_data, selected_projects)
-    unlabeled_data = filter_by_projects(unlabeled_data, selected_projects)
+    if len(labeled_data) > 0:
+        labeled_data = filter_by_projects(labeled_data, selected_projects)
 
-    if labeled_data is None:
+    if labeled_data is None or len(labeled_data) == 0:
         print("No labeled data was selected, merge is cancelled")
         return
+
+    if len(unlabeled_data) > 0:
+        unlabeled_data = filter_by_projects(unlabeled_data, selected_projects)
 
     dataset_name = get_next_subfolder_name(DATASET_FOLDER)
     create_subfolder(DATASET_FOLDER, dataset_name)
     save_merged_data(labeled_data, dataset_name, LABELED_FILENAME)
-    save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)
+    if len(unlabeled_data) > 0:
+        save_merged_data(unlabeled_data, dataset_name, UNLABELED_FILENAME)
 
     return dataset_name
 

@@ -123,34 +123,55 @@ def filter_data(dataset, filter_config, notes_filename = None):
 
     if notes_filename is not None:
         with open(notes_filename, "a") as notes_file:
-            print("%d labeled and %d unlabeled issues before filtering" % (len(labeled_data), len(unlabeled_data)), file=notes_file)
+            print("%d labeled and %d unlabeled issues before filtering"
+                % (len(labeled_data) if labeled_data is not None else 0, len(unlabeled_data) if unlabeled_data is not None else 0), file=notes_file)
 
     if filter_config.min_word_count > 0:
         print("Removing datapoints with short text descriptions...")
         labeled_data = escape_short_texts(labeled_data, filter_config.min_word_count)
-        unlabeled_data = escape_short_texts(unlabeled_data, filter_config.min_word_count)
+        if labeled_data is None or len(labeled_data) == 0:
+            print("No labeled datapoints left after removing datapoints with short text descriptions")
+            return
+        if unlabeled_data is not None and len(unlabeled_data) > 0:
+            unlabeled_data = escape_short_texts(unlabeled_data, filter_config.min_word_count)
 
     if filter_config.min_timespent_minutes > 0 or filter_config.max_timespent_minutes < sys.maxsize:
         print("Removing outliers...")
         labeled_data = remove_outliers(labeled_data, filter_config.min_timespent_minutes * SECONDS_IN_MINUTE, filter_config.max_timespent_minutes * SECONDS_IN_MINUTE)
+        if labeled_data is None or len(labeled_data) == 0:
+            print("No labeled datapoints left after removing outliers")
+            return
 
     if filter_config.min_project_size > 0:
         print("Removing small projects...")
         selected_projects = remove_small_projects(labeled_data, filter_config.min_project_size)
         labeled_data = filter_data_by_projects(labeled_data, selected_projects)
-        unlabeled_data = filter_data_by_projects(unlabeled_data, selected_projects)
+        if labeled_data is None or len(labeled_data) == 0:
+            print("No labeled datapoints left after removing small projects")
+            return
+        if unlabeled_data is not None and len(unlabeled_data) > 0:
+            unlabeled_data = filter_data_by_projects(unlabeled_data, selected_projects)
 
     if filter_config.even_distribution_bin_count > 0:
         print("Flattening distribution...")
         labeled_data = even_distribution(labeled_data, filter_config.even_distribution_bin_count)
+        if labeled_data is None or len(labeled_data) == 0:
+            print("No labeled datapoints left after making distribution even")
+            return
 
     print("Saving filtered data...")
     save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
-    save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
+    if unlabeled_data is not None and len(unlabeled_data) > 0:
+        save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
 
+
+    labeled_data_len = len(labeled_data) if labeled_data is not None else 0
+    unlabeled_data_len = len(unlabeled_data) if unlabeled_data is not None else 0
     if notes_filename is not None:
         with open(notes_filename, "a") as notes_file:
-            print("%d labeled and %d unlabeled issues after filtering" % (len(labeled_data), len(unlabeled_data)), file=notes_file)
+            print("%d labeled and %d unlabeled issues after filtering" % (labeled_data_len, unlabeled_data_len), file=notes_file)
+
+    return labeled_data_len + unlabeled_data_len
 
 def print_extreme(dataset, extreme):
     "Print the minimum or maximum number of hours of time spent for a task in a merged dataset"

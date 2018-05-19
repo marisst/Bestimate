@@ -9,7 +9,11 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
 
     labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
     unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    data = load_json(unlabeled_filename) + load_json(labeled_filename)
+
+    labeled_data = load_json(labeled_filename)
+    unlabeled_data = load_json(unlabeled_filename)
+
+    data = labeled_data if labeled_data is not None else [] + unlabeled_data if unlabeled_data is not None else []
 
     training_sentences = []
     for datapoint in data:
