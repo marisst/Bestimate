@@ -1,4 +1,5 @@
 from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
+from hyperopt.pyll.base import scope
 import json
 
 from data_preprocessing.filter_config import FilterConfig
@@ -11,11 +12,11 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 space = {
-    'min_word_count': hp.choice('min_word_count', [1, 4, 8, 16, 32, 64]),
+    'min_word_count': scope.int(hp.qnormal('min_word_count', 15, 4, 1)),
     'min_timespent_minutes': 10,
     'max_timespent_minutes': 960,
-    'min_project_size': hp.choice('min_project_size', [1, 32, 64, 128, 512, 1024]),
-    'even_distribution': hp.choice('even_distribution', [True, False]),
+    'min_project_size': 1,
+    'even_distribution': False,
     'word_embeddings': hp.choice('word_embeddings', [
         {
             "type": "spacy"
@@ -23,30 +24,34 @@ space = {
         {
             "type": "gensim",
             "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
-            "embedding_size": hp.choice("word_embeddings_embedding_size", [5, 10, 50, 100, 200, 300]),
-            "minimum_count": hp.choice("word_embeddings_minimum_count", [1, 2, 4, 8, 16]),
-            "window_size": hp.choice("word_embeddings_window_size", [3, 5, 7, 9, 11, 15]),
-            "iterations": hp.choice("word_embeddings_iterations", [1, 3, 5, 7, 9])
+            "embedding_size": scope.int(hp.qlognormal("word_embeddings_embedding_size", 2.95, 0.9, 1)),
+            "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
+            "window_size": scope.int(hp.qnormal("word_embeddings_window_size", 7, 3, 1)),
+            "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
         }
     ]),
     'model_params':
     {
-        'max_words': hp.choice('max_words', [32, 64, 128, 256]),
-        'lstm_node_count': hp.choice('lstm_node_count', [4, 8, 16, 32, 64, 128, 256, 512]),
+        'max_words': scope.int(hp.qnormal('max_words', 120, 700, 1)),
+        'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
         'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
         'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
-        'highway_layer_count': hp.choice('highway_layer_count', [4, 8, 16, 32, 64, 128]),
+        'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
         'highway_activation': hp.choice('highway_activation', ['relu', 'tanh']),
         'dropout': hp.uniform('dropout', 0, 0.7),
-        'batch_size': hp.choice('batch_size', [16, 32, 64, 128, 256]),
+        'batch_size': scope.int(hp.quniform('batch_size', 20, 200, 1)),
         'optimizer': hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
-        'loss': hp.choice('loss', ['mean_squared_error', 'mean_absolute_error']) #mean_absolute_percentage_error
+        'loss': 'mean_absolute_error' #mean_absolute_percentage_error, mean_absolute_error, mean_squared_error
     }
 }
 
 def objective(configuration):
 
     print("--- NEW CONFIGURATION ---")
+
+
+
+
     print(configuration)
 
     training_dataset_name = configuration['training_dataset_id']
@@ -109,7 +114,7 @@ def optimize_model(training_dataset_id):
     best = fmin(objective,
     space=space,
     algo=tpe.suggest,
-    max_evals=100)
+    max_evals=150)
 
     print("BEST:")
     print(best)
