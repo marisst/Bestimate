@@ -58,7 +58,7 @@ def objective(configuration):
 
     notes_filename = "%s/%s/notes.txt" % (training_session_folder, run_id)
     with open(notes_filename, "a") as notes_file:
-        print(json.dumps(configuration), file=notes_file)
+        print(json.dumps(configuration, indent=JSON_INDENT), file=notes_file)
 
     filter_config = FilterConfig()
     filter_config.min_word_count = configuration["min_word_count"]

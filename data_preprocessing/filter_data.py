@@ -72,7 +72,7 @@ def save_filtered_data(data, dataset_name, labeling):
 def even_distribution(data, bin_count):
     """Create even distribution by removing data from bins with higher datapoint count than the smallest bin"""
 
-    if len(data) == 0:
+    if data is None:
         return []
 
     min_timespent = min(data, key=lambda datapoint: datapoint[TIMESPENT_FIELD_KEY])[TIMESPENT_FIELD_KEY]

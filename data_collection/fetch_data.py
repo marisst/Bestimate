@@ -6,8 +6,8 @@ import sys
 import time
 
 from data_collection.test_repos import get_issue_count, get_jira_base_url
-from utilities.constants import CSV_FILE_EXTENSION, DATA_FOLDER, FIELD_KEYS, LABELED_DATA_JQL
-from utilities.constants import LABELED_FILENAME, RAW_POSTFIX, UNLABELED_FILENAME, UNLABELED_DATA_JQL
+from utilities.constants import CSV_FILE_EXTENSION, DATA_FOLDER, FIELD_KEYS, ID_FIELD_KEY, LABELED_DATA_JQL
+from utilities.constants import LABELED_FILENAME, PROJECT_FIELD_KEY, RAW_POSTFIX, UNLABELED_FILENAME, UNLABELED_DATA_JQL
 from utilities.file_utils import create_subfolder, get_repository_search_url, get_repository_filename
 
 MAX_RECORDS_PER_REQUEST = 50
@@ -72,8 +72,13 @@ def fetch_slice(repository_search_url, auth, jql, start_at, max_results):
     if issues is None:
         return (None, 0)
 
-    issue_fields = [issue.get("fields") for issue in issues]
-    return (issue_fields, total)
+    content = []
+    for issue in issues:
+        issue_fields = issue.get("fields")
+        issue_fields[ID_FIELD_KEY] = issue.get(ID_FIELD_KEY)
+        content.append(issue_fields)
+    
+    return (content, total)
 
 
 def save_slice(filename, data_slice):
@@ -89,12 +94,13 @@ def save_slice(filename, data_slice):
     data = []
     for datapoint in data_slice:
         element = {}
+
         for key, field_value in datapoint.items():
             
             if field_value == None:
                 continue
 
-            if key == 'project':
+            if key == PROJECT_FIELD_KEY:
                 element[key] = field_value.get('key')
             else:
                 element[key] = str(field_value)
