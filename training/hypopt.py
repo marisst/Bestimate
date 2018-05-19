@@ -12,8 +12,8 @@ from utilities.file_utils import load_json, get_next_subfolder_name, create_subf
 
 space = {
     'min_word_count': hp.choice('min_word_count', [1, 4, 8, 16, 32, 64]),
-    'min_timespent_minutes': hp.choice('min_timespent_minutes', [1, 4, 8, 16, 32]),
-    'max_timespent_minutes': hp.choice('max_timespent_minutes', [240, 360, 480, 720, 960, 1920]),
+    'min_timespent_minutes': 10,
+    'max_timespent_minutes': 960,
     'min_project_size': hp.choice('min_project_size', [1, 32, 64, 128, 512, 1024]),
     'even_distribution': hp.choice('even_distribution', [True, False]),
     'word_embeddings': hp.choice('word_embeddings', [
@@ -88,14 +88,15 @@ def objective(configuration):
             emb_config["iterations"],
             notes_filename)
 
-    loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
+    loss, val_loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
-        print("Run: %s, Loss: %.2f" % (run_id, loss), file=log_file)
+        print("Run: %s, Loss: %.4f, val_loss: %.4f" % (run_id, loss, val_loss), file=log_file)
 
     return {
         "loss": loss,
+        "val_loss": val_loss,
         "status": STATUS_OK
     }
 

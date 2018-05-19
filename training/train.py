@@ -1,4 +1,4 @@
-from keras.callbacks import LambdaCallback, ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, LambdaCallback
 from keras.losses import mean_squared_error, mean_absolute_error
 from keras.models import load_model
 import json
@@ -16,12 +16,20 @@ from utilities.constants import *
 # training parameters
 learning_rate = 0.01
 epochs = 1000
-split_percentage = 75
+split_percentages = 60, 20
+
+def calculate_validation_result(model, x_valid, y_valid, loss_function):
+
+    validation_loss = model.evaluate(x_valid, y_valid)
+    mean_baseline = loss_function(y_valid, np.mean(y_valid))
+    median_baseline = loss_function(y_valid, np.median(y_valid))
+
+    return validation_loss / min([mean_baseline, median_baseline])
 
 def train_on_dataset(dataset, embedding_type, model_params, notes_filename = None, session_id = None, run_id = None):
 
     # load and arrange data
-    x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, split_percentage, embedding_type, model_params["max_words"])
+    x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(dataset, split_percentages, embedding_type, model_params["max_words"])
 
     if model_params["loss"] == "mean_squared_error":
         loss_function = bsl.mean_squared_error
@@ -30,8 +38,8 @@ def train_on_dataset(dataset, embedding_type, model_params, notes_filename = Non
         loss_function = bsl.mean_absolute_error
 
     # calculate baseline losses
-    mean_baseline = loss_function(y_test, np.mean(y_train))
-    median_baseline = loss_function(y_test, np.median(y_train))
+    mean_baseline = loss_function(y_test, np.mean(y_test))
+    median_baseline = loss_function(y_test, np.median(y_test))
 
     # create model
     max_text_length = x_test.shape[1]
@@ -48,14 +56,18 @@ def train_on_dataset(dataset, embedding_type, model_params, notes_filename = Non
     results_filename = "%s/%s%s" % (weigths_directory_name, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(results_filename, epoch, logs))
 
+    best_model_filename = weigths_directory_name + "/model.h5"
+    save_best_model = ModelCheckpoint(best_model_filename, save_best_only=True)
+
     # train and validate
-    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"]), EarlyStopping(min_delta=0.001, patience=15)]
+    callbacks = [save_results, save_best_model, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"]), EarlyStopping(min_delta=0.001, patience=15)]
     history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=model_params["batch_size"], callbacks=callbacks)
 
     result = min(history.history["val_loss"]) / min([mean_baseline, median_baseline])
     with open(notes_filename, "a") as notes_file:
         print("Result:", result, file=notes_file)
 
-    model.save(weigths_directory_name + "/model.h5")
+    best_model = load_model(best_model_filename)
+    val_result = calculate_validation_result(best_model, x_valid, y_valid, loss_function)
 
-    return result
+    return result, val_result

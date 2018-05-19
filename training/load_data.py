@@ -3,7 +3,6 @@ from gensim.models import Word2Vec
 
 from utilities.data_utils import get_issue_counts
 from utilities.file_utils import load_json
-from utilities.arrange import shuffle, split_train_test
 from utilities.constants import *
 from utilities.string_utils import merge_sentences
 
@@ -29,6 +28,23 @@ def ordered_shuffle(data):
             del project_data[project_id]
 
     return shuffled_data
+
+
+def split(data, split_indices):
+    return (data[:split_indices[0]], data[split_indices[0]:split_indices[1]], data[split_indices[1]:])
+
+def split_train_test_val(data, split_percentages):
+
+    x, y = data
+    split_indices = len(y) * split_percentages[0] // 100, len(y) * (split_percentages[0] + split_percentages[1]) // 100
+
+    x_train, x_test, x_valid = split(x, split_indices)
+    y_train, y_test, y_valid = split(y, split_indices)
+    y = None
+
+    print("Data splitted in training and testing sets")
+
+    return (x_train, y_train, x_test, y_test, x_valid, y_valid)
 
 
 def load_and_arrange(dataset, split_percentage, embeddings, max_words):
@@ -60,4 +76,4 @@ def load_and_arrange(dataset, split_percentage, embeddings, max_words):
 
     y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
 
-    return split_train_test((x, y), split_percentage)
+    return split_train_test_val((x, y), split_percentage)
