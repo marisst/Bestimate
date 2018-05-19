@@ -49,8 +49,7 @@ def train_on_dataset(dataset, embedding_type, model_params, notes_filename = Non
     save_results = LambdaCallback(on_epoch_end=lambda epoch, logs: save.save_logs(results_filename, epoch, logs))
 
     # train and validate
-    min_delta = 0.001 if model_params["loss"] == "mean_absolute_error" else 0.01
-    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"]), EarlyStopping(min_delta=0.001, patience=10)]
+    callbacks = [save_results, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"]), EarlyStopping(min_delta=0.001, patience=15)]
     history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=model_params["batch_size"], callbacks=callbacks)
 
     result = min(history.history["val_loss"]) / min([mean_baseline, median_baseline])
