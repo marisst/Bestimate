@@ -89,6 +89,11 @@ def objective(configuration):
             notes_filename)
 
     loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
+
+    log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
+    with open(log_filename, "a") as log_file:
+        print("Run: %s, Loss: %.2f" % (run_id, loss), file=log_file)
+
     return {
         "loss": loss,
         "status": STATUS_OK

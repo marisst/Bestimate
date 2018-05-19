@@ -60,5 +60,4 @@ def load_and_arrange(dataset, split_percentage, embeddings, max_words):
 
     y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
 
-    shuffled_data = shuffle((x, y))
-    return split_train_test(shuffled_data, split_percentage)
+    return split_train_test((x, y), split_percentage)
