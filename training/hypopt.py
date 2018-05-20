@@ -1,6 +1,7 @@
 from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
 from hyperopt.pyll.base import scope
 import json
+import numpy as np
 
 from data_preprocessing.filter_config import FilterConfig
 from data_preprocessing.filter_data import filter_data
@@ -45,12 +46,27 @@ space = {
     }
 }
 
+def remove_negative_values(nested_dictionary):
+
+    result = {}
+    for key, value in nested_dictionary.items():
+        if isinstance(value, dict):
+            result[key] = remove_negative_values(value)
+        elif isinstance(value, int):
+            result[key] = max(0, value)
+        else:
+            result[key] = value
+    return result
+
 def objective(configuration):
 
     print("--- NEW CONFIGURATION ---")
 
-
-
+    configuration = remove_negative_values(configuration)
+    if configuration["model_params"]["max_words"] == 0:
+        return {
+            "status": STATUS_FAIL
+        }
 
     print(configuration)
 
@@ -93,7 +109,7 @@ def objective(configuration):
             emb_config["iterations"],
             notes_filename)
 
-    loss, val_loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration["model_params"], notes_filename, session_id=training_session_id, run_id=run_id)
+    loss, val_loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration, notes_filename, session_id=training_session_id, run_id=run_id)
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
@@ -114,7 +130,8 @@ def optimize_model(training_dataset_id):
     best = fmin(objective,
     space=space,
     algo=tpe.suggest,
-    max_evals=150)
+    max_evals=150,
+    rstate=np.random.RandomState(7))
 
     print("BEST:")
     print(best)

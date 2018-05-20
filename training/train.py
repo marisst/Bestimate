@@ -26,7 +26,9 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function):
 
     return validation_loss / min([mean_baseline, median_baseline])
 
-def train_on_dataset(dataset, embedding_type, model_params, notes_filename = None, session_id = None, run_id = None):
+def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None):
+
+    model_params = params["model_params"]
 
     # load and arrange data
     x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(dataset, split_percentages, embedding_type, model_params["max_words"])
