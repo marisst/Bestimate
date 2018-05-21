@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from keras.callbacks import Callback
 import matplotlib.pyplot as plt
 import numpy as np

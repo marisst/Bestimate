@@ -2,6 +2,7 @@ from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
 from hyperopt.pyll.base import scope
 import json
 import numpy as np
+import sys
 
 from data_preprocessing.filter_config import FilterConfig
 from data_preprocessing.filter_data import filter_data
@@ -33,7 +34,7 @@ space = {
     ]),
     'model_params':
     {
-        'max_words': scope.int(hp.qnormal('max_words', 120, 700, 1)),
+        'max_words': scope.int(hp.qnormal('max_words', 120, 20, 1)),
         'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
         'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
         'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
@@ -138,5 +139,4 @@ def optimize_model(training_dataset_id):
 
 if __name__ == "__main__":
 
-    training_dataset_id = input("Please enter the identifier of the dataset you want train the model on: ")
-    optimize_model(training_dataset_id)
+    optimize_model(sys.argv[1])

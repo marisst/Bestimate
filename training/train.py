@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from keras.callbacks import ModelCheckpoint, EarlyStopping, LambdaCallback
 from keras.losses import mean_squared_error, mean_absolute_error
 from keras.models import load_model

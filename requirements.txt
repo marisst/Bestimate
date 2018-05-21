@@ -1,0 +1,8 @@
+gensim
+hyperopt
+keras
+matplotlib
+numpy
+sklearn
+spacy
+tensorflow
