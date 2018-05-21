@@ -132,7 +132,8 @@ def optimize_model(training_dataset_id):
     space=space,
     algo=tpe.suggest,
     max_evals=150,
-    rstate=np.random.RandomState(7))
+    rstate=np.random.RandomState(7),
+    )
 
     print("BEST:")
     print(best)

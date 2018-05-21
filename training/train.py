@@ -41,6 +41,13 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
 
     if model_params["loss"] == "mean_absolute_error":
         loss_function = bsl.mean_absolute_error
+        human_loss = bsl.mean_human_absolute_error(y_test)
+        with open(notes_filename, "a") as notes_file:
+            print("Human loss:", human_loss, file=notes_file)
+
+    if model_params["loss"] == "mean_absolute_percentage_error":
+        loss_function = bsl.mean_absolute_percentage_error
+        
 
     # calculate baseline losses
     mean_baseline = loss_function(y_test, np.mean(y_test))

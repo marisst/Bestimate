@@ -2,6 +2,7 @@ gensim
 hyperopt
 keras
 matplotlib
+networkx==1.11
 numpy
 sklearn
 spacy

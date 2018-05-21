@@ -15,12 +15,13 @@ def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_base
         testing_losses = np.sqrt(testing_losses)
         mean_baseline = math.sqrt(mean_baseline)
         median_baseline = math.sqrt(median_baseline)
-        loss_name = "Root-mean-square deviation, hours"
+        loss_name = "Root-mean-square error, hours"
 
     if loss == "mean_absolute_error":
         loss_name = "Mean absolute error"
 
-    
+    if loss == "mean_absolute_percentage_error":
+        loss_name = "Mean absolute percentage error"
 
     min_value = min([min(training_losses), min(testing_losses), mean_baseline, median_baseline])
     max_value = max([max(training_losses), max(testing_losses), mean_baseline, median_baseline])
