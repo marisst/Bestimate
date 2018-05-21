@@ -23,10 +23,10 @@ def select_repositories(repositories_from_input):
 def select_projects(data):
 
     print("Please select one or more of the following projects:")
-    project_issue_counts = get_issue_counts(data)
+    project_issue_counts = get_issue_counts([datapoint for datapoint in data if datapoint.get(TIMESPENT_FIELD_KEY, None) is not None])
 
     for c in project_issue_counts:
-        print("%s - %d issues" % c)
+        print("%s - %d labeled issues" % c)
 
     selected_projects = input("Selected datasets: ")
     selected_projects = selected_projects.replace(",", " ")
