@@ -2,6 +2,7 @@ import os
 import re
 
 from utilities.data_utils import get_issue_counts, get_projects
+from utilities.string_utils import get_part_strings
 from utilities.constants import *
 
 def select_repositories(repositories_from_input):
@@ -26,7 +27,8 @@ def select_projects(data):
     project_issue_counts = get_issue_counts([datapoint for datapoint in data if datapoint.get(TIMESPENT_FIELD_KEY, None) is not None])
 
     for c in project_issue_counts:
-        print("%s - %d labeled issues" % c)
+        total_issue_count = sum([1 for datapoint in data if datapoint.get(PROJECT_FIELD_KEY) == c[0]])
+        print("%s - %d (%.2f%%) of %d issues are labeled" % (c[0], get_part_strings(c[1], total_issue_count)))
 
     selected_projects = input("Selected datasets: ")
     selected_projects = selected_projects.replace(",", " ")
