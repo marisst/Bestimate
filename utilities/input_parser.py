@@ -28,7 +28,8 @@ def select_projects(data):
 
     for c in project_issue_counts:
         total_issue_count = sum([1 for datapoint in data if datapoint.get(PROJECT_FIELD_KEY) == c[0]])
-        print("%s - %d (%.2f%%) of %d issues are labeled" % (c[0], get_part_strings(c[1], total_issue_count)))
+        part_strings = get_part_strings(c[1], total_issue_count)
+        print("%s - %d (%.2f%%) of %d issues are labeled" % (c[0], part_strings[0], part_strings[1], part_strings[2]))
 
     selected_projects = input("Selected datasets: ")
     selected_projects = selected_projects.replace(",", " ")
