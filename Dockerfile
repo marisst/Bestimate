@@ -1,4 +1,4 @@
-FROM python:latest
+FROM tensorflow/tensorflow:1.7.1-devel-gpu-py3
 
 WORKDIR /app
 
@@ -11,6 +11,8 @@ ADD data_preprocessing /app/data_preprocessing
 ADD embedding_pretraining /app/embedding_pretraining
 ADD training /app/training
 ADD utilities /app/utilities
-ADD training_datasets /app/training_datasets
 
-CMD ["python", "-m", "training.multithread"]
+ADD training_datasets/all/all_lab_merged.json /app/training_datasets/all/all_lab_merged.json
+ADD training_datasets/all/all_unl_merged.json /app/training_datasets/all/all_unl_merged.json
+
+CMD ["python", "-m", "training.hypopt", "all", "spacy"]

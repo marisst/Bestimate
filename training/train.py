@@ -52,6 +52,9 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     # calculate baseline losses
     mean_baseline = loss_function(y_test, np.mean(y_test))
     median_baseline = loss_function(y_test, np.median(y_test))
+    with open(notes_filename, "a") as notes_file:
+        print("Mean loss (test):", mean_baseline, file=notes_file)
+        print("Median loss (test):", median_baseline, file=notes_file)
 
     # create model
     max_text_length = x_test.shape[1]

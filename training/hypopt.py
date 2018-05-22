@@ -13,29 +13,28 @@ from training.train import train_on_dataset
 from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
-def create_space(embedding_type, optimizer, highway_activation, min_project_size):
+def create_space(embedding_type):
 
-    if embedding_type[0] == "spacy":
+    if embedding_type == "spacy":
         embedding_space = {
                 "type": "spacy"
             }
 
-    if embedding_type[0] == "gensim":
+    if embedding_type == "gensim":
         embedding_space = {
                 "type": "gensim",
-                "algorithm": embedding_type[1],
+                "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
                 "embedding_size": scope.int(hp.quniform("word_embeddings_embedding_size", 5, 500, 1)),
                 "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
                 "window_size": scope.int(hp.qnormal("word_embeddings_window_size", 7, 3, 1)),
                 "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
             }
 
-
-    return {
+    space = {
         'min_word_count': scope.int(hp.qnormal('min_word_count', 15, 4, 1)),
         'min_timespent_minutes': 10,
         'max_timespent_minutes': 960,
-        'min_project_size': min_project_size,
+        'min_project_size': hp.choice("min_project_size", [1, 20, 50, 200, 500]),
         'even_distribution': False,
         'word_embeddings': embedding_space,
         'model_params':
@@ -45,13 +44,23 @@ def create_space(embedding_type, optimizer, highway_activation, min_project_size
             'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
             'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
-            'highway_activation': highway_activation,
+            'highway_activation': "relu", #hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
-            'batch_size': scope.int(hp.quniform('batch_size', 20, 200, 1)),
-            'optimizer': optimizer,
+            'batch_size': 100, #scope.int(hp.quniform('batch_size', 20, 200, 1)),
+            'optimizer': "rmsprop", #hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
             'loss': 'mean_absolute_error'
         }
     }
+    
+    for regularizer in REGULARIZERS:
+        regularizer_name = "%s-regularizer-" % regularizer
+        for regularizer_type in ["l1", "l2"]:
+            space['model_params'][regularizer_name + regularizer_type] = hp.choice(regularizer_name + regularizer_type, [
+                (True, hp.uniform(regularizer_name + regularizer_type + '-constant', 0, 0.001)),
+                (False, None)
+            ])
+
+    return space
 
 
 def remove_negative_values(nested_dictionary):
@@ -96,6 +105,8 @@ def objective(configuration):
     filter_config.min_project_size = configuration["min_project_size"]
     filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
     filtered_datapoint_count = filter_data(training_dataset_name, filter_config, notes_filename)
+
+    
     if filtered_datapoint_count == 0:
         return {
             "status": STATUS_FAIL
@@ -129,15 +140,15 @@ def objective(configuration):
         "status": STATUS_OK
     }
 
-def optimize_model(training_dataset_id, embedding_type, optimizer, highway_activation, min_project_size = 1):
+def optimize_model(training_dataset_id, embedding_type):
 
-    space = create_space(embedding_type, optimizer, highway_activation, min_project_size)
+    space = create_space(embedding_type)
 
     space["training_dataset_id"] = training_dataset_id
-    space["training_session_id"] = get_next_subfolder_name(RESULTS_FOLDER)
+    space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
     create_subfolder(RESULTS_FOLDER, space["training_session_id"])
 
-    evals = 100 if embedding_type[1] == "spacy" else 150
+    evals = 150 if embedding_type == "spacy" else 200
 
     best = fmin(objective,
     space=space,
@@ -148,3 +159,6 @@ def optimize_model(training_dataset_id, embedding_type, optimizer, highway_activ
 
     print("BEST:")
     print(best)
+
+if __name__ == "__main__":
+    optimize_model(sys.argv[1], sys.argv[2])

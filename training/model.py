@@ -1,9 +1,10 @@
 from keras.models import Model
 from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization
 from keras.utils import plot_model
-from keras.regularizers import l2
+from keras.regularizers import l1, l2, l1_l2
 
 from training.highway import highway_layers
+from utilities.constants import *
 
 def create_deep_dense(hidden_unit_counts, previous_layer):
 
@@ -15,10 +16,40 @@ def create_model(max_text_length, embedding_size, model_params):
     
     text_input = Input(shape=(max_text_length, embedding_size))
     masked_text_input = Masking()(text_input)
-    context = LSTM(model_params['lstm_node_count'], dropout=model_params['lstm_dropout'], recurrent_dropout=model_params['lstm_recurrent_dropout'], activity_regularizer=l2(0.00001))(masked_text_input)
-    highway = highway_layers(context, model_params['highway_layer_count'], activation=model_params['highway_activation'], kernel_regularizer=l2(0.00001))
+
+    reg = {}
+    for regularizer_name in REGULARIZERS:
+        if model_params[regularizer_name + "-regularizer-l1"][0] == True and model_params[regularizer_name + "-regularizer-l2"][0] == True:
+            reg[regularizer_name] = l1_l2(model_params[regularizer_name + "-regularizer-l1"][1], model_params[regularizer_name + "-regularizer-l2"][1])
+        elif model_params[regularizer_name + "-regularizer-l1"][0] == True:
+            reg[regularizer_name] = l1(model_params[regularizer_name + "-regularizer-l1"][1])
+        elif model_params[regularizer_name + "-regularizer-l2"][0] == True:
+            reg[regularizer_name] = l2(model_params[regularizer_name + "-regularizer-l2"][1])
+        else:
+            reg[regularizer_name] = None
+
+    context = LSTM(
+        model_params['lstm_node_count'],
+        dropout=model_params['lstm_dropout'],
+        recurrent_dropout=model_params['lstm_recurrent_dropout'],
+        activity_regularizer=reg['lstm-activity'],
+        kernel_regularizer=reg['lstm-kernel'],
+        #bias_regularizer=reg['lstm-bias'],
+        #recurrent_regularizer=reg['lstm-recurrent'],
+        #recurrent_activation='relu',
+        #activation='sigmoid'
+        )(masked_text_input)
+    highway = highway_layers(
+        context,
+        model_params['highway_layer_count'],
+        activation=model_params['highway_activation'],
+        kernel_regularizer=reg['highway-kernel'])
     drop = Dropout(model_params['dropout'])(highway)
-    estimate = Dense(1)(drop)
+
+    act_l1 = model_params["activity-regularizer-l1"][1] if model_params["activity-regularizer-l1"][0] == True else 0
+    act_l2 = model_params["activity-regularizer-l2"][1] if model_params["activity-regularizer-l2"][0] == True else 0
+    act = ActivityRegularization(l1=act_l1, l2=act_l2)(drop)
+    estimate = Dense(1)(act)
     model = Model(inputs=[text_input], outputs=[estimate])
 
     print("Model created")
