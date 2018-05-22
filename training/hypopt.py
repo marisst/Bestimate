@@ -24,7 +24,7 @@ def create_space(embedding_type):
         embedding_space = {
                 "type": "gensim",
                 "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
-                "embedding_size": scope.int(hp.qlognormal("word_embeddings_embedding_size", 2.95, 0.9, 1)),
+                "embedding_size": scope.int(hp.quniform("word_embeddings_embedding_size", 5, 500, 1)),
                 "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
                 "window_size": scope.int(hp.qnormal("word_embeddings_window_size", 7, 3, 1)),
                 "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
@@ -129,7 +129,7 @@ def objective(configuration):
         "status": STATUS_OK
     }
 
-def optimize_model(training_dataset_id, embedding_type):
+def optimize_model(training_dataset_id, embedding_type, optimizer, highway_activation):
 
     space = create_space(embedding_type)
 
@@ -137,18 +137,14 @@ def optimize_model(training_dataset_id, embedding_type):
     space["training_session_id"] = get_next_subfolder_name(RESULTS_FOLDER)
     create_subfolder(RESULTS_FOLDER, space["training_session_id"])
 
-    evals = 150 if embedding_type == "spacy" else 250
+    evals = 100 if embedding_type[1] == "spacy" else 150
 
     best = fmin(objective,
     space=space,
     algo=tpe.suggest,
-    max_evals=150,
+    max_evals=evals,
     rstate=np.random.RandomState(7),
     )
 
     print("BEST:")
     print(best)
-
-if __name__ == "__main__":
-
-    optimize_model(sys.argv[1], sys.argv[2])

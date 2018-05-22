@@ -11,8 +11,6 @@ ADD data_preprocessing /app/data_preprocessing
 ADD embedding_pretraining /app/embedding_pretraining
 ADD training /app/training
 ADD utilities /app/utilities
+ADD training_datasets /app/training_datasets
 
-ADD training_datasets/2/2_lab_merged.json /app/training_datasets/2/2_lab_merged.json
-ADD training_datasets/2/2_unl_merged.json /app/training_datasets/2/2_unl_merged.json
-
-CMD ["python", "-m", "training.hypopt", "2", "gensim"]
+CMD ["python", "-m", "training.multithread"]
