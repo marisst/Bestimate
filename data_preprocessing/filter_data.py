@@ -111,7 +111,7 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
     labeled_data = load_dataset(dataset, LABELED_FILENAME)
     if labeled_data is None:
         print("No labeled data was loaded, filtering cancelled")
-        return
+        return None, None
     unlabeled_data = load_dataset(dataset, UNLABELED_FILENAME)
 
     unlabeled_labeled_data = get_unlabeled_datapoints(labeled_data)
@@ -131,7 +131,7 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
         labeled_data = escape_short_texts(labeled_data, filter_config.min_word_count)
         if labeled_data is None or len(labeled_data) == 0:
             print("No labeled datapoints left after removing datapoints with short text descriptions")
-            return
+            return None, None
         if unlabeled_data is not None and len(unlabeled_data) > 0:
             unlabeled_data = escape_short_texts(unlabeled_data, filter_config.min_word_count)
 
@@ -140,7 +140,7 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
         labeled_data = remove_outliers(labeled_data, filter_config.min_timespent_minutes * SECONDS_IN_MINUTE, filter_config.max_timespent_minutes * SECONDS_IN_MINUTE)
         if labeled_data is None or len(labeled_data) == 0:
             print("No labeled datapoints left after removing outliers")
-            return
+            return None, None
 
     if filter_config.min_project_size > 0:
         print("Removing small projects...")
@@ -148,7 +148,7 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
         labeled_data = filter_data_by_projects(labeled_data, selected_projects)
         if labeled_data is None or len(labeled_data) == 0:
             print("No labeled datapoints left after removing small projects")
-            return
+            return None, None
         if unlabeled_data is not None and len(unlabeled_data) > 0:
             unlabeled_data = filter_data_by_projects(unlabeled_data, selected_projects)
 
@@ -157,7 +157,7 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
         labeled_data = even_distribution(labeled_data, filter_config.even_distribution_bin_count)
         if labeled_data is None or len(labeled_data) == 0:
             print("No labeled datapoints left after making distribution even")
-            return
+            return None, None
 
     if save == True:
         print("Saving filtered data...")
