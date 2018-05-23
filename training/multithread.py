@@ -1,21 +1,18 @@
 import sys
+import subprocess
 
 from training.hypopt import optimize_model
-from threading import Thread
 
 training_dataset_names = ["all", "exo", "ecms-exo", "tdf", "gzl", "hsc", "tup-tdf", "ezp-ezz", "carbondata-apc"]
+embedding_types = ["gensim", "spacy"]
 
-def run(embedding_type):
-    
-    threads = [Thread(target=optimize_model, args=(dataset, embedding_type)) for dataset in training_dataset_names]
 
-    for thread in threads:
-        thread.start()
+def run():
 
-    for thread in threads:
-        thread.join()
+    for dataset in training_dataset_names:
+        for embedding_type in embedding_types:
+            subprocess.Popen(["python", "-m", "training.hypopt", dataset, embedding_type])
 
-    print("ALL THREADS FINISHED")
 
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run()

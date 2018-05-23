@@ -94,7 +94,7 @@ def get_next_subfolder_name(folder):
     if not os.path.exists(folder):
         return 1
 
-    existing_dataset_count = sum(1 for f in os.listdir(folder))
+    existing_dataset_count = sum(1 for f in os.listdir(folder) if os.path.isdir("%s/%s" % (folder, f)) == True)
     return str(existing_dataset_count + 1)
 
 def create_subfolder(folder, subfolder_name):

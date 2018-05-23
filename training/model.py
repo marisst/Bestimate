@@ -32,13 +32,11 @@ def create_model(max_text_length, embedding_size, model_params):
         model_params['lstm_node_count'],
         dropout=model_params['lstm_dropout'],
         recurrent_dropout=model_params['lstm_recurrent_dropout'],
-        activity_regularizer=reg['lstm-activity'],
-        kernel_regularizer=reg['lstm-kernel'])(masked_text_input)
+        activity_regularizer=reg['lstm-activity'])(masked_text_input)
     highway = highway_layers(
         context,
         model_params['highway_layer_count'],
-        activation=model_params['highway_activation'],
-        kernel_regularizer=reg['highway-kernel'])
+        activation=model_params['highway_activation'])
     drop = Dropout(model_params['dropout'])(highway)
 
     act_l1 = model_params["activity-regularizer-l1"][1] if model_params["activity-regularizer-l1"][0] == True else 0
