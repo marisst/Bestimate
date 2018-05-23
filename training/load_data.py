@@ -47,23 +47,29 @@ def split_train_test_val(data, split_percentages):
     return (x_train, y_train, x_test, y_test, x_valid, y_valid)
 
 
-def load_and_arrange(dataset, split_percentage, embeddings, max_words):
+def load_and_arrange(dataset, split_percentage, embeddings, max_words, labeled_data=None, spacy_lookup=None, gensim_model=None):
 
-    data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    filtered_data = load_json(data_filename)
-    datapoint_count = len(filtered_data)
-    shuffled_data = ordered_shuffle(filtered_data)
+    if labeled_data is None:
+        data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        labeled_data = load_json(data_filename)
+
+    datapoint_count = len(labeled_data)
+    shuffled_data = ordered_shuffle(labeled_data)
 
     if embeddings == "spacy":
-        lookup_filename = get_dataset_filename(dataset, ALL_FILENAME, SPACY_LOOKUP_POSTFIX, JSON_FILE_EXTENSION)
-        lookup = load_json(lookup_filename)
-        embedding_size = len(next(iter(lookup.values())))
+        if spacy_lookup is None:
+            lookup_filename = get_dataset_filename(dataset, ALL_FILENAME, SPACY_LOOKUP_POSTFIX, JSON_FILE_EXTENSION)
+            lookup = load_json(lookup_filename)
+        else:
+            lookup = spacy_lookup
+        embedding_size = len(next(iter(spacy_lookup.values())))
 
     if embeddings == "gensim":
-        model_filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
-        model = Word2Vec.load(model_filename)
-        lookup = model.wv
-        embedding_size = model.vector_size
+        if gensim_model is None:
+            model_filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
+            gensim_model = Word2Vec.load(model_filename)
+        lookup = gensim_model.wv
+        embedding_size = gensim_model.vector_size
 
     x = np.zeros((datapoint_count, max_words, embedding_size))
     for i, datapoint in enumerate(shuffled_data):

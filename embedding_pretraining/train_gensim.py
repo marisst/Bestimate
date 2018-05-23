@@ -5,15 +5,16 @@ from utilities.file_utils import load_json, create_folder_if_needed
 from utilities.constants import *
 
 
-def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations, notes_filename):
+def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations, notes_filename, data=None, save=True):
 
-    labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    if data == None:
+        labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
 
-    labeled_data = load_json(labeled_filename)
-    unlabeled_data = load_json(unlabeled_filename)
+        labeled_data = load_json(labeled_filename)
+        unlabeled_data = load_json(unlabeled_filename)
 
-    data = labeled_data if labeled_data is not None else [] + unlabeled_data if unlabeled_data is not None else []
+        data = labeled_data if labeled_data is not None else [] + unlabeled_data if unlabeled_data is not None else []
 
     training_sentences = []
     for datapoint in data:
@@ -35,6 +36,9 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
     with open(notes_filename, "a") as notes_filename:
         print("Gensim model loss:", model.get_latest_training_loss(), file=notes_filename)
 
-    filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
-    model.save(filename)
-    print("Model saved at", filename)
+    if save == True:
+        filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
+        model.save(filename)
+        print("Model saved at", filename)
+
+    return model

@@ -104,7 +104,7 @@ def escape_short_texts(data, minimum_words):
     return filtered_data
 
 
-def filter_data(dataset, filter_config, notes_filename = None):
+def filter_data(dataset, filter_config, notes_filename = None, save=True):
     """Filter data of a merged dataset according to a filter configuration and save in JSON format"""
 
     print("Loading data...")
@@ -159,11 +159,11 @@ def filter_data(dataset, filter_config, notes_filename = None):
             print("No labeled datapoints left after making distribution even")
             return
 
-    print("Saving filtered data...")
-    save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
-    if unlabeled_data is not None and len(unlabeled_data) > 0:
-        save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
-
+    if save == True:
+        print("Saving filtered data...")
+        save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
+        if unlabeled_data is not None and len(unlabeled_data) > 0:
+            save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
 
     labeled_data_len = len(labeled_data) if labeled_data is not None else 0
     unlabeled_data_len = len(unlabeled_data) if unlabeled_data is not None else 0
@@ -171,7 +171,7 @@ def filter_data(dataset, filter_config, notes_filename = None):
         with open(notes_filename, "a") as notes_file:
             print("%d labeled and %d unlabeled issues after filtering" % (labeled_data_len, unlabeled_data_len), file=notes_file)
 
-    return labeled_data_len + unlabeled_data_len
+    return labeled_data, unlabeled_data
 
 def print_extreme(dataset, extreme):
     "Print the minimum or maximum number of hours of time spent for a task in a merged dataset"

@@ -44,10 +44,13 @@ def create_space(embedding_type):
             'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
             'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
-            'highway_activation': "relu", #hp.choice("highway_activation", ["relu", "tanh"]),
+            'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
-            'batch_size': 100, #scope.int(hp.quniform('batch_size', 20, 200, 1)),
-            'optimizer': "rmsprop", #hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
+            'batch_size': 100,
+            'optimizer': hp.choice('optimizer', [
+                ('rmsprop', hp.uniform('rmsprop_lr', 0.0005, 0.005)),
+                ('adam', hp.uniform('adam_lr', 0.0005, 0.005)),
+                ('sgd', hp.uniform('sgd_lr', 0.005, 0.05))]),
             'loss': 'mean_absolute_error'
         }
     }
@@ -104,31 +107,47 @@ def objective(configuration):
     filter_config.max_timespent_minutes = configuration["max_timespent_minutes"]
     filter_config.min_project_size = configuration["min_project_size"]
     filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
-    filtered_datapoint_count = filter_data(training_dataset_name, filter_config, notes_filename)
+    labeled_data, unlabeled_data = filter_data(training_dataset_name, filter_config, notes_filename, save=False)
 
     
-    if filtered_datapoint_count == 0:
+    if labeled_data is None or len(labeled_data) == 0:
         return {
             "status": STATUS_FAIL
         }
 
-    
-    count_tokens(training_dataset_name, notes_filename)
+    data = labeled_data
+    if unlabeled_data is not None:
+        data = data + unlabeled_data
+
+    lookup = None
     emb_config = configuration["word_embeddings"]
     if emb_config["type"] == "spacy":
-        spacy_lookup(training_dataset_name, notes_filename)
+        token_counts = count_tokens(training_dataset_name, notes_filename, data=data, save=False)
+        lookup = spacy_lookup(training_dataset_name, notes_filename, token_counts=token_counts, save=False)
     
+    gensim_model = None
     if emb_config["type"] == "gensim":
-        train_gensim(
+        gensim_model = train_gensim(
             training_dataset_name,
             emb_config["algorithm"],
             emb_config["embedding_size"],
             emb_config["minimum_count"],
             emb_config["window_size"], 
             emb_config["iterations"],
-            notes_filename)
+            notes_filename,
+            data=data,
+            save=False)
 
-    loss, val_loss = train_on_dataset(training_dataset_name, emb_config["type"], configuration, notes_filename, session_id=training_session_id, run_id=run_id)
+    loss, val_loss = train_on_dataset(
+        training_dataset_name,
+        emb_config["type"],
+        configuration,
+        notes_filename,
+        session_id=training_session_id,
+        run_id=run_id,
+        labeled_data=labeled_data,
+        spacy_lookup=lookup,
+        gensim_model=gensim_model)
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:

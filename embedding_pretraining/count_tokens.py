@@ -2,17 +2,19 @@ from utilities.constants import *
 from utilities.file_utils import load_json, create_folder_if_needed, save_json
 from utilities.string_utils import merge_sentences
 
-def count_tokens(dataset, notes_filename):
+def count_tokens(dataset, notes_filename, data=None, save=True):
 
-    labeled_data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    labeled_data = load_json(labeled_data_filename)
+    if data is None:
 
-    unlabeled_data_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-    unlabeled_data = load_json(unlabeled_data_filename)
+        labeled_data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        labeled_data = load_json(labeled_data_filename)
 
-    data = labeled_data
-    if unlabeled_data is not None:
-        data = data + unlabeled_data
+        unlabeled_data_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        unlabeled_data = load_json(unlabeled_data_filename)
+
+        data = labeled_data
+        if unlabeled_data is not None:
+            data = data + unlabeled_data
 
     print("Counting tokens...")
 
@@ -29,10 +31,12 @@ def count_tokens(dataset, notes_filename):
     print("Sorting...")
     token_counts = sorted(token_counts.items(), key=lambda x: x[1], reverse=True)
 
-    filename = get_dataset_filename(dataset, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
-    save_json(filename, token_counts)
-
-    print("Token counts and frequencies saved at %s" % filename)
+    if save == True:
+        filename = get_dataset_filename(dataset, ALL_FILENAME, TOKEN_COUNT_POSTFIX, JSON_FILE_EXTENSION)
+        save_json(filename, token_counts)
+        print("Token counts and frequencies saved at %s" % filename)
 
     with open(notes_filename, "a") as notes_file:
         print("%d different unique tokens" % (len(token_counts)), file=notes_file)
+
+    return token_counts

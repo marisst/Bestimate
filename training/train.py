@@ -3,6 +3,7 @@ matplotlib.use('Agg')
 
 from keras.callbacks import ModelCheckpoint, EarlyStopping, LambdaCallback
 from keras.losses import mean_squared_error, mean_absolute_error
+from keras.optimizers import RMSprop, Adam, SGD
 from keras.models import load_model
 import json
 import matplotlib.pyplot as plt
@@ -20,6 +21,8 @@ from utilities.constants import *
 learning_rate = 0.01
 epochs = 1000
 split_percentages = 60, 20
+MIN_DELTA = 0.1
+PATIENCE = 5
 
 def calculate_validation_result(model, x_valid, y_valid, loss_function):
 
@@ -29,12 +32,19 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function):
 
     return validation_loss / min([mean_baseline, median_baseline])
 
-def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None):
+def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, spacy_lookup = None, gensim_model = None):
 
     model_params = params["model_params"]
 
     # load and arrange data
-    x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(dataset, split_percentages, embedding_type, model_params["max_words"])
+    x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(
+        dataset,
+        split_percentages,
+        embedding_type,
+        model_params["max_words"],
+        labeled_data=labeled_data,
+        spacy_lookup=spacy_lookup,
+        gensim_model=gensim_model)
 
     if model_params["loss"] == "mean_squared_error":
         loss_function = bsl.mean_squared_error
@@ -60,7 +70,15 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     max_text_length = x_test.shape[1]
     embedding_size = x_test.shape[2]
     model = mdl.create_model(max_text_length, embedding_size, model_params)
-    model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
+
+    if model_params["optimizer"][0] == 'rmsprop':
+        optimizer = RMSprop(lr=model_params["optimizer"][1])
+    elif model_params["optimizer"][0] == 'adam':
+        optimizer = Adam(lr=model_params["optimizer"][1])
+    elif model_params["optimizer"][0] == "sgd":
+        optimizer = SGD(lr=model_params["optimizer"][1])
+
+    model.compile(loss=model_params["loss"], optimizer=optimizer)
 
     # create results files
     weigths_directory_name = "%s/%s/%s" % (RESULTS_FOLDER, session_id, run_id)
@@ -75,7 +93,8 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     save_best_model = ModelCheckpoint(best_model_filename, save_best_only=True)
 
     # train and validate
-    callbacks = [save_results, save_best_model, PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"]), EarlyStopping(min_delta=0.001, patience=15)]
+    custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
+    callbacks = [save_results, save_best_model, custom_callback, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
     history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size=model_params["batch_size"], callbacks=callbacks)
 
     result = min(history.history["val_loss"]) / min([mean_baseline, median_baseline])
