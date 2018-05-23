@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.7.1-py3
+FROM tensorflow/tensorflow:1.7.1-devel-gpu-py3
 
 WORKDIR /app
 
@@ -12,6 +12,7 @@ ADD embedding_pretraining /app/embedding_pretraining
 ADD training /app/training
 ADD utilities /app/utilities
 
-ADD training_datasets /app/training_datasets
+ADD training_datasets/all/all_unl_merged.json /app/training_datasets/all/all_unl_merged.json
+ADD training_datasets/all/all_lab_merged.json /app/training_datasets/all/all_lab_merged.json
 
-CMD ["python", "-m", "training.multithread"]
+CMD ["python", "-m", "training.hypopt", "all", "spacy"]

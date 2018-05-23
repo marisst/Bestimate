@@ -1,5 +1,6 @@
 from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
 from hyperopt.pyll.base import scope
+import gc
 import json
 import numpy as np
 import sys
@@ -109,6 +110,10 @@ def objective(configuration):
     filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
     labeled_data, unlabeled_data = filter_data(training_dataset_name, filter_config, notes_filename, save=False)
 
+    emb_config = configuration["word_embeddings"]
+    if emb_config["type"] == "spacy":
+        unlabeled_data = None
+        gc.collect()
     
     if labeled_data is None or len(labeled_data) == 0:
         return {
@@ -120,10 +125,11 @@ def objective(configuration):
         data = data + unlabeled_data
 
     lookup = None
-    emb_config = configuration["word_embeddings"]
     if emb_config["type"] == "spacy":
         token_counts = count_tokens(training_dataset_name, notes_filename, data=data, save=False)
         lookup = spacy_lookup(training_dataset_name, notes_filename, token_counts=token_counts, save=False)
+        token_counts = None
+        gc.collect()
     
     gensim_model = None
     if emb_config["type"] == "gensim":
@@ -148,6 +154,11 @@ def objective(configuration):
         labeled_data=labeled_data,
         spacy_lookup=lookup,
         gensim_model=gensim_model)
+
+    data = None
+    unlabeled_data = None
+    labeled_data = None
+    gc.collect()
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
