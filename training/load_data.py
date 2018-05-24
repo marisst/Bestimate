@@ -87,18 +87,9 @@ def load_and_arrange(dataset, split_percentage, embeddings, max_words, labeled_d
         embedding_size = gensim_model.vector_size
         del gensim_model
 
-    x = np.zeros((datapoint_count, max_words, embedding_size))
-    for i, datapoint in enumerate(shuffled_data):
-        text = merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, []))
-        words = text.split()
-        words = [word for word in words if lookup(word) is not None][:max_words]
-        start_index = max_words - len(words)
-        for j, word in enumerate(words):
-            x[i, start_index + j] = np.array(lookup(word))
-
+    x = [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]
     y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
-
     shuffled_data = None
-    gc.collect
+    gc.collect()
 
     return split_train_test_val((x, y), split_percentage)
