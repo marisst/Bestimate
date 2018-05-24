@@ -4,7 +4,7 @@ from multiprocessing import Pool
 from training.hypopt import optimize_model
 
 training_dataset_names = ["all"] #, "exo", "ecms-exo", "tdf", "gzl", "hsc", "tup-tdf", "ezp-ezz", "carbondata-apc"]
-embedding_types = ["gensim", "spacy"]
+embedding_types = ["spacy"] #["gensim", "spacy"]
 
 
 def run():
@@ -21,4 +21,5 @@ def run():
         pool.starmap(optimize_model, parameters)
 
 if __name__ == "__main__":
+
     run()

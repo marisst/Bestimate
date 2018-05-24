@@ -8,23 +8,19 @@ import sys
 
 import training.graph_helpers as gph
 import training.load_data as load
+from training.data_generator import DataGenerator
 from utilities.constants import *
 
 SPLIT_PERCENTAGE = 75
 
-def predict(model, x_train, x_test, y_train, y_test, ax_left, ax_right):
+def predict(model, ax_left, ax_right, training_generator, testing_generator, y_train, y_test):
 
     ax_left.clear()
     ax_right.clear()
     
     # predict
-    training_predictions = model.predict([x_train])
-    testing_predictions = model.predict([x_test])
-
-    training_predictions = training_predictions
-    testing_predictions = testing_predictions
-    y_train = y_train
-    y_test = y_test
+    training_predictions = model.predict_generator(training_generator, use_multiprocessing=True, workers=WORKERS)
+    testing_predictions = model.predict_generator(testing_generator, use_multiprocessing=True, workers=WORKERS)
     max_hours = max([np.max(y_train), np.max(y_test)])
 
     # calculate deviations
@@ -37,7 +33,7 @@ def predict(model, x_train, x_test, y_train, y_test, ax_left, ax_right):
     gph.create_prediction_scatter(ax_right, "Testing dataset predictions", max_hours)
     ax_right.scatter(y_test, testing_predictions, c=testing_deviations, cmap='coolwarm_r', marker='x', alpha = 0.5)
 
-def predict_timespent(dataset, training_session_name, epoch, val_loss):
+"""def predict_timespent(dataset, training_session_name, epoch, val_loss):
 
     # load data
     x_train, y_train, x_test, y_test = load.load_and_arrange(dataset, SPLIT_PERCENTAGE)
@@ -54,7 +50,7 @@ def predict_timespent(dataset, training_session_name, epoch, val_loss):
 
     plot_filename = get_prediction_plot_filename(dataset, training_session_name).format(epoch=epoch, val_loss=val_loss)
     predict(model, x_train, x_test, y_train, y_test, max_plot_hours, ax1, ax2)
-    plt.savefig(plot_filename, bbox_inches=PLOT_BBOX_INCHES)
+    plt.savefig(plot_filename, bbox_inches=PLOT_BBOX_INCHES)"""
     
 
 #predict_timespent(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))

@@ -4,15 +4,16 @@ from utilities.constants import TEXT_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 class DataGenerator(keras.utils.Sequence):
 
-    def __init__(self, data, labels, batch_size, lookup, max_words, embedding_size):
+    def __init__(self, data, labels, batch_size, lookup, max_words, embedding_size, shuffle=True):
         
         self.data = data
         self.labels = labels
         self.batch_size = batch_size
-        self.on_epoch_end()
         self.lookup = lookup
         self.max_words = max_words
         self.embedding_size = embedding_size
+        self.shuffle = shuffle
+        self.on_epoch_end()
 
     def __len__(self):
 
@@ -30,7 +31,8 @@ class DataGenerator(keras.utils.Sequence):
     def on_epoch_end(self):
 
         self.indexes = np.arange(len(self.data))
-        np.random.shuffle(self.indexes)
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
 
     def __data_generation(self, batch_data):
 

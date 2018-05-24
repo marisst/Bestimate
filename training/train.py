@@ -5,6 +5,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, LambdaCallback
 from keras.losses import mean_squared_error, mean_absolute_error
 from keras.optimizers import RMSprop, Adam, SGD
 from keras.models import load_model
+from keras.utils import multi_gpu_model
 import json
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,7 +28,6 @@ epochs = 1000
 split_percentages = 60, 20
 MIN_DELTA = 0.1
 PATIENCE = 5
-WORKERS = 16
 
 
 def spacy_lookup(nlp, word):
@@ -50,7 +50,7 @@ def gensim_lookup(word_vectors, word):
 def calculate_validation_result(model, x_valid, y_valid, loss_function, model_params, lookup, embedding_size):
 
     validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
-    validation_loss = model.evaluate_generator(generator=validation_generator, enable_multiprocessing=True, workers=WORKERS)
+    validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=WORKERS)
     mean_baseline = loss_function(y_valid, np.mean(y_valid))
     median_baseline = loss_function(y_valid, np.median(y_valid))
 
@@ -126,13 +126,14 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     best_model_filename = weigths_directory_name + "/model.h5"
     save_best_model = ModelCheckpoint(best_model_filename, save_best_only=True)
 
+    training_generator = DataGenerator(x_train, y_train, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
+    test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
+
     # train and validate
     custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
     callbacks = [save_results, save_best_model, custom_callback, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
 
-    training_generator = DataGenerator(x_train, y_train, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
-    test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
-
+    
     history = model.fit_generator(
         generator = training_generator,
         validation_data = test_generator,

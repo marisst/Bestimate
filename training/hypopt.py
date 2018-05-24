@@ -48,7 +48,7 @@ def create_space(embedding_type):
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
             'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
-            'batch_size': 200,
+            'batch_size': 128,
             'optimizer': hp.choice('optimizer', [
                 ('rmsprop', hp.uniform('rmsprop_lr', 0.0005, 0.005)),
                 ('adam', hp.uniform('adam_lr', 0.0005, 0.005)),
