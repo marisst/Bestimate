@@ -123,13 +123,6 @@ def objective(configuration):
     data = labeled_data
     if unlabeled_data is not None:
         data = data + unlabeled_data
-
-    lookup = None
-    if emb_config["type"] == "spacy":
-        token_counts = count_tokens(training_dataset_name, notes_filename, data=data, save=False)
-        lookup = spacy_lookup(training_dataset_name, notes_filename, token_counts=token_counts, save=False)
-        token_counts = None
-        gc.collect()
     
     gensim_model = None
     if emb_config["type"] == "gensim":
@@ -152,7 +145,6 @@ def objective(configuration):
         session_id=training_session_id,
         run_id=run_id,
         labeled_data=labeled_data,
-        spacy_lookup=lookup,
         gensim_model=gensim_model)
 
     data = None

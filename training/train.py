@@ -32,7 +32,7 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function):
 
     return validation_loss / min([mean_baseline, median_baseline])
 
-def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, spacy_lookup = None, gensim_model = None):
+def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, gensim_model = None):
 
     model_params = params["model_params"]
 
@@ -43,7 +43,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         embedding_type,
         model_params["max_words"],
         labeled_data=labeled_data,
-        spacy_lookup=spacy_lookup,
         gensim_model=gensim_model)
 
     if model_params["loss"] == "mean_squared_error":
