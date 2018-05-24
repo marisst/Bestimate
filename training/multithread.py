@@ -3,7 +3,7 @@ from multiprocessing import Pool
 
 from training.hypopt import optimize_model
 
-training_dataset_names = ["all", "exo", "ecms-exo", "tdf", "gzl", "hsc", "tup-tdf", "ezp-ezz", "carbondata-apc"]
+training_dataset_names = ["all"] #, "exo", "ecms-exo", "tdf", "gzl", "hsc", "tup-tdf", "ezp-ezz", "carbondata-apc"]
 embedding_types = ["gensim", "spacy"]
 
 

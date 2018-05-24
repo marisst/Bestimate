@@ -36,9 +36,7 @@ class DataGenerator(keras.utils.Sequence):
 
         x = np.zeros((len(batch_data), self.max_words, self.embedding_size))
         for i, datapoint in enumerate(batch_data):
-            text = datapoint.get(TEXT_FIELD_KEY)
-            words = text.split()
-
+            words = datapoint.split()
             vectorized_words = []
             for word in words:
                 vectorized_word = self.lookup(word)

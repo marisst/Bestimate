@@ -14,6 +14,7 @@ from training.train import train_on_dataset
 from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
+
 def create_space(embedding_type):
 
     if embedding_type == "spacy":
@@ -47,7 +48,7 @@ def create_space(embedding_type):
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
             'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
-            'batch_size': 100,
+            'batch_size': 200,
             'optimizer': hp.choice('optimizer', [
                 ('rmsprop', hp.uniform('rmsprop_lr', 0.0005, 0.005)),
                 ('adam', hp.uniform('adam_lr', 0.0005, 0.005)),
@@ -78,6 +79,7 @@ def remove_negative_values(nested_dictionary):
         else:
             result[key] = value
     return result
+
 
 def objective(configuration):
 
@@ -161,6 +163,7 @@ def objective(configuration):
         "val_loss": val_loss,
         "status": STATUS_OK
     }
+
 
 def optimize_model(training_dataset_id, embedding_type):
 
