@@ -50,7 +50,7 @@ def gensim_lookup(word_vectors, word):
 def calculate_validation_result(model, x_valid, y_valid, loss_function, model_params, lookup, embedding_size):
 
     validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
-    validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=WORKERS)
+    validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
     mean_baseline = loss_function(y_valid, np.mean(y_valid))
     median_baseline = loss_function(y_valid, np.median(y_valid))
 
@@ -65,7 +65,9 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(
         dataset,
         split_percentages,
-        labeled_data=labeled_data,)
+        labeled_data=labeled_data)
+    del labeled_data
+    
 
     if model_params["loss"] == "mean_squared_error":
         loss_function = bsl.mean_squared_error
@@ -130,15 +132,14 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
 
     # train and validate
-    custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
-    callbacks = [save_results, save_best_model, custom_callback, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
-
+    #custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
+    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
     
     history = model.fit_generator(
         generator = training_generator,
         validation_data = test_generator,
         use_multiprocessing=True,
-        workers=WORKERS,
+        workers=model_params["workers"],
         callbacks=callbacks,
         epochs=epochs)
 

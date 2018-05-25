@@ -15,7 +15,7 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 
-def create_space(embedding_type):
+def create_space(embedding_type, workers):
 
     if embedding_type == "spacy":
         embedding_space = {
@@ -48,22 +48,20 @@ def create_space(embedding_type):
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
             'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
-            'batch_size': 128,
+            'batch_size': 512,
             'optimizer': hp.choice('optimizer', [
                 ('rmsprop', hp.uniform('rmsprop_lr', 0.0005, 0.005)),
                 ('adam', hp.uniform('adam_lr', 0.0005, 0.005)),
                 ('sgd', hp.uniform('sgd_lr', 0.005, 0.05))]),
-            'loss': 'mean_absolute_error'
+            'loss': 'mean_absolute_error',
+            'workers': int(workers)
         }
     }
     
     for regularizer in REGULARIZERS:
         regularizer_name = "%s-regularizer-" % regularizer
         for regularizer_type in ["l1", "l2"]:
-            space['model_params'][regularizer_name + regularizer_type] = hp.choice(regularizer_name + regularizer_type, [
-                (True, hp.uniform(regularizer_name + regularizer_type + '-constant', 0, 0.001)),
-                (False, None)
-            ])
+            space['model_params'][regularizer_name + regularizer_type] = (False, None)
 
     return space
 
@@ -165,9 +163,9 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type):
+def optimize_model(training_dataset_id, embedding_type, workers):
 
-    space = create_space(embedding_type)
+    space = create_space(embedding_type, workers)
 
     space["training_dataset_id"] = training_dataset_id
     space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
@@ -186,4 +184,4 @@ def optimize_model(training_dataset_id, embedding_type):
     print(best)
 
 if __name__ == "__main__":
-    optimize_model(sys.argv[1], sys.argv[2])
+    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3])

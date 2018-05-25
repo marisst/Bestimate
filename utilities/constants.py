@@ -21,7 +21,6 @@ EMB2DIM_POSTFIX = "emb2dim"
 VECTORIZED_POSTFIX = "vectorized"
 SPACY_LOOKUP_POSTFIX = "spacy_lookup"
 GENSIM_MODEL = "gensim_model"
-WORKERS = 48
 
 POTENTIAL_REPOS_FILENAME = "%s/%s" % (DATA_COLLECTION_FOLDER, "potential_repos.txt")
 
