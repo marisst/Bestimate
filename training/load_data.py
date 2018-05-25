@@ -47,16 +47,45 @@ def split_train_test_val(data, split_percentages):
     return (x_train, y_train, x_test, y_test, x_valid, y_valid)
     
 
-def load_and_arrange(dataset, split_percentage, labeled_data=None):
+def load_and_arrange(dataset, split_percentage, max_length, lookup, labeled_data=None):
 
     if labeled_data is None:
         data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
         labeled_data = load_json(data_filename)
 
     shuffled_data = ordered_shuffle(labeled_data)
-    x = [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]
-    y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
-    shuffled_data = None
-    gc.collect()
+    del labeled_data
 
-    return split_train_test_val((x, y), split_percentage)
+    x_strings = [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]
+    y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
+    del shuffled_data
+
+    print("Converting data to numeric format and creating vector dictionary...")
+    x = np.zeros((len(x_strings), max_length), dtype=np.int32)
+    string_dictionary = {}
+    vector_dictionary = []
+
+    for i, text in enumerate(x_strings):
+        
+        words = text.split()
+        j = 0
+        for word in words:
+            
+            word_vector = lookup(word)
+            if word_vector is None:
+                continue
+
+            if word in string_dictionary:
+                encrypted_word = string_dictionary[word]
+            else:
+                encrypted_word = len(string_dictionary)
+                string_dictionary[word] = encrypted_word
+                vector_dictionary.append(word_vector)
+            x[i][j] = encrypted_word
+            j += 1
+            if j >= max_length:
+                break
+
+    vector_dictionary = np.array(vector_dictionary)
+
+    return split_train_test_val((x, y), split_percentage), vector_dictionary

@@ -4,15 +4,14 @@ from utilities.constants import TEXT_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 class DataGenerator(keras.utils.Sequence):
 
-    def __init__(self, data, labels, batch_size, lookup, max_words, embedding_size, shuffle=True):
+    def __init__(self, data, labels, batch_size, max_words, vector_dictionary, shuffle=True):
         
         self.data = data
         self.labels = labels
         self.batch_size = batch_size
-        self.lookup = lookup
         self.max_words = max_words
-        self.embedding_size = embedding_size
         self.shuffle = shuffle
+        self.vector_dictionary = vector_dictionary
         self.on_epoch_end()
 
     def __len__(self):
@@ -36,21 +35,11 @@ class DataGenerator(keras.utils.Sequence):
 
     def __data_generation(self, batch_data):
 
-        x = np.zeros((len(batch_data), self.max_words, self.embedding_size))
+        x = np.zeros((len(batch_data), self.max_words, self.vector_dictionary.shape[1]))
         for i, datapoint in enumerate(batch_data):
-            words = datapoint.split()
-            vectorized_words = []
-            for word in words:
-                vectorized_word = self.lookup(word)
-                if vectorized_word is not None:
-                    vectorized_words.append(vectorized_word)
-                    if len(vectorized_words) > self.max_words:
-                        break
-
-            start_index = self.max_words - len(vectorized_words)
-            for j, vectorized_word in enumerate(vectorized_words):
-                x[i, start_index + j] = np.array(vectorized_word)
-
+            for j, encrypted_word in enumerate(datapoint):
+                x[i, j] = self.vector_dictionary[encrypted_word]
+                
         return x
 
         

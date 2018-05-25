@@ -47,9 +47,9 @@ def gensim_lookup(word_vectors, word):
     return word_vectors.get_vector(word)
 
 
-def calculate_validation_result(model, x_valid, y_valid, loss_function, model_params, lookup, embedding_size):
+def calculate_validation_result(model, x_valid, y_valid, loss_function, model_params, vector_dictionary):
 
-    validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
+    validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], model_params["max_words"], vector_dictionary)
     validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
     mean_baseline = loss_function(y_valid, np.mean(y_valid))
     median_baseline = loss_function(y_valid, np.median(y_valid))
@@ -61,12 +61,27 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
 
     model_params = params["model_params"]
 
+        # embeddings
+    if embedding_type == "spacy":
+        nlp = spacy.load('en_vectors_web_lg')
+        lookup = partial(spacy_lookup, nlp)
+
+    if embedding_type == "gensim":
+        if gensim_model is None:
+            model_filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
+            gensim_model = Word2Vec.load(model_filename)
+        lookup = partial(gensim_lookup, gensim_model.wv)
+        del gensim_model
+
     # load and arrange data
-    x_train, y_train, x_test, y_test, x_valid, y_valid = load.load_and_arrange(
+    data, vector_dictionary = load.load_and_arrange(
         dataset,
         split_percentages,
+        model_params["max_words"],
+        lookup,
         labeled_data=labeled_data)
     del labeled_data
+    x_train, y_train, x_test, y_test, x_valid, y_valid = data
     
 
     if model_params["loss"] == "mean_squared_error":
@@ -80,22 +95,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
 
     if model_params["loss"] == "mean_absolute_percentage_error":
         loss_function = bsl.mean_absolute_percentage_error
-        
-
-    # embeddings
-    if embedding_type == "spacy":
-        nlp = spacy.load('en_vectors_web_lg')
-        lookup = partial(spacy_lookup, nlp)
-        embedding_size = len(lookup("Hello"))
-
-    if embedding_type == "gensim":
-        if gensim_model is None:
-            model_filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)
-            gensim_model = Word2Vec.load(model_filename)
-        lookup = partial(gensim_lookup, gensim_model.wv)
-        embedding_size = gensim_model.vector_size
-        del gensim_model
-
 
     # calculate baseline losses
     mean_baseline = loss_function(y_test, np.mean(y_test))
@@ -105,6 +104,7 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         print("Median loss (test):", median_baseline, file=notes_file)
 
     # create model
+    embedding_size = vector_dictionary.shape[1]
     model = mdl.create_model(model_params["max_words"], embedding_size, model_params)
 
     if model_params["optimizer"][0] == 'rmsprop':
@@ -128,8 +128,8 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     best_model_filename = weigths_directory_name + "/model.h5"
     save_best_model = ModelCheckpoint(best_model_filename, save_best_only=True)
 
-    training_generator = DataGenerator(x_train, y_train, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
-    test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], lookup, model_params["max_words"], embedding_size)
+    training_generator = DataGenerator(x_train, y_train, model_params["batch_size"], model_params["max_words"], vector_dictionary)
+    test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], model_params["max_words"], vector_dictionary)
 
     # train and validate
     #custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
@@ -148,6 +148,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         print("Result:", result, file=notes_file)
 
     best_model = load_model(best_model_filename)
-    val_result = calculate_validation_result(best_model, x_valid, y_valid, loss_function, model_params, lookup, embedding_size)
+    val_result = calculate_validation_result(best_model, x_valid, y_valid, loss_function, model_params, vector_dictionary)
 
     return result, val_result
