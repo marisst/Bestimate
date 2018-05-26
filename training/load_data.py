@@ -1,4 +1,5 @@
 import gc
+from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 
 from utilities.data_utils import get_issue_counts
@@ -61,12 +62,13 @@ def load_and_arrange(dataset, split_percentage, max_length, lookup, labeled_data
     del shuffled_data
 
     print("Converting data to numeric format and creating vector dictionary...")
-    x = np.zeros((len(x_strings), max_length), dtype=np.int32)
+    x_sentences = []
     string_dictionary = {}
     vector_dictionary = []
 
-    for i, text in enumerate(x_strings):
+    for text in x_strings:
         
+        x_sentence = []
         words = text.split()
         j = 0
         for word in words:
@@ -78,14 +80,17 @@ def load_and_arrange(dataset, split_percentage, max_length, lookup, labeled_data
             if word in string_dictionary:
                 encrypted_word = string_dictionary[word]
             else:
-                encrypted_word = len(string_dictionary)
+                encrypted_word = len(string_dictionary) + 1
                 string_dictionary[word] = encrypted_word
                 vector_dictionary.append(word_vector)
-            x[i][j] = encrypted_word
+            x_sentence.append(encrypted_word)
             j += 1
             if j >= max_length:
                 break
+        x_sentences.append(x_sentence)
 
+    vector_dictionary.insert(0, [0] * len(vector_dictionary[0]))
     vector_dictionary = np.array(vector_dictionary)
+    x = pad_sequences(x_sentences, maxlen=max_length)
 
     return split_train_test_val((x, y), split_percentage), vector_dictionary

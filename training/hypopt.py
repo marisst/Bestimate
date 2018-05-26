@@ -173,12 +173,18 @@ def optimize_model(training_dataset_id, embedding_type, workers):
 
     evals = 150 if embedding_type == "spacy" else 200
 
-    best = fmin(objective,
-    space=space,
-    algo=tpe.suggest,
-    max_evals=evals,
-    rstate=np.random.RandomState(7),
-    )
+    try:
+        best = fmin(objective,
+        space=space,
+        algo=tpe.suggest,
+        max_evals=evals,
+        rstate=np.random.RandomState(7),
+        )
+    except Exception as e:
+        log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, space["training_session_id"], RESULTS_FILENAME, TEXT_FILE_EXTENSION)
+        with open(log_filename, "a") as log_file:
+            print(e, file=log_file)
+        raise e
 
     print("BEST:")
     print(best)

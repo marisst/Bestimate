@@ -1,4 +1,5 @@
 import numpy as np
+np.set_printoptions(threshold=np.nan)
 import keras
 from utilities.constants import TEXT_FIELD_KEY, TIMESPENT_FIELD_KEY
 
@@ -39,7 +40,7 @@ class DataGenerator(keras.utils.Sequence):
         for i, datapoint in enumerate(batch_data):
             for j, encrypted_word in enumerate(datapoint):
                 x[i, j] = self.vector_dictionary[encrypted_word]
-                
+
         return x
 
         

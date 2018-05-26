@@ -36,6 +36,9 @@ def spacy_lookup(nlp, word):
     if doc.has_vector == False:
         return None
 
+    if not np.any(doc[0].vector):
+        return None
+
     return doc[0].vector.tolist()
 
 
