@@ -1,6 +1,7 @@
 import numpy as np
 np.set_printoptions(threshold=np.nan)
 import keras
+import gc
 from utilities.constants import TEXT_FIELD_KEY, TIMESPENT_FIELD_KEY
 
 class DataGenerator(keras.utils.Sequence):
@@ -25,11 +26,13 @@ class DataGenerator(keras.utils.Sequence):
         batch_data = [self.data[k] for k in indexes]
         batch_x = self.__data_generation(batch_data)
         batch_y = [self.labels[k] for k in indexes]
+        gc.collect()
 
         return batch_x, batch_y
 
     def on_epoch_end(self):
 
+        gc.collect()
         self.indexes = np.arange(len(self.data))
         if self.shuffle == True:
             np.random.shuffle(self.indexes)

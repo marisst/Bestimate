@@ -32,7 +32,6 @@ class PrimaCallback(Callback):
         self.mean_baseline = mean_baseline
         self.median_baseline = median_baseline
 
-
     def on_epoch_end(self, epoch, logs={}):
 
         self.training_losses.append(logs["loss"])

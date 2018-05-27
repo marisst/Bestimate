@@ -6,6 +6,7 @@ from keras.losses import mean_squared_error, mean_absolute_error
 from keras.optimizers import RMSprop, Adam, SGD
 from keras.models import load_model
 from keras.utils import multi_gpu_model
+from keras import backend as K
 import json
 import matplotlib.pyplot as plt
 import numpy as np
@@ -64,7 +65,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
 
     model_params = params["model_params"]
 
-        # embeddings
     if embedding_type == "spacy":
         nlp = spacy.load('en_vectors_web_lg')
         lookup = partial(spacy_lookup, nlp)
@@ -86,7 +86,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     del labeled_data
     x_train, y_train, x_test, y_test, x_valid, y_valid = data
     
-
     if model_params["loss"] == "mean_squared_error":
         loss_function = bsl.mean_squared_error
 
@@ -135,8 +134,8 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], model_params["max_words"], vector_dictionary)
 
     # train and validate
-    #custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
-    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
+    custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
+    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE), custom_callback]
     
     history = model.fit_generator(
         generator = training_generator,
@@ -145,6 +144,9 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         workers=model_params["workers"],
         callbacks=callbacks,
         epochs=epochs)
+
+    del model
+    K.clear_session()
 
     result = min(history.history["val_loss"]) / min([mean_baseline, median_baseline])
     with open(notes_filename, "a") as notes_file:
