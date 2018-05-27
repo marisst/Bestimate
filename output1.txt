@@ -1,0 +1,33 @@
+/Users/marisstubelis/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+--- NEW CONFIGURATION ---
+{'even_distribution': 0, 'max_timespent_minutes': 960, 'min_project_size': 1, 'min_timespent_minutes': 10, 'min_word_count': 5, 'model_params': {'activity-regularizer-l1': (False, None), 'activity-regularizer-l2': (False, None), 'batch_size': 512, 'dropout': 0.5706359611400236, 'highway_activation': 'tanh', 'highway_layer_count': 125, 'loss': 'mean_absolute_error', 'lstm-activity-regularizer-l1': (False, None), 'lstm-activity-regularizer-l2': (False, None), 'lstm_dropout': 0.2897133831475484, 'lstm_node_count': 58, 'lstm_recurrent_dropout': 0.04644339875944504, 'max_words': 121, 'optimizer': ('adam', 0.00318487405748338), 'workers': 2}, 'training_dataset_id': 'exo', 'training_session_id': '86_exo_spacy', 'word_embeddings': {'type': 'spacy'}}
+Loading data...
+Parsing data from training_datasets/exo/exo_lab_merged.json
+Parsing data from training_datasets/exo/exo_unl_merged.json
+Removing datapoints with short text descriptions...
+9345 (96.01%) of 9733 records were selected
+25708 (96.72%) of 26581 records were selected
+Removing outliers...
+Filtering out datapoints with time spent lower than 600 seconds and higher than 57600 seconds
+8079 (86.45%) of 9345 datapoints were selected for testing and training
+Removing small projects...
+30 (100.00%) of 30 projects were selected
+8079 (100.00%) of 8079 datapoints selected
+25571 (99.47%) of 25708 datapoints selected
+2018-05-28 01:46:39.455669: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+Converting data to numeric format and creating vector dictionary...
+Data splitted in training and testing sets
+Model created
+Epoch 1/1000
+
+1/9 [==>...........................] - ETA: 6:03 - loss: 3.7995
+2/9 [=====>........................] - ETA: 2:42 - loss: 3.9033
+3/9 [=========>....................] - ETA: 1:34 - loss: 3.7066
+4/9 [============>.................] - ETA: 1:00 - loss: 3.5013
+5/9 [===============>..............] - ETA: 39s - loss: 3.3262 
+6/9 [===================>..........] - ETA: 25s - loss: 3.2216
+7/9 [======================>.......] - ETA: 14s - loss: 3.1710
+8/9 [=========================>....] - ETA: 6s - loss: 3.1537 
+9/9 [==============================] - 56s 6s/step - loss: 3.1140 - val_loss: 2.9859

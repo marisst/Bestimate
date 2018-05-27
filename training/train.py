@@ -5,7 +5,6 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, LambdaCallback
 from keras.losses import mean_squared_error, mean_absolute_error
 from keras.optimizers import RMSprop, Adam, SGD
 from keras.models import load_model
-from keras.utils import multi_gpu_model
 from keras import backend as K
 import json
 import matplotlib.pyplot as plt
@@ -62,6 +61,10 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function, model_pa
 
 
 def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, gensim_model = None):
+
+    config = K.tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.17
+    K.set_session(K.tf.Session(config=config))
 
     model_params = params["model_params"]
 
