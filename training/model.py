@@ -2,6 +2,7 @@ from keras.models import Model
 from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization
 from keras.utils import plot_model
 from keras.regularizers import l1, l2, l1_l2
+from keras.initializers import glorot_uniform
 
 from training.highway import highway_layers
 from utilities.constants import *
@@ -28,21 +29,24 @@ def create_model(max_text_length, embedding_size, model_params):
         else:
             reg[regularizer_name] = None
 
+    kernel_initializer = glorot_uniform(seed=7)
     context = LSTM(
         model_params['lstm_node_count'],
         dropout=model_params['lstm_dropout'],
         recurrent_dropout=model_params['lstm_recurrent_dropout'],
-        activity_regularizer=reg['lstm-activity'])(masked_text_input)
+        activity_regularizer=reg['lstm-activity'],
+        kernel_initializer=kernel_initializer)(masked_text_input)
     highway = highway_layers(
         context,
         model_params['highway_layer_count'],
+        kernel_initializer,
         activation=model_params['highway_activation'])
     drop = Dropout(model_params['dropout'])(highway)
 
     act_l1 = model_params["activity-regularizer-l1"][1] if model_params["activity-regularizer-l1"][0] == True else 0
     act_l2 = model_params["activity-regularizer-l2"][1] if model_params["activity-regularizer-l2"][0] == True else 0
     act = ActivityRegularization(l1=act_l1, l2=act_l2)(drop)
-    estimate = Dense(1)(act)
+    estimate = Dense(1, kernel_initializer)(act)
     model = Model(inputs=[text_input], outputs=[estimate])
 
     print("Model created")
