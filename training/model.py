@@ -46,7 +46,7 @@ def create_model(max_text_length, embedding_size, model_params):
     act_l1 = model_params["activity-regularizer-l1"][1] if model_params["activity-regularizer-l1"][0] == True else 0
     act_l2 = model_params["activity-regularizer-l2"][1] if model_params["activity-regularizer-l2"][0] == True else 0
     act = ActivityRegularization(l1=act_l1, l2=act_l2)(drop)
-    estimate = Dense(1, kernel_initializer)(act)
+    estimate = Dense(1, kernel_initializer=kernel_initializer)(act)
     model = Model(inputs=[text_input], outputs=[estimate])
 
     print("Model created")

@@ -171,7 +171,7 @@ def optimize_model(training_dataset_id, embedding_type, workers):
     space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
     create_subfolder(RESULTS_FOLDER, space["training_session_id"])
 
-    evals = 150 if embedding_type == "spacy" else 200
+    evals = 200 if embedding_type == "spacy" else 250
 
     best = fmin(objective,
     space=space,

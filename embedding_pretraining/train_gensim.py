@@ -31,7 +31,9 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
     window=window_size,
     sg=1 if algorithm == "skip-gram" else 0,
     compute_loss=True,
-    iter=iterations)
+    iter=iterations,
+    seed=7,
+    workers=4)
 
     with open(notes_filename, "a") as notes_filename:
         print("Gensim model loss:", model.get_latest_training_loss(), file=notes_filename)
