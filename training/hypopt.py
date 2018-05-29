@@ -28,12 +28,12 @@ def create_space(embedding_type, workers):
                 "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
                 "embedding_size": scope.int(hp.quniform("word_embeddings_embedding_size", 5, 500, 1)),
                 "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
-                "window_size": scope.int(hp.qnormal("word_embeddings_window_size", 7, 3, 1)),
+                "window_size": scope.int(hp.quniform("word_embeddings_window_size", 3, 15, 1))
                 "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
             }
 
     space = {
-        'min_word_count': scope.int(hp.qnormal('min_word_count', 15, 4, 1)),
+        'min_word_count': scope.int(hp.quniform('min_word_count', 5, 15, 1)),
         'min_timespent_minutes': 10,
         'max_timespent_minutes': 960,
         'min_project_size': hp.choice("min_project_size", [1, 20, 50, 200, 500]),
