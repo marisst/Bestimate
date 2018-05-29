@@ -63,7 +63,7 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function, model_pa
 def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, gensim_model = None):
 
     config = K.tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.17
+    config.gpu_options.per_process_gpu_memory_fraction = 0.15
     K.set_session(K.tf.Session(config=config))
 
     model_params = params["model_params"]
@@ -118,7 +118,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         optimizer = Adam(lr=model_params["optimizer"][1])
     elif model_params["optimizer"][0] == "sgd":
         optimizer = SGD(lr=model_params["optimizer"][1])
-
     model.compile(loss=model_params["loss"], optimizer=optimizer)
 
     # create results files
@@ -137,8 +136,8 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], model_params["max_words"], vector_dictionary)
 
     # train and validate
-    custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
-    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE), custom_callback]
+    #custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
+    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
     
     history = model.fit_generator(
         generator = training_generator,

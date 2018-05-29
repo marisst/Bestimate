@@ -68,7 +68,7 @@ TOTAL_KEY = "total"
 NUMERIC_TEXT_KEY = "numeric_text"
 PRELEARNING = "pre"
 
-REGULARIZERS = ['lstm-activity', 'activity']
+REGULARIZERS = ['summary-lstm-activity', 'description-lstm-activity', 'activity']
 
 def get_repository_filename(repository_name, labeling, data_type, extension):
     return "%s/%s/%s_%s_%s%s" % (DATA_FOLDER, repository_name, repository_name, labeling, data_type, extension)

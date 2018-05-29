@@ -28,12 +28,12 @@ def create_space(embedding_type, workers):
                 "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
                 "embedding_size": scope.int(hp.quniform("word_embeddings_embedding_size", 5, 500, 1)),
                 "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
-                "window_size": scope.int(hp.qnormal("word_embeddings_window_size", 7, 3, 1)),
+                "window_size": scope.int(hp.quniform("word_embeddings_window_size", 3, 15, 1)),
                 "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
             }
 
     space = {
-        'min_word_count': scope.int(hp.qnormal('min_word_count', 15, 4, 1)),
+        'min_word_count': scope.int(hp.quniform('min_word_count', 5, 15, 1)),
         'min_timespent_minutes': 10,
         'max_timespent_minutes': 960,
         'min_project_size': hp.choice("min_project_size", [1, 20, 50, 200, 500]),
@@ -41,10 +41,12 @@ def create_space(embedding_type, workers):
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': scope.int(hp.qnormal('max_words', 120, 20, 1)),
-            'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
-            'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
-            'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
+            'max_words': scope.int(hp.quniform("max_words", 40, 80, 1)),
+            'lstm_node_count': scope.int(hp.quniform('summary_lstm_node_count', 5, 150, 1)),
+            'summary_lstm_recurrent_dropout': hp.uniform('summary_lstm_recurrent_dropout', 0, 0.7),
+            'description_lstm_recurrent_dropout': hp.uniform('description_lstm_recurrent_dropout', 0, 0.7),
+            'summary_lstm_dropout': hp.uniform('summary_lstm_dropout', 0, 0.7),
+            'description_lstm_dropout': hp.uniform('description_lstm_dropout', 0, 0.7),
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
             'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
@@ -81,14 +83,8 @@ def remove_negative_values(nested_dictionary):
 
 def objective(configuration):
 
-    print("--- NEW CONFIGURATION ---")
-
     configuration = remove_negative_values(configuration)
-    if configuration["model_params"]["max_words"] == 0:
-        return {
-            "status": STATUS_FAIL
-        }
-
+    print("--- NEW CONFIGURATION ---")
     print(configuration)
 
     training_dataset_name = configuration['training_dataset_id']
