@@ -41,7 +41,8 @@ def create_space(embedding_type, workers):
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': scope.int(hp.quniform("max_words", 40, 80, 1)),
+            'max_summary_words': 40,
+            'max_description_words': scope.int(hp.quniform("max_description_words", 50, 150, 1)),
             'lstm_node_count': scope.int(hp.quniform('summary_lstm_node_count', 5, 150, 1)),
             'summary_lstm_recurrent_dropout': hp.uniform('summary_lstm_recurrent_dropout', 0, 0.7),
             'description_lstm_recurrent_dropout': hp.uniform('description_lstm_recurrent_dropout', 0, 0.7),

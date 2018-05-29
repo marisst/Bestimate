@@ -103,14 +103,14 @@ def load_and_arrange(dataset, split_percentage, max_words, lookup, labeled_data=
 
     for summary, description in x_strings:
 
-        encrypted_summary, string_dictionary, vector_dictionary = encrypt_text(summary, max_words, lookup, string_dictionary, vector_dictionary)
-        encrypted_description, string_dictionary, vector_dictionary = encrypt_text(description, max_words, lookup, string_dictionary, vector_dictionary)
+        encrypted_summary, string_dictionary, vector_dictionary = encrypt_text(summary, max_words[0], lookup, string_dictionary, vector_dictionary)
+        encrypted_description, string_dictionary, vector_dictionary = encrypt_text(description, max_words[1], lookup, string_dictionary, vector_dictionary)
         
         x_sentences[0].append(encrypted_summary)
         x_sentences[1].append(encrypted_description)
 
     vector_dictionary.insert(0, [0] * len(vector_dictionary[0]))
     vector_dictionary = np.array(vector_dictionary)
-    x = [pad_sequences(sentences, maxlen=max_words) for sentences in x_sentences]
+    x = [pad_sequences(sentences, maxlen=max_words[i]) for i, sentences in enumerate(x_sentences)]
 
     return split_train_test_val((x, y), split_percentage), vector_dictionary

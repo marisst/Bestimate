@@ -15,10 +15,10 @@ def create_deep_dense(hidden_unit_counts, previous_layer):
 
 def create_model(max_words, embedding_size, model_params):
     
-    summary_input = Input(shape=(max_words, embedding_size))
+    summary_input = Input(shape=(max_words[0], embedding_size))
     masked_summary_input = Masking()(summary_input)
 
-    description_input = Input(shape=(max_words, embedding_size))
+    description_input = Input(shape=(max_words[1], embedding_size))
     masked_description_input = Masking()(description_input)
 
     reg = {}

@@ -53,6 +53,6 @@ class DataGenerator(keras.utils.Sequence):
 
     def __data_generation(self, batch_data):
         
-        return [self.encrypt(batch_data[0], self.max_words), self.encrypt(batch_data[1], self.max_words)]
+        return [self.encrypt(batch_data[i], self.max_words[i]) for i in range(2)]
 
         
