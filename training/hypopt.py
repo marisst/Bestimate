@@ -15,7 +15,7 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 
-def create_space(embedding_type, workers):
+def create_space(embedding_type, min_project_size, workers):
 
     if embedding_type == "spacy":
         embedding_space = {
@@ -28,20 +28,15 @@ def create_space(embedding_type, workers):
                 "algorithm": hp.choice("word_embeddings_algorithm", ["skip-gram", "CBOW"]),
                 "embedding_size": scope.int(hp.quniform("word_embeddings_embedding_size", 5, 500, 1)),
                 "minimum_count": scope.int(hp.quniform("word_embeddings_minimum_count", 1, 15, 1)),
-                "window_size": scope.int(hp.quniform("word_embeddings_window_size", 3, 15, 1))
-                "iterations": scope.int(hp.qnormal("word_embeddings_iterations", 5, 3, 1))
+                "window_size": scope.int(hp.quniform("word_embeddings_window_size", 3, 15, 1)),
+                "iterations": scope.int(hp.quniform("word_embeddings_iterations", 5, 20, 1))
             }
 
     space = {
-        'min_word_count': scope.int(hp.quniform('min_word_count', 5, 15, 1)),
-        'min_timespent_minutes': 10,
-        'max_timespent_minutes': 960,
-        'min_project_size': hp.choice("min_project_size", [1, 20, 50, 200, 500]),
-        'even_distribution': False,
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': scope.int(hp.qnormal('max_words', 120, 20, 1)),
+            'max_words': 100,
             'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
             'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
             'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
@@ -57,11 +52,6 @@ def create_space(embedding_type, workers):
             'workers': int(workers)
         }
     }
-    
-    for regularizer in REGULARIZERS:
-        regularizer_name = "%s-regularizer-" % regularizer
-        for regularizer_type in ["l1", "l2"]:
-            space['model_params'][regularizer_name + regularizer_type] = (False, None)
 
     return space
 
@@ -84,11 +74,6 @@ def objective(configuration):
     print("--- NEW CONFIGURATION ---")
 
     configuration = remove_negative_values(configuration)
-    if configuration["model_params"]["max_words"] == 0:
-        return {
-            "status": STATUS_FAIL
-        }
-
     print(configuration)
 
     training_dataset_name = configuration['training_dataset_id']
@@ -102,28 +87,7 @@ def objective(configuration):
     with open(notes_filename, "a") as notes_file:
         print(json.dumps(configuration, indent=JSON_INDENT), file=notes_file)
 
-    filter_config = FilterConfig()
-    filter_config.min_word_count = configuration["min_word_count"]
-    filter_config.min_timespent_minutes = configuration["min_timespent_minutes"]
-    filter_config.max_timespent_minutes = configuration["max_timespent_minutes"]
-    filter_config.min_project_size = configuration["min_project_size"]
-    filter_config.even_distribution_bin_count = 5 if configuration["even_distribution"] == True else 0
-    labeled_data, unlabeled_data = filter_data(training_dataset_name, filter_config, notes_filename, save=False)
-
-    emb_config = configuration["word_embeddings"]
-    if emb_config["type"] == "spacy":
-        unlabeled_data = None
-        gc.collect()
-    
-    if labeled_data is None or len(labeled_data) == 0:
-        return {
-            "status": STATUS_FAIL
-        }
-
-    data = labeled_data
-    if unlabeled_data is not None:
-        data = data + unlabeled_data
-    
+    emb_config = configuration["word_embeddings"]    
     gensim_model = None
     if emb_config["type"] == "gensim":
         gensim_model = train_gensim(
@@ -134,7 +98,6 @@ def objective(configuration):
             emb_config["window_size"], 
             emb_config["iterations"],
             notes_filename,
-            data=data,
             save=False)
 
     loss, val_loss = train_on_dataset(
@@ -144,13 +107,7 @@ def objective(configuration):
         notes_filename,
         session_id=training_session_id,
         run_id=run_id,
-        labeled_data=labeled_data,
         gensim_model=gensim_model)
-
-    data = None
-    unlabeled_data = None
-    labeled_data = None
-    gc.collect()
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
@@ -163,15 +120,31 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, workers):
+def optimize_model(training_dataset_id, embedding_type, min_project_size, workers):
 
-    space = create_space(embedding_type, workers)
+    space = create_space(embedding_type, min_project_size, workers)
 
     space["training_dataset_id"] = training_dataset_id
     space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
     create_subfolder(RESULTS_FOLDER, space["training_session_id"])
 
     evals = 200 if embedding_type == "spacy" else 250
+
+    space["min_word_count"] = 20
+    space["min_timespent_minutes"] = 10
+    space["max_timespent_minutes"] = 960
+    space["min_project_size"] = int(min_project_size)
+    space["bin_count"] = 0
+
+    filter_config = FilterConfig()
+    filter_config.min_word_count = space["min_word_count"]
+    filter_config.min_timespent_minutes = space["min_timespent_minutes"]
+    filter_config.max_timespent_minutes = space["max_timespent_minutes"]
+    filter_config.min_project_size = space["min_project_size"]
+    filter_config.even_distribution_bin_count = space["bin_count"]
+
+    log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, space["training_session_id"], RESULTS_FILENAME, TEXT_FILE_EXTENSION)
+    filter_data(training_dataset_id, filter_config, log_filename)
 
     best = fmin(objective,
     space=space,
@@ -183,4 +156,4 @@ def optimize_model(training_dataset_id, embedding_type, workers):
     print(best)
 
 if __name__ == "__main__":
-    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3])
+    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

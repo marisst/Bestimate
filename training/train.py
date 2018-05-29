@@ -26,7 +26,7 @@ from utilities.constants import *
 learning_rate = 0.01
 epochs = 1000
 split_percentages = 60, 20
-MIN_DELTA = 0.1
+MIN_DELTA = 0.05
 PATIENCE = 5
 
 
@@ -63,7 +63,7 @@ def calculate_validation_result(model, x_valid, y_valid, loss_function, model_pa
 def train_on_dataset(dataset, embedding_type, params, notes_filename = None, session_id = None, run_id = None, labeled_data=None, gensim_model = None):
 
     config = K.tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.17
+    config.gpu_options.per_process_gpu_memory_fraction = 0.1
     K.set_session(K.tf.Session(config=config))
 
     model_params = params["model_params"]
