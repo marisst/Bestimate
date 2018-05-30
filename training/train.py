@@ -13,6 +13,7 @@ import sys
 from gensim.models import Word2Vec
 import spacy
 from functools import partial
+import os
 
 from training import calculate_baselines as bsl
 from training import load_data as load
@@ -157,5 +158,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
 
     best_model = load_model(best_model_filename)
     val_result = calculate_validation_result(best_model, x_valid, y_valid, loss_function, model_params, vector_dictionary)
+    os.remove(best_model_filename)
 
     return result, val_result

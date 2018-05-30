@@ -15,7 +15,7 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 
-def create_space(embedding_type, min_project_size, workers):
+def create_space(embedding_type, workers):
 
     if embedding_type == "spacy":
         embedding_space = {
@@ -120,9 +120,9 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, min_project_size, workers):
+def optimize_model(training_dataset_id, embedding_type, min_project_size, min_word_count, workers):
 
-    space = create_space(embedding_type, min_project_size, workers)
+    space = create_space(embedding_type, workers)
 
     space["training_dataset_id"] = training_dataset_id
     space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
@@ -130,7 +130,7 @@ def optimize_model(training_dataset_id, embedding_type, min_project_size, worker
 
     evals = 200 if embedding_type == "spacy" else 250
 
-    space["min_word_count"] = 20
+    space["min_word_count"] = int(min_word_count)
     space["min_timespent_minutes"] = 10
     space["max_timespent_minutes"] = 960
     space["min_project_size"] = int(min_project_size)
@@ -156,4 +156,4 @@ def optimize_model(training_dataset_id, embedding_type, min_project_size, worker
     print(best)
 
 if __name__ == "__main__":
-    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[4])
