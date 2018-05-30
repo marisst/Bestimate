@@ -70,7 +70,7 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     model_params = params["model_params"]
 
     if embedding_type == "spacy":
-        nlp = spacy.load('en_vectors_web_lg')
+        nlp = spacy.load('en_vectors_web_lg', disable=['parser', 'tagger', 'entity'])
         lookup = partial(spacy_lookup, nlp)
 
     if embedding_type == "gensim":
