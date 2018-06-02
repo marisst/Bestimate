@@ -51,12 +51,13 @@ def gensim_lookup(word_vectors, word):
     return word_vectors.get_vector(word)
 
 
-def calculate_validation_result(model, x_valid, y_valid, loss_function, model_params, vector_dictionary):
+def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary):
 
     validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], model_params["max_words"], vector_dictionary)
     validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
-    mean_baseline = loss_function(y_valid, np.mean(y_valid))
-    median_baseline = loss_function(y_valid, np.median(y_valid))
+
+    mean_baseline = loss_function(y_valid, np.mean(y_train))
+    median_baseline = loss_function(y_valid, np.median(y_train))
 
     return validation_loss / min([mean_baseline, median_baseline])
 
@@ -88,6 +89,7 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         lookup,
         labeled_data=labeled_data)
     del labeled_data
+    del nlp
     x_train, y_train, x_test, y_test, x_valid, y_valid = data
     
     if model_params["loss"] == "mean_squared_error":
@@ -97,14 +99,14 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         loss_function = bsl.mean_absolute_error
         human_loss = bsl.mean_human_absolute_error(y_test)
         with open(notes_filename, "a") as notes_file:
-            print("Human loss:", human_loss, file=notes_file)
+            print("Human loss (test):", human_loss, file=notes_file)
 
     if model_params["loss"] == "mean_absolute_percentage_error":
         loss_function = bsl.mean_absolute_percentage_error
 
     # calculate baseline losses
-    mean_baseline = loss_function(y_test, np.mean(y_test))
-    median_baseline = loss_function(y_test, np.median(y_test))
+    mean_baseline = loss_function(y_test, np.mean(y_train))
+    median_baseline = loss_function(y_test, np.median(y_train))
     with open(notes_filename, "a") as notes_file:
         print("Mean loss (test):", mean_baseline, file=notes_file)
         print("Median loss (test):", median_baseline, file=notes_file)
@@ -157,7 +159,7 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         print("Result:", result, file=notes_file)
 
     best_model = load_model(best_model_filename)
-    val_result = calculate_validation_result(best_model, x_valid, y_valid, loss_function, model_params, vector_dictionary)
+    val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary)
     os.remove(best_model_filename)
-
+    
     return result, val_result
