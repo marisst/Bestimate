@@ -89,7 +89,6 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
         lookup,
         labeled_data=labeled_data)
     del labeled_data
-    del nlp
     x_train, y_train, x_test, y_test, x_valid, y_valid = data
     
     if model_params["loss"] == "mean_squared_error":
