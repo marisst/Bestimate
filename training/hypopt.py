@@ -156,4 +156,4 @@ def optimize_model(training_dataset_id, embedding_type, min_project_size, min_wo
     print(best)
 
 if __name__ == "__main__":
-    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[4])
+    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
