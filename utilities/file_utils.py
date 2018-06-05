@@ -97,14 +97,14 @@ def get_next_subfolder_name(folder):
     existing_dataset_count = sum(1 for f in os.listdir(folder) if os.path.isdir("%s/%s" % (folder, f)) == True)
     return str(existing_dataset_count + 1)
 
-def create_subfolder(folder, subfolder_name):
+def create_subfolder(folder, subfolder_name, rewrite=False):
 
     if not os.path.exists(folder):
         os.makedirs(folder)
     
     dataset_folder = "%s/%s" % (folder, subfolder_name)
     if os.path.exists(dataset_folder):
-        if input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
+        if rewrite == False and input("%s already exists, do you want to remove it's contents? (y/n) " % dataset_folder) != "y":
             sys.exit()
         shutil.rmtree(dataset_folder)
     os.makedirs(dataset_folder)

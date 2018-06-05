@@ -1,8 +1,9 @@
-from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK
+from hyperopt import fmin, tpe, hp, STATUS_FAIL, STATUS_OK, Trials
 from hyperopt.pyll.base import scope
 import gc
 import json
 import numpy as np
+import pickle
 import sys
 
 from data_preprocessing.filter_config import FilterConfig
@@ -80,10 +81,9 @@ def objective(configuration):
     training_session_id = configuration['training_session_id']
 
     training_session_folder = "%s/%s" % (RESULTS_FOLDER, training_session_id)
-    run_id = get_next_subfolder_name(training_session_folder)
-    create_subfolder(training_session_folder, run_id)
+    create_subfolder(training_session_folder, configuration["run_id"], rewrite=True)
 
-    notes_filename = "%s/%s/notes.txt" % (training_session_folder, run_id)
+    notes_filename = "%s/%s/notes.txt" % (training_session_folder, configuration["run_id"])
     with open(notes_filename, "a") as notes_file:
         print(json.dumps(configuration, indent=JSON_INDENT), file=notes_file)
 
@@ -106,12 +106,12 @@ def objective(configuration):
         configuration,
         notes_filename,
         session_id=training_session_id,
-        run_id=run_id,
+        run_id=configuration["run_id"],
         gensim_model=gensim_model)
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
-        print("Run: %s, Loss: %.4f, val_loss: %.4f" % (run_id, loss, val_loss), file=log_file)
+        print("Run: %s, Loss: %.4f, val_loss: %.4f" % (configuration["run_id"], loss, val_loss), file=log_file)
 
     return {
         "loss": loss,
@@ -120,21 +120,33 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, min_project_size, min_word_count, workers):
+def optimize_model(training_dataset_id, embedding_type, min_project_size, min_word_count, workers, training_session_id = None):
 
     space = create_space(embedding_type, workers)
 
     space["training_dataset_id"] = training_dataset_id
-    space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
-    create_subfolder(RESULTS_FOLDER, space["training_session_id"])
-
-    evals = 150 if embedding_type == "spacy" else 200
+    
+    if training_session_id == None:
+        space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
+        create_subfolder(RESULTS_FOLDER, space["training_session_id"])
+    else:
+        space["training_session_id"] = training_session_id
 
     space["min_word_count"] = int(min_word_count)
     space["min_timespent_minutes"] = 10
     space["max_timespent_minutes"] = 960
     space["min_project_size"] = int(min_project_size)
     space["bin_count"] = 0
+
+    trials_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, space["training_session_id"], "trials", PICKLE_FILE_EXTENSION)
+    try:
+        trials = pickle.load(open(trials_filename, "rb"))
+        run_id = len(trials.trials) + 1
+        print("Resuming existing trials session with %d completed runs" % len(trials.trials))
+    except:
+        trials = Trials()
+        run_id = 1
+        print("Staring new trials session")
 
     filter_config = FilterConfig()
     filter_config.min_word_count = space["min_word_count"]
@@ -144,16 +156,32 @@ def optimize_model(training_dataset_id, embedding_type, min_project_size, min_wo
     filter_config.even_distribution_bin_count = space["bin_count"]
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, space["training_session_id"], RESULTS_FILENAME, TEXT_FILE_EXTENSION)
-    filter_data(training_dataset_id, filter_config, log_filename)
+    filter_data(training_dataset_id, filter_config, log_filename if run_id == 1 else None)
 
-    best = fmin(objective,
-    space=space,
-    algo=tpe.suggest,
-    max_evals=evals,
-    rstate=np.random.RandomState(7))
+    
+    evals = 150 if embedding_type == "spacy" else 200
+
+    for eval_num in range(run_id, evals + 1):
+
+        space["run_id"] = eval_num
+        best = fmin(objective,
+        space=space,
+        algo=tpe.suggest,
+        max_evals=eval_num,
+        trials=trials,
+        rstate=np.random.RandomState(eval_num * 796525))
+
+        with open(trials_filename, "wb") as f:
+            pickle.dump(trials, f)
 
     print("BEST:")
     print(best)
 
 if __name__ == "__main__":
-    optimize_model(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    optimize_model(
+        sys.argv[1],
+        sys.argv[2],
+        sys.argv[3],
+        sys.argv[4],
+        sys.argv[5],
+        None if len(sys.argv) < 7 else sys.argv[6])

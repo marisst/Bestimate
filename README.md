@@ -1,8 +1,8 @@
 # Bestimate
-Bestimate allows let's you train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
+Bestimate let's you train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
 
 ## 1. Data Collection
-The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
+The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories with a single command, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
 
 ### Discovering Publicly Available JIRA Repositories
 To find new repositories using [Bing Web Search API](https://azure.microsoft.com/en-us/services/cognitive-services/bing-web-search-api/) or [Google Custom Search Engine API](https://cse.google.com/cse/), run the following command:
@@ -23,7 +23,7 @@ You will be asked to provide the URL of the JIRA repository, e.g. "jira.exoplatf
 
 ### Bulk Fetch
 
-As a part of this research project, 33 publicly available JIRA repositories, each containing at least 100 resolved issues with time spent greater than zero, were found and listed at [/data_collection/known_repos.json](data_collection/known_repos.json). The total number of labeled issues exceeds 65,000 and the number of unlabeled issues exceeds 2,000,000. You can fetch data from all of these these repositories by running this command:
+As a part of this research project, 32 publicly available JIRA repositories, each containing at least 100 resolved issues with time spent greater than zero, were found and listed at [/data_collection/known_repos.json](data_collection/known_repos.json). The total number of labeled issues exceeds 63,000 and the number of unlabeled issues exceeds 2,000,000. You can fetch data from all of these these repositories by running this command:
 ```
 python -m data_collection.bulk_fetch
 ```
