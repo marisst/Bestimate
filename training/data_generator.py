@@ -16,6 +16,7 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.vector_dictionary = vector_dictionary
         self.on_epoch_end()
+        np.random.seed(5789644)
 
 
     def __len__(self):
