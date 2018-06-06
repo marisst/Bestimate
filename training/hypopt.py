@@ -16,7 +16,7 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 
-def create_space(embedding_type, workers):
+def create_space(embedding_type, lstm_count, workers):
 
     if embedding_type == "spacy":
         embedding_space = {
@@ -37,10 +37,9 @@ def create_space(embedding_type, workers):
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': 100,
+            'max_words': (100, 0) if int(lstm_count) == 1 else (40, 60),
+            'lstm_count' : int(lstm_count),
             'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
-            'lstm_recurrent_dropout': hp.uniform('lstm_recurrent_dropout', 0, 0.7),
-            'lstm_dropout': hp.uniform('lstm_dropout', 0, 0.7),
             'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
             'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
@@ -53,6 +52,15 @@ def create_space(embedding_type, workers):
             'workers': int(workers)
         }
     }
+
+    if int(lstm_count) == 2:
+        space["model_params"]["lstm_recurrent_dropout_1"] = hp.uniform('lstm_recurrent_dropout_1', 0, 0.7)
+        space["model_params"]["lstm_dropout_1"] = hp.uniform('lstm_dropout_1', 0, 0.7)
+        space["model_params"]["lstm_recurrent_dropout_2"] = hp.uniform('lstm_recurrent_dropout_2', 0, 0.7)
+        space["model_params"]["lstm_dropout_2"] = hp.uniform('lstm_dropout_2', 0, 0.7)
+    else:
+        space["model_params"]["lstm_recurrent_dropout"] = hp.uniform('lstm_recurrent_dropout', 0, 0.7)
+        space["model_params"]["lstm_dropout"] = hp.uniform('lstm_dropout', 0, 0.7)
 
     return space
 
@@ -120,9 +128,9 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, min_project_size, min_word_count, workers, training_session_id = None):
+def optimize_model(training_dataset_id, embedding_type, lstm_count, min_project_size, min_word_count, workers, training_session_id = None):
 
-    space = create_space(embedding_type, workers)
+    space = create_space(embedding_type, lstm_count, workers)
 
     space["training_dataset_id"] = training_dataset_id
     
@@ -184,4 +192,5 @@ if __name__ == "__main__":
         sys.argv[3],
         sys.argv[4],
         sys.argv[5],
-        None if len(sys.argv) < 7 else sys.argv[6])
+        sys.argv[6],
+        None if len(sys.argv) < 8 else sys.argv[7])

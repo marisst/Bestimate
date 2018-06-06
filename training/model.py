@@ -1,10 +1,11 @@
 from keras.models import Model
-from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization
+from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization, Average
 from keras.utils import plot_model
 from keras.initializers import glorot_uniform
 
 from training.highway import highway_layers
 from utilities.constants import *
+
 
 def create_deep_dense(hidden_unit_counts, previous_layer):
 
@@ -12,17 +13,53 @@ def create_deep_dense(hidden_unit_counts, previous_layer):
         previous_layer = Dense(hidden_unit_count)(previous_layer)
     return previous_layer
 
-def create_model(max_text_length, embedding_size, model_params):
-    
+
+def create_field_context(max_text_length, embedding_size, lstm_node_count, lstm_recurrent_dropout, lstm_dropout):
+
     text_input = Input(shape=(max_text_length, embedding_size))
     masked_text_input = Masking()(text_input)
 
     kernel_initializer = glorot_uniform(seed=7)
-    context = LSTM(
-        model_params['lstm_node_count'],
-        dropout=model_params['lstm_dropout'],
-        recurrent_dropout=model_params['lstm_recurrent_dropout'],
+    field_context = LSTM(
+        lstm_node_count,
+        dropout=lstm_dropout,
+        recurrent_dropout=lstm_recurrent_dropout,
         kernel_initializer=kernel_initializer)(masked_text_input)
+
+    return text_input, field_context
+
+
+def create_model(max_text_length, embedding_size, model_params):
+
+    if model_params["lstm_count"] == 2:
+
+        summary_input, summary_context = create_field_context(
+            max_text_length[0],
+            embedding_size,
+            model_params['lstm_node_count'],
+            model_params['lstm_recurrent_dropout_1'],
+            model_params['lstm_dropout_1'])
+
+        description_input, description_context = create_field_context(
+            max_text_length[1],
+            embedding_size,
+            model_params['lstm_node_count'],
+            model_params['lstm_recurrent_dropout_2'],
+            model_params['lstm_dropout_2'])
+        
+        text_input = [summary_input, description_input]
+        context = Average()([summary_context, description_context])
+
+    else:
+
+        text_input, context = create_field_context(
+            max_text_length[0],
+            embedding_size,
+            model_params['lstm_node_count'],
+            model_params['lstm_recurrent_dropout'],
+            model_params['lstm_dropout'])
+    
+    kernel_initializer = glorot_uniform(seed=7)
     highway = highway_layers(
         context,
         model_params['highway_layer_count'],
@@ -33,5 +70,4 @@ def create_model(max_text_length, embedding_size, model_params):
     model = Model(inputs=[text_input], outputs=[estimate])
 
     print("Model created")
-
     return model

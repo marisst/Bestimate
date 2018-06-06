@@ -53,7 +53,13 @@ def gensim_lookup(word_vectors, word):
 
 def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary):
 
-    validation_generator = DataGenerator(x_valid, y_valid, model_params["batch_size"], model_params["max_words"], vector_dictionary)
+    validation_generator = DataGenerator(
+        x_valid,
+        y_valid,
+        model_params["batch_size"],
+        True if model_params["lstm_count"] == 2 else False,
+        model_params["max_words"],
+        vector_dictionary)
     validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
 
     mean_baseline = loss_function(y_valid, np.mean(y_train))
@@ -85,6 +91,7 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     data, vector_dictionary = load.load_and_arrange(
         dataset,
         split_percentages,
+        True if model_params["lstm_count"] == 2 else False,
         model_params["max_words"],
         lookup,
         labeled_data=labeled_data)
@@ -135,12 +142,24 @@ def train_on_dataset(dataset, embedding_type, params, notes_filename = None, ses
     best_model_filename = weigths_directory_name + "/model.h5"
     save_best_model = ModelCheckpoint(best_model_filename, save_best_only=True)
 
-    training_generator = DataGenerator(x_train, y_train, model_params["batch_size"], model_params["max_words"], vector_dictionary)
-    test_generator = DataGenerator(x_test, y_test, model_params["batch_size"], model_params["max_words"], vector_dictionary)
+    training_generator = DataGenerator(
+        x_train,
+        y_train,
+        model_params["batch_size"],
+        True if model_params["lstm_count"] == 2 else False,
+        model_params["max_words"], 
+        vector_dictionary)
+    test_generator = DataGenerator(
+        x_test,
+        y_test,
+        model_params["batch_size"],
+        True if model_params["lstm_count"] == 2 else False,
+        model_params["max_words"],
+        vector_dictionary)
 
     # train and validate
-    custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
-    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE), custom_callback]
+    # custom_callback = PrimaCallback(model, x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"])
+    callbacks = [save_results, save_best_model, EarlyStopping(min_delta=MIN_DELTA, patience=PATIENCE)]
     
     history = model.fit_generator(
         generator = training_generator,

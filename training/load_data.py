@@ -39,36 +39,27 @@ def split_train_test_val(data, split_percentages):
     x, y = data
     split_indices = len(y) * split_percentages[0] // 100, len(y) * (split_percentages[0] + split_percentages[1]) // 100
 
-    x_train, x_test, x_valid = split(x, split_indices)
+    x_train, x_test, x_valid = [], [], []
+    for x_field in x:
+        x_field_train, x_field_test, x_field_valid = split(x_field, split_indices)
+        x_train.append(x_field_train)
+        x_test.append(x_field_test)
+        x_valid.append(x_field_valid)
+    
     y_train, y_test, y_valid = split(y, split_indices)
     y = None
 
     print("Data splitted in training and testing sets")
-
     return (x_train, y_train, x_test, y_test, x_valid, y_valid)
-    
 
-def load_and_arrange(dataset, split_percentage, max_length, lookup, labeled_data=None):
 
-    if labeled_data is None:
-        data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
-        labeled_data = load_json(data_filename)
+def convert_to_numeric(strings, string_dictionary, vector_dictionary, lookup, max_length):
 
-    shuffled_data = ordered_shuffle(labeled_data)
-    del labeled_data
+    numeric_sentences = []
 
-    x_strings = [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]
-    y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
-    del shuffled_data
-
-    print("Converting data to numeric format and creating vector dictionary...")
-    x_sentences = []
-    string_dictionary = {}
-    vector_dictionary = []
-
-    for text in x_strings:
+    for text in strings:
         
-        x_sentence = []
+        numeric_sentence = []
         words = text.split()
         j = 0
         for word in words:
@@ -83,14 +74,50 @@ def load_and_arrange(dataset, split_percentage, max_length, lookup, labeled_data
                 encrypted_word = len(string_dictionary) + 1
                 string_dictionary[word] = encrypted_word
                 vector_dictionary.append(word_vector)
-            x_sentence.append(encrypted_word)
+            numeric_sentence.append(encrypted_word)
             j += 1
             if j >= max_length:
                 break
-        x_sentences.append(x_sentence)
+        numeric_sentences.append(numeric_sentence)
+
+    return numeric_sentences, string_dictionary, vector_dictionary 
+    
+
+def load_and_arrange(dataset, split_percentage, split_fields, max_length, lookup, labeled_data=None):
+
+    if labeled_data is None:
+        data_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        labeled_data = load_json(data_filename)
+
+    shuffled_data = ordered_shuffle(labeled_data)
+    del labeled_data
+
+    if split_fields == True:
+        x_strings_arr = [[merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]]
+    else:
+        x_strings_arr = []
+        x_strings_arr.append([merge_sentences(datapoint.get(SUMMARY_FIELD_KEY)) for datapoint in shuffled_data])
+        x_strings_arr.append([merge_sentences(datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data])
+    
+    y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
+    del shuffled_data
+
+    print("Converting data to numeric format and creating vector dictionary...")
+    x = []
+    string_dictionary = {}
+    vector_dictionary = []
+
+    for i, x_strings in enumerate(x_strings_arr):
+        numeric_x_strings, string_dictionary, vector_dictionary = convert_to_numeric(
+            x_strings,
+            string_dictionary,
+            vector_dictionary,
+            lookup,
+            max_length[i])
+        numeric_padded_x = pad_sequences(numeric_x_strings, maxlen=max_length[i])
+        x.append(numeric_padded_x)
 
     vector_dictionary.insert(0, [0] * len(vector_dictionary[0]))
     vector_dictionary = np.array(vector_dictionary)
-    x = pad_sequences(x_sentences, maxlen=max_length)
 
     return split_train_test_val((x, y), split_percentage), vector_dictionary

@@ -13,6 +13,9 @@ from utilities.constants import *
 class PrimaCallback(Callback):
 
     def __init__(self, model, x_train, x_test, y_train, y_test, filename, mean_baseline, median_baseline, loss):
+        
+        print("Prima callback start")
+        
         self.model = model
         self.x_train = x_train
         self.x_test = x_test
