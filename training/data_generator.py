@@ -8,6 +8,7 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, data, labels, batch_size, split_fields, max_words, vector_dictionary, shuffle=True):
 
+        np.random.seed(5789644)
         self.data = data
         self.labels = labels
         self.batch_size = batch_size
@@ -16,7 +17,6 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.vector_dictionary = vector_dictionary
         self.on_epoch_end()
-        np.random.seed(5789644)
 
 
     def __len__(self):
