@@ -47,7 +47,6 @@ def create_model(max_text_length, embedding_size, model_params):
             model_params['lstm_recurrent_dropout_2'],
             model_params['lstm_dropout_2'])
         
-        text_input = [summary_input, description_input]
         context = Average()([summary_context, description_context])
 
     else:
@@ -67,7 +66,8 @@ def create_model(max_text_length, embedding_size, model_params):
         activation=model_params['highway_activation'])
     drop = Dropout(model_params['dropout'])(highway)
     estimate = Dense(1, kernel_initializer=kernel_initializer)(drop)
-    model = Model(inputs=[text_input], outputs=[estimate])
+    inputs = [text_input] if model_params["lstm_count"] == 1 else [summary_input, description_input]
+    model = Model(inputs=inputs, outputs=[estimate])
 
     print("Model created")
     return model
