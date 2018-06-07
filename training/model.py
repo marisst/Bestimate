@@ -1,3 +1,4 @@
+import keras.backend as K
 from keras.models import Model
 from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization, Average
 from keras.utils import plot_model
@@ -7,10 +8,11 @@ from training.highway import highway_layers
 from utilities.constants import *
 
 
-def create_deep_dense(hidden_unit_counts, previous_layer):
-
-    for hidden_unit_count in hidden_unit_counts:
-        previous_layer = Dense(hidden_unit_count)(previous_layer)
+def deep_layers(previous_layer, layer_count, initializer, activation):
+    
+    dim = K.int_shape(previous_layer)[-1]
+    for _ in range(layer_count):
+        previous_layer = Dense(dim, activation=activation)(previous_layer)
     return previous_layer
 
 
@@ -58,13 +60,22 @@ def create_model(max_text_length, embedding_size, model_params):
             model_params['lstm_recurrent_dropout'],
             model_params['lstm_dropout'])
     
-    kernel_initializer = glorot_uniform(seed=7)
-    highway = highway_layers(
+    kernel_initializer = glorot_uniform(seed=1087435)
+
+    if model_params["conform_type"] == "hway":
+        conform = highway_layers(
         context,
-        model_params['highway_layer_count'],
+        model_params['conform_layer_count'],
         kernel_initializer,
-        activation=model_params['highway_activation'])
-    drop = Dropout(model_params['dropout'])(highway)
+        activation=model_params['conform_activation'])
+    else:
+        conform = deep_layers(
+            context,
+            model_params['conform_layer_count'],
+            kernel_initializer,
+            model_params['conform_activation'])
+    
+    drop = Dropout(model_params['dropout'])(conform)
     estimate = Dense(1, kernel_initializer=kernel_initializer)(drop)
     inputs = [text_input] if model_params["lstm_count"] == 1 else [summary_input, description_input]
     model = Model(inputs=inputs, outputs=[estimate])

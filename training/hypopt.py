@@ -16,7 +16,7 @@ from utilities.constants import *
 from utilities.file_utils import load_json, get_next_subfolder_name, create_subfolder
 
 
-def create_space(embedding_type, lstm_count, workers):
+def create_space(embedding_type, lstm_count, conform_type, workers):
 
     if embedding_type == "spacy":
         embedding_space = {
@@ -40,8 +40,9 @@ def create_space(embedding_type, lstm_count, workers):
             'max_words': (100, 0) if int(lstm_count) == 1 else (40, 60),
             'lstm_count' : int(lstm_count),
             'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
-            'highway_layer_count': scope.int(hp.quniform('highway_layer_count', 5, 150, 1)),
-            'highway_activation': hp.choice("highway_activation", ["relu", "tanh"]),
+            'conform_type': conform_type,
+            'conform_layer_count': scope.int(hp.quniform('conform_layer_count', 5, 150, 1)),
+            'conform_activation': hp.choice("conform_activation", ["relu", "tanh"]),
             'dropout': hp.uniform('dropout', 0, 0.7),
             'batch_size': 512,
             'optimizer': hp.choice('optimizer', [
@@ -128,9 +129,9 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, lstm_count, min_project_size, min_word_count, workers, training_session_id = None):
+def optimize_model(training_dataset_id, embedding_type, lstm_count, conform_type, min_project_size, min_word_count, workers, training_session_id = None):
 
-    space = create_space(embedding_type, lstm_count, workers)
+    space = create_space(embedding_type, lstm_count, conform_type, workers)
 
     space["training_dataset_id"] = training_dataset_id
     
@@ -193,4 +194,5 @@ if __name__ == "__main__":
         sys.argv[4],
         sys.argv[5],
         sys.argv[6],
-        None if len(sys.argv) < 8 else sys.argv[7])
+        sys.argv[7],
+        None if len(sys.argv) < 9 else sys.argv[8])
