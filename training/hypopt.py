@@ -48,7 +48,6 @@ def create_space(embedding_type, lstm_count, conform_type, workers):
             'optimizer': hp.choice('optimizer', [
                 ('rmsprop', hp.uniform('rmsprop_lr', 0.0005, 0.005)),
                 ('adam', hp.uniform('adam_lr', 0.0005, 0.005)),
-                ('sgd', hp.uniform('sgd_lr', 0.005, 0.05))]),
             'loss': 'mean_absolute_error',
             'workers': int(workers)
         }
