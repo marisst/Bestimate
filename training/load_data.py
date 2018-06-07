@@ -93,11 +93,11 @@ def load_and_arrange(dataset, split_percentage, split_fields, max_length, lookup
     del labeled_data
 
     if split_fields == True:
-        x_strings_arr = [[merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]]
-    else:
         x_strings_arr = []
         x_strings_arr.append([merge_sentences(datapoint.get(SUMMARY_FIELD_KEY)) for datapoint in shuffled_data])
         x_strings_arr.append([merge_sentences(datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data])
+    else:
+        x_strings_arr = [[merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in shuffled_data]]
     
     y = np.array([datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in shuffled_data])
     del shuffled_data
