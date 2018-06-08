@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from utilities import load_data
+from utilities.file_utils import create_folder_if_needed, load_json
 from utilities.constants import *
 
 def show_histogram(dataset):
 
-    filename = get_filtered_dataset_filename(dataset)
-    data = load_data.load_json(filename)
+    filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    data = load_json(filename)
 
     if data is None:
         return
@@ -24,9 +24,9 @@ def show_histogram(dataset):
     plt.xticks(np.arange(0, max_hours + 1, 1))
     plt.xlim(0, max_hours)
     plt.xlabel("Time spent, hours")
-    plt.ylabel("Number of records")
+    plt.ylabel("Number of tasks")
 
-    load_data.create_folder_if_needed(STATISTICS_FOLDER)
+    create_folder_if_needed(STATISTICS_FOLDER)
     filename = get_statistics_image_filename(dataset, LABEL_DISTRIBUTION_STAT)
     plt.savefig(filename, bbox_inches=PLOT_BBOX_INCHES)
 

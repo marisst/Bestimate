@@ -4,7 +4,7 @@ DATASET_FOLDER = "training_datasets"
 RESULTS_FOLDER = "results"
 DATA_COLLECTION_FOLDER = "data_collection"
 
-STATISTICS_FOLDER = DATASET_FOLDER + "/statistics"
+STATISTICS_FOLDER = DATASET_FOLDER + "/insights"
 
 URL_PREFIX = "https://"
 JIRA_REST = "/rest/api/latest"
