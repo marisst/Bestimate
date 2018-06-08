@@ -5,20 +5,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from preprocess import projects
-from utilities import load_data
+from utilities.data_utils import get_issue_counts
+from utilities.file_utils import load_json, create_folder_if_needed
 from utilities.constants import *
 
 def show_histogram(dataset):
 
-    filename = get_filtered_dataset_filename(dataset)
-    data = load_data.load_json(filename)
+    filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+    data = load_json(filename)
 
     if data is None:
         return
 
-    project_issue_counts = projects.get_issue_counts(data)
+    project_issue_counts = get_issue_counts(data)
     issue_counts = [c[1] for c in project_issue_counts]
+
+    for project, issue_count in project_issue_counts:
+        print("%s - %d issues" % (project, issue_count))
+    print("Number of projects:", len(issue_counts))
     
     min_size = min(issue_counts)
     max_size = max(issue_counts)
@@ -39,10 +43,10 @@ def show_histogram(dataset):
     step = (max_size - min_size) / bins
     plt.xticks(np.arange(min_size, max_size + 1, step))
     plt.xlim(min_size, max_size)
-    plt.xlabel("Number of issues in project")
+    plt.xlabel("Number of labeled datapoints in project")
     plt.ylabel("Number of projects")
 
-    load_data.create_folder_if_needed(STATISTICS_FOLDER)
+    create_folder_if_needed(STATISTICS_FOLDER)
     filename = get_statistics_image_filename(dataset, PROJECT_SIZE_STAT)
     plt.savefig(filename, bbox_inches=PLOT_BBOX_INCHES)
 
