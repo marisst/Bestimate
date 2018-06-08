@@ -1,6 +1,6 @@
 import keras.backend as K
 from keras.models import Model
-from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization, Average
+from keras.layers import Dense, Masking, LSTM, Input, Dropout, concatenate, Activation, ActivityRegularization, Average, Bidirectional
 from keras.utils import plot_model
 from keras.initializers import glorot_uniform
 
@@ -16,17 +16,26 @@ def deep_layers(previous_layer, layer_count, initializer, activation):
     return previous_layer
 
 
-def create_field_context(max_text_length, embedding_size, lstm_node_count, lstm_recurrent_dropout, lstm_dropout):
+def create_field_context(max_text_length, embedding_size, bidirectional, lstm_node_count, lstm_recurrent_dropout, lstm_dropout, merge_mode=None):
 
     text_input = Input(shape=(max_text_length, embedding_size))
     masked_text_input = Masking()(text_input)
 
     kernel_initializer = glorot_uniform(seed=7)
-    field_context = LSTM(
-        lstm_node_count,
-        dropout=lstm_dropout,
-        recurrent_dropout=lstm_recurrent_dropout,
-        kernel_initializer=kernel_initializer)(masked_text_input)
+
+    if bidirectional == True:
+        field_context = Bidirectional(LSTM(
+            lstm_node_count,
+            dropout=lstm_dropout,
+            recurrent_dropout=lstm_recurrent_dropout,
+            kernel_initializer=kernel_initializer), merge_mode=merge_mode)(masked_text_input)
+
+    else:
+        field_context = LSTM(
+            lstm_node_count,
+            dropout=lstm_dropout,
+            recurrent_dropout=lstm_recurrent_dropout,
+            kernel_initializer=kernel_initializer)(masked_text_input)
 
     return text_input, field_context
 
@@ -38,6 +47,7 @@ def create_model(max_text_length, embedding_size, model_params):
         summary_input, summary_context = create_field_context(
             max_text_length[0],
             embedding_size,
+            False,
             model_params['lstm_node_count'],
             model_params['lstm_recurrent_dropout_1'],
             model_params['lstm_dropout_1'])
@@ -45,6 +55,7 @@ def create_model(max_text_length, embedding_size, model_params):
         description_input, description_context = create_field_context(
             max_text_length[1],
             embedding_size,
+            False,
             model_params['lstm_node_count'],
             model_params['lstm_recurrent_dropout_2'],
             model_params['lstm_dropout_2'])
@@ -56,9 +67,11 @@ def create_model(max_text_length, embedding_size, model_params):
         text_input, context = create_field_context(
             max_text_length[0],
             embedding_size,
+            True if model_params["lstm_count"] == 3 else False,
             model_params['lstm_node_count'],
             model_params['lstm_recurrent_dropout'],
-            model_params['lstm_dropout'])
+            model_params['lstm_dropout'],
+            model_params["bi_lstm_merge_mode"] if model_params["lstm_count"] == 3 else None)
     
     kernel_initializer = glorot_uniform(seed=1087435)
 
@@ -77,7 +90,7 @@ def create_model(max_text_length, embedding_size, model_params):
     
     drop = Dropout(model_params['dropout'])(conform)
     estimate = Dense(1, kernel_initializer=kernel_initializer)(drop)
-    inputs = [text_input] if model_params["lstm_count"] == 1 else [summary_input, description_input]
+    inputs = [summary_input, description_input] if model_params["lstm_count"] == 2 else [text_input]
     model = Model(inputs=inputs, outputs=[estimate])
 
     print("Model created")

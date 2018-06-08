@@ -18,6 +18,9 @@ from utilities.file_utils import load_json, get_next_subfolder_name, create_subf
 
 def create_space(embedding_type, lstm_count, conform_type, workers):
 
+    if lstm_count == "bi":
+        lstm_count = "3"
+
     if embedding_type == "spacy":
         embedding_space = {
                 "type": "spacy"
@@ -37,7 +40,7 @@ def create_space(embedding_type, lstm_count, conform_type, workers):
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': (100, 0) if int(lstm_count) == 1 else (40, 60),
+            'max_words': (40, 60) if int(lstm_count) == 2 else (100, 0),
             'lstm_count' : int(lstm_count),
             'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
             'conform_type': conform_type,
@@ -62,6 +65,9 @@ def create_space(embedding_type, lstm_count, conform_type, workers):
     else:
         space["model_params"]["lstm_recurrent_dropout"] = hp.uniform('lstm_recurrent_dropout', 0, 0.7)
         space["model_params"]["lstm_dropout"] = hp.uniform('lstm_dropout', 0, 0.7)
+
+    if int(lstm_count) == 3:
+        space["model_params"]["bi_lstm_merge_mode"] = hp.choice("bi_lstm_merge_mode", ["sum", "mul", "concat", "ave"])
 
     return space
 
