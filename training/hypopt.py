@@ -40,7 +40,7 @@ def create_space(embedding_type, lstm_count, conform_type, workers):
         'word_embeddings': embedding_space,
         'model_params':
         {
-            'max_words': (40, 60) if int(lstm_count) == 2 else (100, 0),
+            'max_words': (15, 95) if int(lstm_count) == 2 else (100, 0),
             'lstm_count' : int(lstm_count),
             'lstm_node_count': scope.int(hp.quniform('lstm_node_count', 5, 150, 1)),
             'conform_type': conform_type,

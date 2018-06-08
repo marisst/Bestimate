@@ -60,6 +60,7 @@ def show_histogram(dataset, labeling = LABELED_FILENAME, field = None):
     print("Standard deviation, words:", np.std(text_lengths))
     print("Minimum, words:", np.min(text_lengths))
     print("Maximum, words:", np.max(text_lengths))
+    print("90th percentile", np.percentile(text_lengths, 90))
 
     need_upper_limit = input("Would you like to put a constraint on the maximum text length displayed? (y/n) ") == "y"
     if need_upper_limit:
