@@ -4,23 +4,66 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-from preprocess import projects
-from utilities import load_data
+from utilities.file_utils import load_json, create_folder_if_needed
 from utilities.constants import *
+from utilities.string_utils import merge_sentences
 
-def show_histogram(dataset):
+def get_texts(data, field):
 
-    filename = get_filtered_dataset_filename(dataset)
-    data = load_data.load_json(filename)
+    if field == None:
+        return [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY) + datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in data]
+    
+    if field == SUMMARY_FIELD_KEY:
+        return [merge_sentences(datapoint.get(SUMMARY_FIELD_KEY)) for datapoint in data]
+
+    if field == DESCRIPTION_FIELD_KEY:
+        return [merge_sentences(datapoint.get(DESCRIPTION_FIELD_KEY, [])) for datapoint in data]
+
+    print("Field not recognized")
+    sys.exit()
+
+
+def get_x_label(field):
+
+    if field == None:
+        return "Text length, words"
+
+    if field == SUMMARY_FIELD_KEY:
+        return "Summary text length, words"
+
+    if field == DESCRIPTION_FIELD_KEY:
+        return "Description text length, words"
+
+    print("Field not recognized")
+    sys.exit()
+
+
+def show_histogram(dataset, labeling = LABELED_FILENAME, field = None):
+
+    if labeling == ALL_FILENAME:
+        labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        unlabeled_filename = get_dataset_filename(dataset, UNLABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        data = load_json(labeled_filename) + load_json(unlabeled_filename)
+    else:
+        filename = get_dataset_filename(dataset, labeling, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
+        data = load_json(filename)
 
     if data is None:
-        return
+        print("No data was selected")
+        sys.exit()
+
+    texts = get_texts(data, field)
+    text_lengths = [len(text.split()) for text in texts]
+
+    print("Mean, words:", np.mean(text_lengths))
+    print("Median, words:", np.median(text_lengths))
+    print("Standard deviation, words:", np.std(text_lengths))
+    print("Minimum, words:", np.min(text_lengths))
+    print("Maximum, words:", np.max(text_lengths))
 
     need_upper_limit = input("Would you like to put a constraint on the maximum text length displayed? (y/n) ") == "y"
     if need_upper_limit:
         upper_limit = int(input("Please enter the upper text length limit (words): "))
-
-    text_lengths = [len((datapoint.get(SUMMARY_FIELD_KEY, "") + " " + datapoint.get(DESCRIPTION_FIELD_KEY, "")).split()) for datapoint in data]
 
     min_length = min(text_lengths)
     max_length = max(text_lengths)
@@ -36,13 +79,16 @@ def show_histogram(dataset):
     step = (max_length - min_length) / bins
     plt.xticks(np.arange(min_length, max_length + 1, step))
     plt.xlim(min_length, max_length)
-    plt.xlabel("Text length, words")
+    plt.xlabel(get_x_label(field))
     plt.ylabel("Number of records")
 
-    load_data.create_folder_if_needed(STATISTICS_FOLDER)
+    create_folder_if_needed(STATISTICS_FOLDER)
     filename = get_statistics_image_filename(dataset, TEXT_LENGTH_STAT)
     plt.savefig(filename, bbox_inches=PLOT_BBOX_INCHES)
 
     print("Text length histogram saved at %s" % filename)
 
-show_histogram(sys.argv[1])
+show_histogram(
+    sys.argv[1],
+    sys.argv[2] if len(sys.argv) > 2 else LABELED_FILENAME,
+    sys.argv[3] if len(sys.argv) > 3 else None)

@@ -16,6 +16,11 @@ def show_histogram(dataset):
         return
 
     y = [datapoint[TIMESPENT_FIELD_KEY] / SECONDS_IN_HOUR for datapoint in data]
+    print("Mean, hours:", np.mean(y))
+    print("Median, hours:", np.median(y))
+    print("Standard deviation, hours:", np.std(y))
+    print("Minimum, hours:", np.min(y))
+    print("Maximum, hours:", np.max(y))
 
     max_hours = int(input("Please input the maximum number of hours to display in the histogram: "))
 
