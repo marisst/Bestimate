@@ -165,8 +165,10 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
     if save == True:
         print("Saving filtered data...")
         save_filtered_data(labeled_data, dataset, LABELED_FILENAME)
+        print("Saved %d labeled datapoints" % len(labeled_data))
         if unlabeled_data is not None and len(unlabeled_data) > 0:
             save_filtered_data(unlabeled_data, dataset, UNLABELED_FILENAME)
+            print("Saved %d unlabeled datapoints" % len(unlabeled_data))
 
     labeled_data_len = len(labeled_data) if labeled_data is not None else 0
     unlabeled_data_len = len(unlabeled_data) if unlabeled_data is not None else 0
