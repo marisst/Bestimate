@@ -119,6 +119,9 @@ def filter_data(dataset, filter_config, notes_filename = None, save=True):
         print("Processing unlabeled datapoints, which are marked as labeled...")
         unlabeled_data = unlabeled_data + unlabeled_labeled_data
         print("%d unlabeled datapoints marked as labeled moved to unlabeled dataset" % len(unlabeled_labeled_data))
+        projects = get_issue_counts(unlabeled_labeled_data)
+        for project, issue_count in projects:
+            print("- %d issues from %s project" % (issue_count, project))
     labeled_data = remove_unlabeled_datapoints(labeled_data)
 
     if notes_filename is not None:
