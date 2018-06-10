@@ -5,16 +5,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+from utilities.constants import PLOT_BBOX_INCHES
+
 FONTSIZE = 10
 GRAPH_SPACE = 0.1
 
-def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_baseline, loss):
+def plot_losses(training_losses, testing_losses, training_baseline, testing_baseline, loss, filename):
+
+    plt.figure(figsize=(12, 6))
+    axs = plt.gca()
+    axs.clear()
 
     if loss == "mean_squared_error":
         training_losses = np.sqrt(training_losses)
         testing_losses = np.sqrt(testing_losses)
-        mean_baseline = math.sqrt(mean_baseline)
-        median_baseline = math.sqrt(median_baseline)
+        training_baseline = math.sqrt(training_baseline)
+        testing_baseline = math.sqrt(testing_baseline)
         loss_name = "Root-mean-square error, hours"
 
     if loss == "mean_absolute_error":
@@ -23,8 +29,8 @@ def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_base
     if loss == "mean_absolute_percentage_error":
         loss_name = "Mean absolute percentage error"
 
-    min_value = min([min(training_losses), min(testing_losses), mean_baseline, median_baseline])
-    max_value = max([max(training_losses), max(testing_losses), mean_baseline, median_baseline])
+    min_value = min([min(training_losses), min(testing_losses), training_baseline, testing_baseline])
+    max_value = max([max(training_losses), max(testing_losses), training_baseline, testing_baseline])
     loss_range = max_value - min_value
 
     axs.clear()
@@ -41,14 +47,16 @@ def plot_losses(axs, training_losses, testing_losses, mean_baseline, median_base
 
     horizontal_padding = epochs * 0.003
     vertical_padding = 0.003
-    axs.axhline(y=mean_baseline, color='grey', linestyle='dotted')
-    axs.axhline(y=median_baseline, color='grey', linestyle='dotted')
-    axs.text(epochs - horizontal_padding, (mean_baseline) + vertical_padding, 'Mean prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
-    axs.text(epochs - horizontal_padding, (median_baseline) + vertical_padding, 'Median prediction loss', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
+    axs.axhline(y=training_baseline, color='grey', linestyle='dotted')
+    axs.axhline(y=testing_baseline, color='grey', linestyle='dotted')
+    axs.text(epochs - horizontal_padding, (training_baseline) + vertical_padding, 'Training baseline', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
+    axs.text(epochs - horizontal_padding, (testing_baseline) + vertical_padding, 'Testing baseline', verticalalignment='bottom', horizontalalignment='right', color='grey', fontsize=FONTSIZE)
 
     # draw loss lines
     axs.plot(range(1, epochs + 1), training_losses, 'b-')
     axs.plot(range(1, epochs + 1), testing_losses, 'g-')
+
+    plt.savefig(filename, bbox_inches=PLOT_BBOX_INCHES)
 
 def create_prediction_scatter(axs, title, max_plot_hours):
 

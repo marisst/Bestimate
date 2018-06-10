@@ -22,6 +22,7 @@ from training import model as mdl
 from training import save_results as save
 from training.callback import CustomCallback
 from training.data_generator import DataGenerator
+from training.graph_helpers import plot_losses
 from utilities.constants import *
 from utilities.file_utils import create_subfolder, get_next_subfolder_name
 from utilities.input_parser import select_from_list
@@ -72,13 +73,13 @@ def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function,
         print("Human loss (valid):", human_loss, file=notes_file)
         print("Mean loss (valid):", mean_baseline, file=notes_file)
         print("Median loss (valid):", median_baseline, file=notes_file)
-        print("Validation result:", validation_result)
+        print("Validation result:", validation_result, file=notes_file)
         print("Human score (valid):", human_score, file=notes_file)
 
     return validation_result
 
 
-def train_on_dataset(params, labeled_data=None, generate_graph = False):
+def train_on_dataset(params, labeled_data=None, generate_graphs = False):
 
     if params.get("training_session_id") == None:
         params["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), params["training_dataset_id"], params["word_embeddings"]["type"])
@@ -179,7 +180,7 @@ def train_on_dataset(params, labeled_data=None, generate_graph = False):
         y_train,
         model_params["batch_size"],
         True if model_params["lstm_count"] == 2 else False,
-        model_params["max_words"], 
+        model_params["max_words"],
         vector_dictionary)
     test_generator = DataGenerator(
         x_test,
@@ -196,6 +197,7 @@ def train_on_dataset(params, labeled_data=None, generate_graph = False):
     #    custom_callback = CustomCallback(x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"], model_params["workers"])
     #    callbacks.append(custom_callback)
 
+    # this sometimes throws OSError 35 on MAC OS X, https://github.com/urllib3/urllib3/issues/63
     history = model.fit_generator(
         generator = training_generator,
         validation_data = test_generator,
@@ -210,6 +212,12 @@ def train_on_dataset(params, labeled_data=None, generate_graph = False):
     result = min(history.history["val_loss"]) / min([mean_baseline, median_baseline])
     with open(notes_filename, "a") as notes_file:
         print("Test result:", result, file=notes_file)
+
+    if generate_graphs == True:
+        loss_plot_filename = "%s/%s%s" % (weigths_directory_name, "losses", PNG_FILE_XTENSION)
+        train_baseline = min([loss_function(y_train, np.mean(y_train)), loss_function(y_train, np.median(y_train))])
+        test_baseline = min([mean_baseline, median_baseline])
+        plot_losses(history.history["loss"], history.history["val_loss"], train_baseline, test_baseline, model_params["loss"], loss_plot_filename)
 
     best_model = load_model(best_model_filename)
     val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename)    
@@ -292,4 +300,4 @@ if __name__ == "__main__":
     print("\nSELECTED CONFIGURATION:")
     print(params)
     
-    train_on_dataset(params, generate_graph=True)
+    train_on_dataset(params, generate_graphs=True)
