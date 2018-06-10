@@ -37,3 +37,20 @@ def select_projects(data):
     selected_projects = set(selected_projects.split())
     
     return selected_projects & get_projects(data)
+
+def select_from_list(question, options, return_option_indexes = False):
+
+    print(question, ": ")
+    for i, option in enumerate(options):
+        print("[%d] %s" % (i, option))
+    answer = input()
+
+    if return_option_indexes == False:
+        if answer.isdigit() == True:
+            answer = options[int(answer)]
+
+    if return_option_indexes == True:
+        if answer.isdigit() == False:
+            answer = option.index(answer)
+
+    return answer

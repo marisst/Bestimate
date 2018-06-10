@@ -5,7 +5,7 @@ from utilities.file_utils import load_json, create_folder_if_needed
 from utilities.constants import *
 
 
-def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations, notes_filename, data=None, save=True):
+def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size, iterations, notes_filename, data=None, save=True, workers=4):
 
     if data == None:
         labeled_filename = get_dataset_filename(dataset, LABELED_FILENAME, FILTERED_POSTFIX, JSON_FILE_EXTENSION)
@@ -33,7 +33,7 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
     compute_loss=True,
     iter=iterations,
     seed=7,
-    workers=4)
+    workers=workers)
 
     with open(notes_filename, "a") as notes_filename:
         print("Gensim model loss:", model.get_latest_training_loss(), file=notes_filename)

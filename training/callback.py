@@ -10,24 +10,16 @@ from training.predict import predict
 from utilities.constants import *
 
 
-class PrimaCallback(Callback):
+class CustomCallback(Callback):
 
-    def __init__(self, model, x_train, x_test, y_train, y_test, filename, mean_baseline, median_baseline, loss):
+    def __init__(self, train_generator, test_generator, valid_generator, filename, mean_baseline, median_baseline, loss, workers):
         
-        print("Prima callback start")
-        
-        self.model = model
-        self.x_train = x_train
-        self.x_test = x_test
-        self.y_train = y_train
-        self.y_test = y_test
+        self.train_generator = train_generator
+        self.test_generator = test_generator
+        self.valid_generator = valid_generator
         self.filename = filename
         self.loss = loss
-
-        #plt.figure(figsize=(12, 12))
-        #self.ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=2)
-        #self.ax2 = plt.subplot2grid((2, 2), (1, 0))
-        #self.ax3 = plt.subplot2grid((2, 2), (1, 1))
+        self.workers = workers
 
         self.training_losses = []
         self.testing_losses = []
@@ -41,7 +33,13 @@ class PrimaCallback(Callback):
         self.testing_losses.append(logs["val_loss"])
 
 
-    #def on_train_end(self, logs={}):
-        # gph.plot_losses(self.ax1, self.training_losses, self.testing_losses, self.mean_baseline, self.median_baseline, self.loss)
-        # predict(self.model, self.ax2, self.ax3, self.x_train, self.x_test, self.y_train, self.y_test)
-        # plt.savefig(self.filename, bbox_inches=PLOT_BBOX_INCHES)
+    def generate_graph(self, best_model):
+
+        plt.figure(figsize=(12, 12))
+        ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=2)
+        ax2 = plt.subplot2grid((2, 2), (1, 0))
+        ax3 = plt.subplot2grid((2, 2), (1, 1))
+
+        gph.plot_losses(ax1, self.training_losses, self.testing_losses, self.mean_baseline, self.median_baseline, self.loss)
+        predict(best_model, ax2, ax3, self.train_generator, self.test_generator, self.valid_generator, self.max_hours, self.workers)
+        plt.savefig(self.filename, bbox_inches=PLOT_BBOX_INCHES)

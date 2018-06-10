@@ -54,7 +54,9 @@ def create_space(embedding_type, lstm_count, conform_type, workers):
             ]),
             'loss': 'mean_absolute_error',
             'workers': int(workers)
-        }
+        },
+        "min_delta": 0.05,
+        "patience": 5
     }
 
     if int(lstm_count) == 2:
@@ -92,37 +94,10 @@ def objective(configuration):
     configuration = remove_negative_values(configuration)
     print(configuration)
 
-    training_dataset_name = configuration['training_dataset_id']
     training_session_id = configuration['training_session_id']
-
     training_session_folder = "%s/%s" % (RESULTS_FOLDER, training_session_id)
-    create_subfolder(training_session_folder, configuration["run_id"], rewrite=True)
-
-    notes_filename = "%s/%s/notes.txt" % (training_session_folder, configuration["run_id"])
-    with open(notes_filename, "a") as notes_file:
-        print(json.dumps(configuration, indent=JSON_INDENT), file=notes_file)
-
-    emb_config = configuration["word_embeddings"]    
-    gensim_model = None
-    if emb_config["type"] == "gensim":
-        gensim_model = train_gensim(
-            training_dataset_name,
-            emb_config["algorithm"],
-            emb_config["embedding_size"],
-            emb_config["minimum_count"],
-            emb_config["window_size"], 
-            emb_config["iterations"],
-            notes_filename,
-            save=False)
-
-    loss, val_loss = train_on_dataset(
-        training_dataset_name,
-        emb_config["type"],
-        configuration,
-        notes_filename,
-        session_id=training_session_id,
-        run_id=configuration["run_id"],
-        gensim_model=gensim_model)
+    create_subfolder(training_session_folder, configuration["run_id"], rewrite=False)
+    loss, val_loss = train_on_dataset(configuration)
 
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, training_session_id, RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     with open(log_filename, "a") as log_file:
@@ -135,12 +110,10 @@ def objective(configuration):
     }
 
 
-def optimize_model(training_dataset_id, embedding_type, lstm_count, conform_type, min_project_size, min_word_count, workers, training_session_id = None):
+def optimize_model(embedding_type, lstm_count, conform_type, training_dataset_id, min_project_size, min_word_count, workers, training_session_id = None):
 
     space = create_space(embedding_type, lstm_count, conform_type, workers)
-
     space["training_dataset_id"] = training_dataset_id
-    
     if training_session_id == None:
         space["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), training_dataset_id, embedding_type)
         create_subfolder(RESULTS_FOLDER, space["training_session_id"])
@@ -173,9 +146,7 @@ def optimize_model(training_dataset_id, embedding_type, lstm_count, conform_type
     log_filename = "%s/%s/%s%s" % (RESULTS_FOLDER, space["training_session_id"], RESULTS_FILENAME, TEXT_FILE_EXTENSION)
     filter_data(training_dataset_id, filter_config, log_filename if run_id == 1 else None)
 
-    
     evals = 150 if embedding_type == "spacy" else 200
-
     for eval_num in range(run_id, evals + 1):
 
         space["run_id"] = eval_num
@@ -193,6 +164,7 @@ def optimize_model(training_dataset_id, embedding_type, lstm_count, conform_type
     print(best)
 
 if __name__ == "__main__":
+
     optimize_model(
         sys.argv[1],
         sys.argv[2],

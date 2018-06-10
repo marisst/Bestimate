@@ -13,19 +13,23 @@ from utilities.constants import *
 
 SPLIT_PERCENTAGE = 75
 
-def predict(model, ax_left, ax_right, training_generator, testing_generator, y_train, y_test):
+def predict(model, ax_left, ax_right, train_generator, test_generator, valid_generator, max_hours, workers):
 
     ax_left.clear()
     ax_right.clear()
     
     # predict
-    training_predictions = model.predict_generator(training_generator, use_multiprocessing=True, workers=WORKERS)
-    testing_predictions = model.predict_generator(testing_generator, use_multiprocessing=True, workers=WORKERS)
-    max_hours = max([np.max(y_train), np.max(y_test)])
+    print("Predicting on training dataset")
+    training_predictions = model.predict_generator(train_generator, use_multiprocessing=True, workers=workers)
+    print("Predicting on testing dataset")
+    testing_predictions = model.predict_generator(test_generator, use_multiprocessing=True, workers=workers)
+    print("Predicting on validation dataset")
+    validation_predictions = model.predict_generator(valid_generator, use_multiprocessing=True, workers=workers)
 
     # calculate deviations
     training_deviations = [abs(prediction[0] - y_train[i]) for i, prediction in enumerate(training_predictions)]
     testing_deviations = [abs(prediction[0] - y_test[i]) for i, prediction in enumerate(testing_predictions)]
+    validation_deviations = []
 
     gph.create_prediction_scatter(ax_left, "Training dataset predictions", max_hours)
     ax_left.scatter(y_train, training_predictions, c=training_deviations, cmap='coolwarm_r', marker='x', alpha = 0.5)
