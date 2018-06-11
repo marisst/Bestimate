@@ -20,9 +20,8 @@ from training import calculate_baselines as bsl
 from training import load_data as load
 from training import model as mdl
 from training import save_results as save
-from training.callback import CustomCallback
 from training.data_generator import DataGenerator
-from training.graph_helpers import plot_losses
+from training.graph_helpers import plot_losses, create_prediction_scatter
 from utilities.constants import *
 from utilities.file_utils import create_subfolder, get_next_subfolder_name
 from utilities.input_parser import select_from_list
@@ -52,12 +51,12 @@ def gensim_lookup(word_vectors, word):
     return word_vectors.get_vector(word)
 
 
-def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename):
+def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename, fixed_generator_error):
 
     validation_generator = DataGenerator(
         x_valid,
         y_valid,
-        model_params["batch_size"],
+        model_params["batch_size"] if fixed_generator_error == False else len(y_valid),
         True if model_params["lstm_count"] == 2 else False,
         model_params["max_words"],
         vector_dictionary)
@@ -80,6 +79,9 @@ def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function,
 
 
 def train_on_dataset(params, labeled_data=None, generate_graphs = False):
+
+    # this is because of a bug in generator and reproducibility
+    fixed_generator_error = generate_graphs == True    
 
     if params.get("training_session_id") == None:
         params["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), params["training_dataset_id"], params["word_embeddings"]["type"])
@@ -185,18 +187,13 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
     test_generator = DataGenerator(
         x_test,
         y_test,
-        model_params["batch_size"],
+        model_params["batch_size"] if fixed_generator_error == False else len(y_test),
         True if model_params["lstm_count"] == 2 else False,
         model_params["max_words"],
         vector_dictionary)
 
     # train and validate
     callbacks = [save_results, save_best_model, EarlyStopping(min_delta=params["min_delta"], patience=params["patience"])]
-    #if generate_graph == True:
-    #    plot_filename = "%s/%s%s" % (weigths_directory_name, RESULTS_FILENAME, PNG_FILE_XTENSION)
-    #    custom_callback = CustomCallback(x_train, x_test, y_train, y_test, plot_filename, mean_baseline, median_baseline, model_params["loss"], model_params["workers"])
-    #    callbacks.append(custom_callback)
-
     # this sometimes throws OSError 35 on MAC OS X, https://github.com/urllib3/urllib3/issues/63
     history = model.fit_generator(
         generator = training_generator,
@@ -213,16 +210,19 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
     with open(notes_filename, "a") as notes_file:
         print("Test result:", result, file=notes_file)
 
+    best_model = load_model(best_model_filename)
     if generate_graphs == True:
         loss_plot_filename = "%s/%s%s" % (weigths_directory_name, "losses", PNG_FILE_XTENSION)
         train_baseline = min([loss_function(y_train, np.mean(y_train)), loss_function(y_train, np.median(y_train))])
         test_baseline = min([mean_baseline, median_baseline])
         plot_losses(history.history["loss"], history.history["val_loss"], train_baseline, test_baseline, model_params["loss"], loss_plot_filename)
+        for x, y, filename, title in [
+            (x_train, y_train, "%s/%s%s" % (weigths_directory_name, "train_pred", PNG_FILE_XTENSION), "Training dataset predictions"),
+            (x_test, y_test, "%s/%s%s" % (weigths_directory_name, "test_pred", PNG_FILE_XTENSION), "Testing dataset predictions"),
+            (x_valid, y_valid, "%s/%s%s" % (weigths_directory_name, "val_pred", PNG_FILE_XTENSION), "Validation dataset predictions")]:
+            create_prediction_scatter(best_model, x, y, filename, title, model_params, vector_dictionary)
 
-    best_model = load_model(best_model_filename)
-    val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename)    
-    #if generate_graph == True:
-        #custom_callback.generate_graph(best_model)
+    val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename, fixed_generator_error)    
     os.remove(best_model_filename)
 
     return result, val_result
