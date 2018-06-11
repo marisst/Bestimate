@@ -153,7 +153,6 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
         print("Mean loss (test):", mean_baseline, file=notes_file)
         print("Median loss (test):", median_baseline, file=notes_file)
 
-
     # create model
     embedding_size = vector_dictionary.shape[1]
     model = mdl.create_model(model_params["max_words"], embedding_size, model_params)

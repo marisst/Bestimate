@@ -149,16 +149,22 @@ def optimize_model(embedding_type, lstm_count, conform_type, training_dataset_id
     evals = 150 if embedding_type == "spacy" else 200
     for eval_num in range(run_id, evals + 1):
 
-        space["run_id"] = eval_num
-        best = fmin(objective,
-        space=space,
-        algo=tpe.suggest,
-        max_evals=eval_num,
-        trials=trials,
-        rstate=np.random.RandomState(eval_num * 796525))
-
-        with open(trials_filename, "wb") as f:
-            pickle.dump(trials, f)
+        max_trials = 7
+        for _ in range(max_trials):
+            # this sometimes throws OSError 35 on MAC OS X, https://github.com/urllib3/urllib3/issues/63
+            try:
+                space["run_id"] = eval_num
+                best = fmin(objective,
+                space=space,
+                algo=tpe.suggest,
+                max_evals=eval_num,
+                trials=trials,
+                rstate=np.random.RandomState(eval_num * 796525))
+            except OSError:
+                continue
+            with open(trials_filename, "wb") as f:
+                pickle.dump(trials, f)
+            break
 
     print("BEST:")
     print(best)
