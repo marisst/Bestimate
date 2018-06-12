@@ -35,8 +35,9 @@ def train_gensim(dataset, algorithm, embedding_size, minimum_count, window_size,
     seed=7,
     workers=workers)
 
-    with open(notes_filename, "a") as notes_filename:
-        print("Gensim model loss:", model.get_latest_training_loss(), file=notes_filename)
+    if notes_filename is not None:
+        with open(notes_filename, "a") as notes_filename:
+            print("Gensim model loss:", model.get_latest_training_loss(), file=notes_filename)
 
     if save == True:
         filename = get_dataset_filename(dataset, ALL_FILENAME, GENSIM_MODEL, PICKLE_FILE_EXTENSION)

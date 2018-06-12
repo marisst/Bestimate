@@ -14,6 +14,7 @@ from gensim.models import Word2Vec
 import spacy
 from functools import partial
 import os
+import multiprocessing
 
 from embedding_pretraining.train_gensim import train_gensim
 from training import calculate_baselines as bsl
@@ -219,7 +220,13 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
             (x_train, y_train, "%s/%s%s" % (weigths_directory_name, "train_pred", PNG_FILE_XTENSION), "Training dataset predictions"),
             (x_test, y_test, "%s/%s%s" % (weigths_directory_name, "test_pred", PNG_FILE_XTENSION), "Testing dataset predictions"),
             (x_valid, y_valid, "%s/%s%s" % (weigths_directory_name, "val_pred", PNG_FILE_XTENSION), "Validation dataset predictions")]:
-            create_prediction_scatter(best_model, x, y, filename, title, model_params, vector_dictionary)
+            try:
+                create_prediction_scatter(best_model, x, y, filename, title, model_params, vector_dictionary)
+            except multiprocessing.pool.MaybeEncodingError:
+                # ON OS X when data larger than 4 GB
+                continue
+            except OverflowError:
+                continue
 
     val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename, fixed_generator_error)    
     os.remove(best_model_filename)

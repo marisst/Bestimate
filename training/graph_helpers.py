@@ -25,10 +25,10 @@ def plot_losses(training_losses, testing_losses, training_baseline, testing_base
         loss_name = "Root-mean-square error, hours"
 
     if loss == "mean_absolute_error":
-        loss_name = "Mean absolute error"
+        loss_name = "Mean absolute error, hours"
 
     if loss == "mean_absolute_percentage_error":
-        loss_name = "Mean absolute percentage error"
+        loss_name = "Mean absolute percentage error, hours"
 
     min_value = min([min(training_losses), min(testing_losses), training_baseline, testing_baseline])
     max_value = max([max(training_losses), max(testing_losses), training_baseline, testing_baseline])
