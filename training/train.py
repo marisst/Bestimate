@@ -253,11 +253,11 @@ if __name__ == "__main__":
         embedding_config["iterations"] = int(input("Iterations: "))
 
     model_config = {
-        "lstm_count" : select_from_list(
+        "lstm_count" : int(select_from_list(
             "Please select context model type", [
                 "simple LSTM",
                 "two separate LSTMS for summary and description",
-                "bidirectional LSTM"], return_option_indexes=True),
+                "bidirectional LSTM"], return_option_indexes=True)) + 1,
         "lstm_node_count" : int(input("LSTM node count: ")),
         "conform_type" : select_from_list(
             "Select context transformation network type",
@@ -286,7 +286,7 @@ if __name__ == "__main__":
         model_config["lstm_recurrent_dropout"] = float(input("LSTM recurrent dropout: "))
         model_config["lstm_dropout"] = float(input("LSTM dropout: "))
 
-    if model_config["lstm_count"] == 2:
+    if model_config["lstm_count"] == 3:
         model_config["bi_lstm_merge_mode"] = select_from_list(
             "Please select bidirectional LSTM merge mode",
             ["sum", "mul", "concat", "ave"])

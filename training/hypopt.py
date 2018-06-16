@@ -151,6 +151,7 @@ def optimize_model(embedding_type, lstm_count, conform_type, training_dataset_id
 
         max_trials = 7
         for _ in range(max_trials):
+            # maybe because they are accessing the same filtered data? But this is less likely.
             # this sometimes throws OSError 35 on MAC OS X, https://github.com/urllib3/urllib3/issues/63
             try:
                 space["run_id"] = eval_num
