@@ -82,7 +82,7 @@ def create_prediction_scatter(model, x, y, filename, title, model_params, vector
     axs.plot([0, max_plot_hours], [0, max_plot_hours], 'r--')
     axs.set_ylabel("Model estimate, hours", fontsize=FONTSIZE)
     axs.set_xlabel("Time spent, hours", fontsize=FONTSIZE)
-    axs.scatter(y, predictions, c=deviations, cmap='coolwarm_r', marker='x', alpha = 0.5)
+    axs.scatter(y, predictions, c=deviations, cmap='coolwarm_r', marker='x', alpha = 0.2)
 
     plt.savefig(filename, bbox_inches=PLOT_BBOX_INCHES)
 

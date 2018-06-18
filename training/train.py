@@ -15,6 +15,7 @@ import spacy
 from functools import partial
 import os
 import multiprocessing
+import scipy
 
 from embedding_pretraining.train_gensim import train_gensim
 from training import calculate_baselines as bsl
@@ -52,22 +53,24 @@ def gensim_lookup(word_vectors, word):
     return word_vectors.get_vector(word)
 
 
-def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename, fixed_generator_error):
+def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename):
 
     validation_generator = DataGenerator(
         x_valid,
         y_valid,
-        model_params["batch_size"] if fixed_generator_error == False else len(y_valid),
+        len(y_valid),
         True if model_params["lstm_count"] == 2 else False,
         model_params["max_words"],
-        vector_dictionary)
+        vector_dictionary,
+        shuffle=False)
     validation_loss = model.evaluate_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
 
     mean_baseline = loss_function(y_valid, np.mean(y_train))
     median_baseline = loss_function(y_valid, np.median(y_train))
     human_loss = bsl.mean_human_absolute_error(y_valid)
-    validation_result = validation_loss / min([mean_baseline, median_baseline])
-    human_score = (min([mean_baseline, median_baseline]) - validation_loss) / (min([mean_baseline, median_baseline]) - human_loss) * 100
+    baseline = min([mean_baseline, median_baseline])
+    validation_result = validation_loss / baseline
+    human_score = (baseline - validation_loss) / (baseline - human_loss) * 100
 
     with open(notes_filename, "a") as notes_file:
         print("Human loss (valid):", human_loss, file=notes_file)
@@ -76,13 +79,30 @@ def calculate_validation_result(model, x_valid, y_valid, y_train, loss_function,
         print("Validation result:", validation_result, file=notes_file)
         print("Human score (valid):", human_score, file=notes_file)
 
+    predictions = model.predict_generator(generator=validation_generator, use_multiprocessing=True, workers=model_params["workers"])
+
+    if mean_baseline < median_baseline:
+        baseline_prediction = np.mean(y_train)
+    else:
+        baseline_prediction = np.median(y_train)
+
+    baseline_errors = []
+    prediction_errors = []
+
+    for i in range(len(y_valid)):
+
+        baseline_error = abs(y_valid[i] - baseline_prediction)
+        prediction_error = abs(y_valid[i] - predictions[i])[0]
+        baseline_errors.append(baseline_error)
+        prediction_errors.append(prediction_error)
+
+    wilcoxon_result = scipy.stats.wilcoxon(baseline_errors, prediction_errors)
+    print(wilcoxon_result)
+
     return validation_result
 
 
-def train_on_dataset(params, labeled_data=None, generate_graphs = False):
-
-    # this is because of a bug in generator and reproducibility
-    fixed_generator_error = generate_graphs == True    
+def train_on_dataset(params, labeled_data=None, generate_graphs = False): 
 
     if params.get("training_session_id") == None:
         params["training_session_id"] = "%s_%s_%s" % (get_next_subfolder_name(RESULTS_FOLDER), params["training_dataset_id"], params["word_embeddings"]["type"])
@@ -97,7 +117,7 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
         print(json.dumps(params, indent=JSON_INDENT), file=notes_file) 
 
     config = K.tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.1
+    config.gpu_options.per_process_gpu_memory_fraction = 0.25
     K.set_session(K.tf.Session(config=config))
 
     embedding_type = params["word_embeddings"]["type"]
@@ -187,10 +207,11 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
     test_generator = DataGenerator(
         x_test,
         y_test,
-        model_params["batch_size"] if fixed_generator_error == False else len(y_test),
+        len(y_test),
         True if model_params["lstm_count"] == 2 else False,
         model_params["max_words"],
-        vector_dictionary)
+        vector_dictionary,
+        shuffle=False)
 
     # train and validate
     callbacks = [save_results, save_best_model, EarlyStopping(min_delta=params["min_delta"], patience=params["patience"])]
@@ -217,7 +238,7 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
         test_baseline = min([mean_baseline, median_baseline])
         plot_losses(history.history["loss"], history.history["val_loss"], train_baseline, test_baseline, model_params["loss"], loss_plot_filename)
         for x, y, filename, title in [
-            (x_train, y_train, "%s/%s%s" % (weigths_directory_name, "train_pred", PNG_FILE_XTENSION), "Training dataset predictions"),
+            #(x_train, y_train, "%s/%s%s" % (weigths_directory_name, "train_pred", PNG_FILE_XTENSION), "Training dataset predictions"),
             (x_test, y_test, "%s/%s%s" % (weigths_directory_name, "test_pred", PNG_FILE_XTENSION), "Testing dataset predictions"),
             (x_valid, y_valid, "%s/%s%s" % (weigths_directory_name, "val_pred", PNG_FILE_XTENSION), "Validation dataset predictions")]:
             try:
@@ -228,7 +249,7 @@ def train_on_dataset(params, labeled_data=None, generate_graphs = False):
             except OverflowError:
                 continue
 
-    val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename, fixed_generator_error)    
+    val_result = calculate_validation_result(best_model, x_valid, y_valid, y_train, loss_function, model_params, vector_dictionary, notes_filename)    
     os.remove(best_model_filename)
 
     return result, val_result

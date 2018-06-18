@@ -15,15 +15,15 @@ def gensim_lookup(word_vectors, word):
     
     return word_vectors.get_vector(word)
 
-weigths_directory_name = "results/23_ap_gensim/manual"
+weigths_directory_name = "results/78_all_gensim/manual"
 
 gensim_model = train_gensim(
-        "ap",
+        "all",
         "skip-gram",
-        469,
-        11,
-        7, 
-        11,
+        292,
+        10,
+        9, 
+        10,
         None,
         save=False,
         workers=2)
@@ -42,25 +42,13 @@ best_model_filename = weigths_directory_name + "/model.h5"
 best_model = load_model(best_model_filename)
 
 model_params = {
-    "lstm_count": "0",
-    "lstm_node_count": 99,
-    "conform_type": "hway",
-    "conform_layer_count": 104,
-    "conform_activation": "tanh",
-    "dropout": 0.626346855852103,
-    "batch_size": 512,
+    "lstm_count": 3,
     "loss": "mean_absolute_error",
     "workers": 2,
-    "optimizer": [
-        "adam",
-        0.0025851354140512027
-    ],
     "max_words": [
         100,
         0
-    ],
-    "lstm_recurrent_dropout": 0.4665387396053841,
-    "lstm_dropout": 0.602105113594757
+    ]
 }
 
 for x, y, filename, title in [
