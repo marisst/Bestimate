@@ -1,5 +1,5 @@
 # Bestimate
-Bestimate let's you train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018.
+Bestimate lets you train a neural network model to estimate JIRA issues from public and private repositories. The solution was developed as a part of a master thesis project at Norwegian University of Science and Technology in Spring 2018. The accuracy is not close to human expert, but this can be used as a basis for developing a more sophisticated model which maybe in the future will let us code without estimating.
 
 ## 1. Data Collection
 The model uses JIRA issue summary and description field text and reported time spent on issue completion to learn the relationship between them. If you will be running the model on a private JIRA repository, please jump over to [Fetching Data from JIRA Repository](#fetching-data-from-jira-repository). If you want to fetch data from several publicly available JIRA repositories with a single command, check [Bulk Fetch](#bulk-fetch). This package contains a list of publicy available JIRA repositories gathered by an exhaustive search on the Internet. However, you can use the commands described in the next section to find new publicly available repositories.
@@ -42,14 +42,14 @@ Both a data from a single repository, a selection of repositories or all downloa
 ### Merging Data from Multiple Repositories, Selecting and Excluding Projects
 Datasets for model training and testing are composed from the cleaned data fetched from JIRA repositories. At this stage data from several JIRA repositories can be merged together and particular projects can be selected or excluded from the training and testing datasets.
 ```
-python -m preprocess.merge DATASET1 DATASET2
+python -m data_preprocessing.merge_data
 ```
 If you whish to create a training and testing dataset from one repository only, just pass the name of that single repository. If no datasets are selected, all available datasets will get merged together in a new dataset. Each new merged dataset is automatically assigned a hexadecimal sequence number and saved in `data/merged` folder.
 
 ### Filtering Merged Data To Create Training Dataset
 Datapoints with short textual descriptions, extreme outliers and small projects can be removed as well as skewed data distributions can be made even by using the filtering module. The module can also make skewed data distributions even by removing datapoints from any bins that are more populated than the least populated one.
 ```
-python -m preprocess.filter A
+python -m data_preprocessing.filter_data
 ```
 Replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to filter.
 
@@ -58,21 +58,23 @@ The statistics module allow you to get to know the data better.
 
 ### Time Spent Distribution
 ```
-python -m statistics.label_distribution A
+python -m insights.label_distribution A
 ```
 To create a histogram of `timespent` field distribution, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish explore. Since the model tries to predict `timespent` it is also called "label". A histogram like the one below will be generated and saved in `data/statistics` directory.
 ![label_distribution example](readme_images/label_distribution_example.png)
 
 ### Project Size Distribution
 ```
-python -m statistics.project_size A
+python -m insights.project_size A
 ```
 To create a histogram of project size distribution, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to explore. Project size is defined as the number of labeled issues in a project. A histogram like the one below will be generated and saved in `data/statistics` directory.
 ![project_size example](readme_images/project_size_example.png)
 
 ### Text Length Distribution
 ```
-python -m statistics.text_length A
+python -m insights.text_length A
 ```
 To create a histogram of text length, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to explore. Text length is measured as the number of words in summary and description fields of labeled tasks. A histogram like the one below will be generated and saved in `data/statistics` directory.
 ![text_length example](readme_images/text_length_example.png)
+
+Documentation is to be continued very soon.
