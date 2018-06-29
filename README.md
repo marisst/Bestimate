@@ -77,4 +77,22 @@ python -m insights.text_length A
 To create a histogram of text length, replace `A` with the hexadecimal sequence number of the training and testing dataset which you wish to explore. Text length is measured as the number of words in summary and description fields of labeled tasks. A histogram like the one below will be generated and saved in `data/statistics` directory.
 ![text_length example](readme_images/text_length_example.png)
 
-Documentation is to be continued very soon.
+## Training
+
+To train a model on the data with a particular configuration:
+```
+python -m training.train
+```
+To run hyperparameter optimization on a particular model architecture:
+```
+python -m training.hypopt EMBEDDING_TYPE LSTM_COUNT CONTEXT_TRANSFORMATION_TYPE TRAINING_DATASET_ID MIN_PROJECT_SIZE MIN_WORD_COUNT WORKERS TRAINING_SESSION_ID
+```
+- EMBEDDING_TYPE: `spacy` for word vectores trained on general English text corpus or `gensim` for word embeddings pretraining on unlabeled data
+- LSTM_COUNT: `1` for single LSTM context encoding network; `2` for separate LSTM networks for task summary and descriptions fields; `bi` for bidirectional LSTM
+- CONTEXT_TRANSFORMATION_TYPE: `dense` for interconnected network or `hway` for a highway network
+- TRAINING_DATASET_ID: the identifier of a merged training dataset
+- MIN_PROJECT_SIZE: minimum number of resolved issues with time spent logged in a project necessary to be selected for training
+- MIN_WORD_COUNT: minimum word count in summary and description field concatenated
+- WORKERS: the number of workers for the training process
+- TRAINING_SESSION_ID: optional parameter, the identifier of an interuppted hyperparameter optimization training session that is to be continued
+
